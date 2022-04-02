@@ -1,0 +1,84 @@
+# -*-coding:utf-8 -*-
+import tensorflow as tf
+from dataset.base_dataset import GeneratorDataset
+
+
+class SeqDataset(GeneratorDataset):
+    def __init__(self, data_dir, batch_size, max_seq_len, tokenizer, enable_cache):
+        self.max_seq_len = max_seq_len
+        self.tokenizer = tokenizer
+        super(SeqDataset, self).__init__(data_dir, batch_size, enable_cache)
+
+    def build_proto(self):
+        self.dtypes = {
+            'input_ids': tf.int32,
+            'segment_ids': tf.int32,
+            'seq_len': tf.int32,
+            'label': tf.int32
+        }
+        self.shapes = {
+            'input_ids': [None],
+            'segment_ids': [None],
+            'seq_len': [],
+            'lable': []
+        }
+        self.pads = {
+            'input_ids': self.tokenizer.convert_tokens_to_ids(['[PAD]'])[0],
+            'segment_ids': 1,
+            'seq_len': 0,
+            'label': 0
+        }
+
+        self.label_names = ['label']
+        self.feature_names = ['input_ids', 'segment_ids', 'seq_len']
+
+    def build_single_feature(self, data):
+        tokens = self.tokenizer.tokenze(data['text'][:self.max_seq_len])
+        tokens = tokens[:(self.max_seq_len-2)]
+        tokens = ['[CLS]'] + tokens + ['[SEP]']
+        seq_len = len(tokens)
+        input_ids = self.tokenizer.convert_tokens_to_ids(tokens)
+        segment_ids = [0] * seq_len
+        return {
+            'input_ids': input_ids,
+            'segment_ids': segment_ids,
+            'seq_len': seq_len,
+            'label': int(data['label'])
+        }
+
+
+class WordDataset(GeneratorDataset):
+    def __init__(self, data_dir, batch_size, max_seq_len, tokenizer, enable_cache):
+        self.max_seq_len = max_seq_len
+        self.tokenizer = tokenizer
+        super(WordDataset, self).__init__(data_dir, batch_size, enable_cache)
+
+    def build_proto(self):
+        self.dtypes = {
+            'input_ids': tf.int32,
+            'seq_len': tf.int32,
+            'label': tf.int32
+        }
+        self.shapes = {
+            'input_ids': [None],
+            'seq_len': [],
+            'lable': []
+        }
+        self.pads = {
+            'input_ids': self.tokenizer.convert_tokens_to_ids(['[PAD]'])[0],
+            'seq_len': 0,
+            'label': 0
+        }
+
+        self.label_names = ['label']
+        self.feature_names = ['input_ids', 'seq_len']
+
+    def build_single_feature(self, data):
+        tokens = self.tokenizer.tokenze(data['text'][:self.max_seq_len])
+        seq_len = len(tokens)
+        input_ids = self.tokenizer.convert_tokens_to_ids(tokens)
+        return {
+            'input_ids': input_ids,
+            'seq_len': seq_len,
+            'label': int(data['label'])
+        }
