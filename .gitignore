@@ -1,0 +1,8 @@
+.DS_Store
+.idea/
+*/__pycache__/*
+*/*/__pycache__/*
+__pycache__/
+pretrain/*/*.vec*
+pretrain/*/*.ckpt*
+pretrain/*/*.bz2
