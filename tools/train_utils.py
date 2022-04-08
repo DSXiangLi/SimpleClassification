@@ -57,6 +57,7 @@ class FlipGradientBuilder(object):
 
         return y
 
+
 def get_log_hook(loss, save_steps):
     hook = {}
     hook['global_step'] = tf.train.get_or_create_global_step()
