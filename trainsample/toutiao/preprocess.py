@@ -29,8 +29,9 @@ def main():
     with open(os.path.join(data_dir, 'toutiao_cat_data.txt'), 'r') as f:
         for line in f.readlines():
             df.append(line.strip().split('_!_'))
-    df = pd.DataFrame(df, columns = ['gid','cat_id','cat','title','keywords'])
+    df = pd.DataFrame(df, columns = ['gid', 'cat_id', 'cat', 'title', 'keywords'])
     df['label'] = df['cat'].map(lambda x: CategoryMapping[x])
+
     train, test = train_test_split(df, test_size=0.2)
     train, valid = train_test_split(train, test_size=0.2)
 
