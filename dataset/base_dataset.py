@@ -53,15 +53,15 @@ class BaseDataset(object):
 
 
 class SampleCache(object):
-    def __init__(self, data_dir, enable_cache):
+    def __init__(self, data_dir, enable_cache, clear_cache):
         self.data_dir = data_dir
         self.enable_cache = enable_cache
+        self.clear_cache = clear_cache
 
     def cache_file(self, file_name):
         return os.path.join(self.data_dir, 'cache_{}.pkl'.format(file_name))
 
-    def _load(self, file_name):
-        file = self.cache_file(file_name)
+    def _load(self, file):
         try:
             logger.info('Loading Cache from {}'.format(file))
             with open(file, 'rb') as f:
@@ -78,16 +78,19 @@ class SampleCache(object):
         logger.info('Dumping Cache to {}'.format(file))
 
     def load(self, file_name):
+        file = self.cache_file(file_name)
+        if self.clear_cache:
+            os.remove(file)
         if self.enable_cache:
-            return self._load(file_name)
+            return self._load(file)
         else:
             return []
 
 
 class GeneratorDataset(BaseDataset):
-    def __init__(self, data_dir, batch_size, enable_cache):
+    def __init__(self, data_dir, batch_size, enable_cache, clear_cache):
         super(GeneratorDataset, self).__init__(data_dir, batch_size)
-        self.cacher = SampleCache(data_dir, enable_cache)
+        self.cacher = SampleCache(data_dir, enable_cache, clear_cache)
 
     def build_feature(self, file_name):
         """

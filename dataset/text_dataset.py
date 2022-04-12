@@ -4,10 +4,10 @@ from dataset.base_dataset import GeneratorDataset
 
 
 class SeqDataset(GeneratorDataset):
-    def __init__(self, data_dir, batch_size, max_seq_len, tokenizer, enable_cache):
+    def __init__(self, data_dir, batch_size, max_seq_len, tokenizer, enable_cache, clear_cache):
         self.max_seq_len = max_seq_len
         self.tokenizer = tokenizer
-        super(SeqDataset, self).__init__(data_dir, batch_size, enable_cache)
+        super(SeqDataset, self).__init__(data_dir, batch_size, enable_cache, clear_cache)
 
     def build_proto(self):
         self.dtypes = {
@@ -48,10 +48,10 @@ class SeqDataset(GeneratorDataset):
 
 
 class WordDataset(GeneratorDataset):
-    def __init__(self, data_dir, batch_size, max_seq_len, tokenizer, enable_cache):
+    def __init__(self, data_dir, batch_size, max_seq_len, tokenizer, enable_cache, clear_cache):
         self.max_seq_len = max_seq_len
         self.tokenizer = tokenizer
-        super(WordDataset, self).__init__(data_dir, batch_size, enable_cache)
+        super(WordDataset, self).__init__(data_dir, batch_size, enable_cache, clear_cache)
 
     def build_proto(self):
         self.dtypes = {
@@ -86,8 +86,8 @@ class WordDataset(GeneratorDataset):
 
 if __name__ =='__main__':
     from dataset.tokenizer import get_tokenizer
-    tokenizer = get_tokenizer('bert_base')
-
-    pipe = SeqDataset('./trainsample/weibo',5, 50, tokenizer, True)
-
+    pipe = SeqDataset('./trainsample/weibo',5, 50, get_tokenizer('bert_base'), True)
     pipe.build_feature('train')
+
+    pipe = WordDataset('./trainsample/weibo',5, 50, get_tokenizer('word2vec_baike'), False)
+    pipe.build_feature('test')
