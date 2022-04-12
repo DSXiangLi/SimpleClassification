@@ -52,7 +52,8 @@ def main():
     parser.add_argument("--do_export", action='store_true', default=False) # 导出模型
 
     #其他
-    parser.add_argument("--enable_cache", action='store_true', default=False) # 使用之前cache的特征
+    parser.add_argument("--enable_cache", action='store_true', default=False) # 使用之前tokenizer cache的特征
+    parser.add_argument("--clear_cache", action='store_true', default=False) # 清楚之前tokenizer cache的特征
     parser.add_argument("--thresholds", default='0.6,0.7,0.8,0.9') # 评估F1的阈值
 
     args = parser.parse_args()
@@ -79,6 +80,7 @@ def main():
         'label_size': args.label_size,
         'lr': args.lr,
         'enable_cache': args.enable_cache,
+        'clear_cache': args.clear_cache,
 
         'epoch_size': args.epoch_size,
         'batch_size': args.batch_size,

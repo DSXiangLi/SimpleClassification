@@ -12,7 +12,5 @@ python main.py \
   --use_gpu \
   --device 3\
   --enable_cache\
-  --clear_mode \
-  --do_train\
   --do_eval\
   --do_export
