@@ -20,7 +20,7 @@ class SeqDataset(GeneratorDataset):
             'input_ids': [None],
             'segment_ids': [None],
             'seq_len': [],
-            'lable': []
+            'label': []
         }
         self.pads = {
             'input_ids': self.tokenizer.convert_tokens_to_ids(['[PAD]'])[0],
@@ -33,7 +33,7 @@ class SeqDataset(GeneratorDataset):
         self.feature_names = ['input_ids', 'segment_ids', 'seq_len']
 
     def build_single_feature(self, data):
-        tokens = self.tokenizer.tokenze(data['text'][:self.max_seq_len])
+        tokens = self.tokenizer.tokenize(data['text'][:self.max_seq_len])
         tokens = tokens[:(self.max_seq_len-2)]
         tokens = ['[CLS]'] + tokens + ['[SEP]']
         seq_len = len(tokens)
@@ -62,7 +62,7 @@ class WordDataset(GeneratorDataset):
         self.shapes = {
             'input_ids': [None],
             'seq_len': [],
-            'lable': []
+            'label': []
         }
         self.pads = {
             'input_ids': self.tokenizer.convert_tokens_to_ids(['[PAD]'])[0],
@@ -74,7 +74,7 @@ class WordDataset(GeneratorDataset):
         self.feature_names = ['input_ids', 'seq_len']
 
     def build_single_feature(self, data):
-        tokens = self.tokenizer.tokenze(data['text'][:self.max_seq_len])
+        tokens = self.tokenizer.tokenize(data['text'][:self.max_seq_len])
         seq_len = len(tokens)
         input_ids = self.tokenizer.convert_tokens_to_ids(tokens)
         return {
@@ -82,3 +82,12 @@ class WordDataset(GeneratorDataset):
             'seq_len': seq_len,
             'label': int(data['label'])
         }
+
+
+if __name__ =='__main__':
+    from dataset.tokenizer import get_tokenizer
+    tokenizer = get_tokenizer('bert_base')
+
+    pipe = SeqDataset('./trainsample/weibo',5, 50, tokenizer, True)
+
+    pipe.build_feature('train')

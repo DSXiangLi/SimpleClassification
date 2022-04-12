@@ -17,6 +17,7 @@ class BaseDataset(object):
         self.pads = {}
         self.feature_names = []
         self.label_names = []
+        self.build_proto()
 
     @property
     def sample_size(self):
@@ -67,7 +68,7 @@ class SampleCache(object):
                 sample = pickle.load(f)
             return sample
         except Exception as e:
-            logger.inof(e)
+            logger.info(e)
             return []
 
     def dump(self, samples, file_name):
