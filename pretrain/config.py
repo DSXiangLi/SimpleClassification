@@ -8,7 +8,7 @@ PTM = namedtuple('PTM', ['model_dir', 'model_file'])
 
 PRETRAIN_CONFIG = {
     'bert_base': PTM('pretrain/chinese_L-12_H-768_A-12', 'bert_model.ckpt'),
-    'roberta_base': PTM('pretrain/roeberta_zh_L-24_H-1024_A-16', 'bert_model.ckpt'),
+    'roberta_base': PTM('pretrain/roberta_zh_L-24_H-1024_A-16', 'bert_model.ckpt'),
     'bert_base_wwm': PTM('pretrain/chinese_wwm_L-12_H-768_A-12', 'bert_model.ckpt'),
 
     'fasttext':  PTM('pretrain_model/fasttext', 'cc.zh.300.bin'),
