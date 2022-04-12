@@ -10,9 +10,9 @@ from sklearn.metrics import roc_auc_score, average_precision_score, precision_sc
 
 def pr_summary_hook(probs, labels, num_threshold, output_dir, save_steps):
     pr_summary = summary.pr_curve( name='pr_curve',
-                                   predictions=probs[:,1],
-                                   labels=tf.cast( labels, tf.bool ),
-                                   num_thresholds= num_threshold )
+                                   predictions=probs[:, 1],
+                                   labels=tf.cast(labels, tf.bool),
+                                   num_thresholds=num_threshold )
 
     summary_hook = tf.train.SummarySaverHook(
         save_steps= save_steps,
@@ -21,17 +21,18 @@ def pr_summary_hook(probs, labels, num_threshold, output_dir, save_steps):
     )
     return summary_hook
 
-def binary_cls_metrics(probs, labels, threshold):
-    prediction = tf.to_float(tf.greater_equal(probs[:, 1], threshold))
+
+def binary_cls_metrics(probs, labels):
+    prediction = tf.argmax(probs, axis=-1)
     precision, precision_op = tf.metrics.precision(labels, predictions=prediction)
     recall, recall_op = tf.metrics.recall(labels, predictions=prediction)
     f1 = 2 * (precision * recall) / (precision + recall)
 
     eval_metric_ops = {
         'metrics/accuracy': tf.metrics.accuracy(labels, predictions=prediction),
-        'metrics/auc': tf.metrics.auc(labels, predictions=probs[:1], curve='ROC',
+        'metrics/auc': tf.metrics.auc(labels, predictions=probs[:, 1], curve='ROC',
                                       summation_method='careful_interpolation'),
-        'metrics/pr': tf.metrics.auc(labels, predictions=probs[:1], curve='PR',
+        'metrics/pr': tf.metrics.auc(labels, predictions=probs[:, 1], curve='PR',
                                      summation_method='careful_interpolation'),
         'metrics/precision': (precision, precision_op),
         'metrics/recall': (recall, recall_op),
@@ -47,6 +48,7 @@ def binary_cls_report(probs, labels, thresholds):
         labels: (n_samples,)
         threhosld: 计算不同阈值下的precision，recall和f1
     """
+    probs = [i[1] for i in probs]
     auc = roc_auc_score(labels, probs)
     ap = average_precision_score(labels, probs)
     # Precision & Recall by threshold
