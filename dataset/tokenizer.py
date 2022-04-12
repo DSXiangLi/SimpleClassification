@@ -1,10 +1,14 @@
 # -*-coding:utf-8 -*-
-import jieba
+import jieba_fast as jieba
 import os
 import numpy as np
 from functools import partial
-import importlib
 from pretrain.config import PRETRAIN_CONFIG
+from tools.logger import logger
+from gensim.test.utils import datapath, get_tmpfile
+from gensim.models import KeyedVectors
+from gensim.scripts.glove2word2vec import glove2word2vec
+from pathlib import Path
 
 
 class CustomTokenizer(object):
@@ -70,7 +74,22 @@ class GensimJiebaTokenizer(JiebaTokenizer):
             self._add_embedding()
 
 
+def glove2wv(model_name):
+    abs_path = Path(__file__).absolute().parent
+
+    glove_file = datapath(os.path.join(abs_path, model_name))
+    tmp_file = get_tmpfile(os.path.join(abs_path, model_name + 'tmp'))
+    if os.path.isfile(os.path.join(abs_path, tmp_file)):
+        print('Tmp file already existed, only generate tmp file 1 time')
+    else:
+        _ = glove2word2vec(glove_file, tmp_file)
+
+    model = KeyedVectors.load_word2vec_format(tmp_file)
+    return model
+
+
 def get_fasttext_tokenizer(vocab_file, **kwargs):
+    logger.info('Loading vocab_file {} '.format(vocab_file))
     from gensim.models.wrappers import FastText
     model = FastText.load_fasttext_format(vocab_file)
     tokenizer = GensimJiebaTokenizer(model, **kwargs)
@@ -80,6 +99,7 @@ def get_fasttext_tokenizer(vocab_file, **kwargs):
 
 def get_word2vec_tokenizer(vocab_file, **kwargs):
     from gensim.models import KeyedVectors
+    logger.info('Loading vocab_file {} '.format(vocab_file))
     model = KeyedVectors.load_word2vec_format(vocab_file)
     tokenizer = GensimJiebaTokenizer(model, **kwargs)
     tokenizer.init_vocab()
@@ -87,13 +107,14 @@ def get_word2vec_tokenizer(vocab_file, **kwargs):
 
 
 def get_glove_tokenizer(vocab_file, **kwargs):
-    from pretrain.glove_2_wv import convert
-    model = convert(model_dir)
+    logger.info('Loading vocab_file {} '.format(vocab_file))
+    model = glove2wv(vocab_file)
     tokenizer = GensimJiebaTokenizer(model, **kwargs)
     return tokenizer
 
 
 def get_bert_tokenizer(vocab_file, **kwargs):
+    logger.info('Loading vocab_file {} '.format(vocab_file))
     from bert_base.bert import tokenization
     tokenizer = tokenization.FullTokenizer(vocab_file,  **kwargs)
     return tokenizer
