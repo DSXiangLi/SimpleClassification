@@ -12,8 +12,8 @@ PRETRAIN_CONFIG = {
     'bert_base_wwm': PTM('pretrain/chinese_wwm_L-12_H-768_A-12', 'bert_model.ckpt'),
 
     'fasttext':  PTM('pretrain_model/fasttext', 'cc.zh.300.bin'),
-    'word2vec_news': PTM('pretrain/people_daily_news', 'sgns.renmin.bigram-char.bz2'),
-    'word2vec_baike': PTM('pretrain/baidu_news', 'sgns.merge.word'),
+    'word2vec_news': PTM('pretrain/word2vec_news', 'sgns.renmin.bigram-char.bz2'),
+    'word2vec_baike': PTM('pretrain/word2vec_baike', 'sgns.merge.word'),
 
     'ctb50': PTM('pretrain/ctb50', 'ctb.50d.vec'),
     'giga': PTM('pretrain/giga', 'gigaword_chn.all.a2b.uni.ite50.vec')
