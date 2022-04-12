@@ -1,10 +1,25 @@
 # -*-coding:utf-8 -*-
-
+"""
+    二分类/多分类 TF Metrics & Evaluation Report
+"""
 import tensorflow as tf
 import pandas as pd
-
+from tensorboard import summary
 from sklearn.metrics import roc_auc_score, average_precision_score, precision_score, recall_score, accuracy_score
 
+
+def pr_summary_hook(probs, labels, num_threshold, output_dir, save_steps):
+    pr_summary = summary.pr_curve( name='pr_curve',
+                                   predictions=probs[:,1],
+                                   labels=tf.cast( labels, tf.bool ),
+                                   num_thresholds= num_threshold )
+
+    summary_hook = tf.train.SummarySaverHook(
+        save_steps= save_steps,
+        output_dir= output_dir,
+        summary_op=[pr_summary]
+    )
+    return summary_hook
 
 def binary_cls_metrics(probs, labels, threshold):
     prediction = tf.to_float(tf.greater_equal(probs[:, 1], threshold))
@@ -26,6 +41,12 @@ def binary_cls_metrics(probs, labels, threshold):
 
 
 def binary_cls_report(probs, labels, thresholds):
+    """
+    二分类任务Evaluation
+        probs: (n_samples,)
+        labels: (n_samples,)
+        threhosld: 计算不同阈值下的precision，recall和f1
+    """
     auc = roc_auc_score(labels, probs)
     ap = average_precision_score(labels, probs)
     # Precision & Recall by threshold
@@ -44,3 +65,22 @@ def binary_cls_report(probs, labels, thresholds):
                                   'auc': "{:.1%}".format,'ap': "{:.1%}".format
                                   })
     return df
+
+def multi_cls_report(probs, labels, idx2tag):
+    """
+    多分类任务Evaluation
+    probs： (n_samples, n_classes)
+    labels:  (n_samples, n_classes)
+    idx2tag: label到分类的
+    """
+    pass
+
+
+def cls_report(probs, labels, idx2tag=None, threshold=None):
+    """
+    分类任务Evaluation Wrapper
+    """
+    if probs[0].shape ==2:
+        # 二分类任务: probs和label
+        probs = []
+        pass
