@@ -3,7 +3,7 @@ import jieba_fast as jieba
 import os
 import numpy as np
 from functools import partial
-from pretrain.config import PRETRAIN_CONFIG
+from collections import namedtuple
 from tools.logger import logger
 from gensim.test.utils import datapath, get_tmpfile
 from gensim.models import KeyedVectors
@@ -80,8 +80,10 @@ class GensimJiebaTokenizer(JiebaTokenizer):
 
 
 def glove2wv(model_name):
+    """
+    Change Glove embedding format to gensim word2vec format
+    """
     abs_path = Path(__file__).absolute().parent
-
     glove_file = datapath(os.path.join(abs_path, model_name))
     tmp_file = get_tmpfile(os.path.join(abs_path, model_name + 'tmp'))
     if os.path.isfile(os.path.join(abs_path, tmp_file)):
@@ -124,6 +126,21 @@ def get_bert_tokenizer(vocab_file, **kwargs):
     tokenizer = tokenization.FullTokenizer(vocab_file,  **kwargs)
     return tokenizer
 
+
+PTM = namedtuple('PTM', ['model_dir', 'model_file'])
+
+PRETRAIN_CONFIG = {
+    'bert_base': PTM('pretrain/chinese_L-12_H-768_A-12', 'bert_model.ckpt'),
+    'roberta_base': PTM('pretrain/roberta_zh_L-24_H-1024_A-16', 'bert_model.ckpt'),
+    'bert_base_wwm': PTM('pretrain/chinese_wwm_L-12_H-768_A-12', 'bert_model.ckpt'),
+
+    'fasttext':  PTM('pretrain_model/fasttext', 'cc.zh.300.bin'),
+    'word2vec_news': PTM('pretrain/word2vec_news', 'sgns.renmin.bigram-char.bz2'),
+    'word2vec_baike': PTM('pretrain/word2vec_baike', 'sgns.merge.word'),
+
+    'ctb50': PTM('pretrain/ctb50', 'ctb.50d.vec'),
+    'giga': PTM('pretrain/giga', 'gigaword_chn.all.a2b.uni.ite50.vec')
+}
 
 def get_tokenizer(name, **kwargs):
     """

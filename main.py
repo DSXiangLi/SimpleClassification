@@ -5,7 +5,7 @@ import tensorflow as tf
 from argparse import ArgumentParser
 from tools.loss import LossHP, LossFunc
 from tools.train_utils import clear_model, RUN_CONFIG
-from pretrain.config import PRETRAIN_CONFIG
+from dataset.tokenizer import PRETRAIN_CONFIG
 
 
 def main():
