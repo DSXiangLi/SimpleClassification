@@ -47,24 +47,23 @@ class BaseTrainer(object):
         self.logger.info('Running Prediction for test.text')
         self.input_pipe.build_feature(file)
         predictions = self.estimator.predict(self.input_pipe.build_input_fn(is_predict=True))
-        predictions = [{'pred': i['pred'], 'prob': i['prob']} for i in predictions]
-        return predictions
+        probs = [i['prob'] for i in predictions]
+        return probs
 
     def _eval(self):
-        predictions = self.infer('test')
+        probs = self.infer('test')
         self.logger.info('Dumping Prediction at {}'.format(os.path.join(self.train_params['data_dir'],
                                                                         self.train_params['predict_file'])))
         labels = [i['label'] for i in self.input_pipe.samples]
 
         ##TODO: 区分多分类任务和二分类任务
         with open(os.path.join(self.train_params['data_dir'], self.train_params['predict_file']), 'w') as f:
-            for pred, label in zip(predictions, labels):
-                f.write(json.dumps({'prob': pred['prob'].tolist(), 'pred': pred['pred'].tolist(),
-                                    'label': label}, ensure_ascii=False) + '\n')
+            for prob, label in zip(probs, labels):
+                f.write(json.dumps({'prob': prob.tolist(), 'label': label}, ensure_ascii=False) + '\n')
 
         self.logger.info('='*10 + 'Evaluation Report' + '='*10)
 
-        eval_report = binary_cls_report(predictions, labels, self.train_params['thresholds'])
+        eval_report = binary_cls_report(probs, labels, self.train_params['thresholds'])
         self.logger.info('\n' + eval_report + '\n')
 
     def train(self, train_params, run_config, do_train, do_eval, do_export):
@@ -93,12 +92,12 @@ def build_model_fn(encoder):
             labels = labels['label']
         is_training = (mode == tf.estimator.ModeKeys.TRAIN)
 
-        predictions = encoder(features, params, is_training)
+        predictions, labels = encoder(features, labels, params, is_training)
         probs = tf.nn.softmax(predictions, axis=-1)
 
         # For prediction label is not used
         if mode == tf.estimator.ModeKeys.PREDICT:
-            spec = tf.estimator.EstimatorSpec(mode, predictions={'pred': predictions, 'prob': probs})
+            spec = tf.estimator.EstimatorSpec(mode, predictions={ 'prob': probs})
             return spec
 
         # Custom Loss function
