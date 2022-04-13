@@ -37,8 +37,8 @@ class Fasttext(object):
 
         with tf.variable_scope('avg_pool', reuse=tf.AUTO_REUSE):
             mask = tf.cast(self.get_input_mask(features['seq_len']), tf.float32)
-            input_emb = tf.multiply(input_emb, tf.expand_dims(mask, axis=-1))
-            output_emb = tf.reduce_sum(input_emb, axis=1)/tf.reduce_sum(mask, axis=-1)
+            input_emb = tf.multiply(input_emb, tf.expand_dims(mask, axis=-1)) # mask PAD
+            output_emb = tf.reduce_sum(input_emb, axis=1)/tf.reduce_sum(mask) # divide by number of tokens
             add_layer_summary('output_emb', output_emb)
         return output_emb
 
