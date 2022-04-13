@@ -54,13 +54,13 @@ class BertEncoder(BertBase):
     def __init__(self):
         super().__init__()
 
-    def __call__(self, features, params, is_training):
+    def __call__(self, features, labels, params, is_training):
         self.params = params
         embedding = self.encode(features, is_training)
         with tf.variable_scope('transfer'):
             preds = tf.layers.dense(embedding, units=self.params['label_size'], activation=None, use_bias=True)
             add_layer_summary('preds', preds)
-        return preds
+        return preds, labels
 
     def optimize(self, loss):
         train_op = optimization.create_optimizer(loss, self.params['lr'],
@@ -80,7 +80,8 @@ class Trainer(BaseTrainer):
                                            batch_size=self.train_params['batch_size'],
                                            max_seq_len=self.train_params['max_seq_len'],
                                            tokenizer=get_tokenizer(self.train_params['nlp_pretrain_model']),
-                                           enable_cache=self.train_params['enable_cache'])
+                                           enable_cache=self.train_params['enable_cache'],
+                                           clear_cache=self.train_params['clear_cache'])
         self.input_pipe.build_feature('train')
 
         self.train_params.update({
