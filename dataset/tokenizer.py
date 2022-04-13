@@ -20,10 +20,14 @@ class CustomTokenizer(object):
         self.keep_oov = keep_oov
         self.vocab2idx = None
         self.idx2vocab = None
-        self.embedding = None
-        self.vocab_size = None
+        self._embedding = None
         self.embedding_size = None
+        self.vocab_size = None
         self.addon_vocab = addon_vocab
+
+    @property
+    def embedding(self):
+        return self._embedding.astype(np.float32)
 
     def init_vocab(self):
         raise NotImplementedError
@@ -33,8 +37,8 @@ class CustomTokenizer(object):
         self.vocab_size +=1
 
     def _add_embedding(self):
-        self.embedding = np.vstack((self.embedding,
-                                    np.random.normal(0, 1, size=(1, self.embedding_size))))
+        self._embedding = np.vstack((self._embedding,
+                                     np.random.normal(0, 1, size=(1, self.embedding_size))))
 
     def convert_tokens_to_ids(self, tokens):
         ids = []
@@ -66,9 +70,10 @@ class GensimJiebaTokenizer(JiebaTokenizer):
     def init_vocab(self):
         self.vocab2idx = dict([(word, idx) for idx, word in enumerate(self.model.wv.index2word)])
         self.idx2vocab = dict([(j,i ) for i,j in self.vocab2idx.items()])
-        self.embedding = np.array(self.model.wv.syn0).astype(np.float32)
-        self.vocab_size = len(self.vocab2idx)
 
+        self._embedding = np.array(self.model.wv.syn0)
+        self.vocab_size = len(self.vocab2idx)
+        self.embedding_size = self.embedding.shape[-1]
         for i in self.addon_vocab:
             self._add_vocab(i)
             self._add_embedding()
