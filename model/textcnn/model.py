@@ -10,11 +10,51 @@ hp_list = [HpParser.hp('embedding_dropout', 0.3),
            HpParser.hp('keep_oov', 0),
            HpParser.hp('lower_clip', -5),
            HpParser.hp('upper_clip', 5),
-           HpParser.hp('decay_rate', 0.95)]
+           HpParser.hp('decay_rate', 0.95),
+           HpParser.hp('filter_list', '100,100,100', lambda x: [int(i) for i in x.split(',')]),
+           HpParser.hp('kernel_size_list', '3,4,5', lambda x: [int(i) for i in x.split(',')]),
+           HpParser.hp('cnn_activation', 'relu'),
+           HpParser.hp('concat_cnn', True), # if concat use concat, else use stack
+
+           ]
 hp_parser = HpParser(hp_list)
 
 
-class Fasttext(object):
+def concat_cnn(embedding, filter_list, kernel_size_list, activation):
+    outputs = []
+    for i in range(len(filter_list)):
+        # batch * max_seq_len * filters
+        output = tf.layers.conv1d(
+            inputs=embedding,
+            filters=filter_list[i],
+            kernel_size=kernel_size_list[i],
+            padding='VALID',
+            activation=activation,
+            name='concat_cnn_kernel{}'.format(kernel_size_list[i])
+        )
+        add_layer_summary(output.name, output)
+        outputs.append(tf.reduce_max(output, axis=1))  # batch_size * filters
+    output = tf.concat(outputs, axis=-1)  # batch_size * max_seq_len * sum(filter_list)
+    return output
+
+
+def stack_cnn(embedding, filter_list, kernel_size_list, activation,):
+    for i in range(len(filter_list)):
+        # batch * max_seq_len * filters
+        embedding = tf.layers.conv1d(
+            inputs=embedding,
+            filters=filter_list[i],
+            kernel_size=kernel_size_list[i],
+            padding='VALID',
+            activation=activation,
+            name='stack_cnn_kernel{}'.format(kernel_size_list[i])
+        )
+        add_layer_summary(embedding.name, embedding)
+    output = tf.reduce_max(embedding, axis=1)
+    return output
+
+
+class Textcnn(object):
     def __init__(self):
         self.params = None
         self.embedding = None
@@ -35,11 +75,15 @@ class Fasttext(object):
             input_emb = tf.layers.dropout(input_emb, rate=self.params['embedding_dropout'], seed=1234, training=is_training)
             add_layer_summary('input_emb', input_emb)
 
-        with tf.variable_scope('avg_pool', reuse=tf.AUTO_REUSE):
+        with tf.variable_scope('textcnn', reuse=tf.AUTO_REUSE):
             mask = self.get_input_mask(features['seq_len'])
-            input_emb = tf.multiply(input_emb, tf.expand_dims(mask, axis=-1)) # mask PAD
-            output_emb = tf.reduce_sum(input_emb, axis=1)/tf.reduce_sum(mask) # divide by number of tokens
-            add_layer_summary('output_emb', output_emb)
+            input_emb = tf.multiply(input_emb, tf.expand_dims(mask, axis=-1))
+            if self.params['concat_cnn']:
+                output_emb = concat_cnn(input_emb, self.params['filter_list'], self.params['kernel_size_list'],
+                                         self.params['cnn_activation'])
+            else:
+                output_emb = stack_cnn(input_emb, self.params['filter_list'], self.params['kernel_size_list'],
+                                         self.params['cnn_activation'])
         return output_emb
 
     def __call__(self, features, labels, params, is_training):
@@ -97,7 +141,7 @@ class Trainer(BaseTrainer):
         })
 
 
-trainer = Trainer(model_fn=build_model_fn(Fasttext()),
+trainer = Trainer(model_fn=build_model_fn(Textcnn()),
                   dataset_cls=WordDataset)
 
 

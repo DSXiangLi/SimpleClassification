@@ -10,22 +10,52 @@ hp_list = [HpParser.hp('embedding_dropout', 0.3),
            HpParser.hp('keep_oov', 0),
            HpParser.hp('lower_clip', -5),
            HpParser.hp('upper_clip', 5),
-           HpParser.hp('decay_rate', 0.95)]
+           HpParser.hp('decay_rate', 0.95),
+           HpParser.hp('cell_type', 'lstm'),
+           HpParser.hp('cell_size', 1),# 几层RNN
+           HpParser.hp('cell_hidden_list', '128', lambda x: [int(i) for i in x.split(',')]),
+           HpParser.hp('keep_prob_list', '0.8', lambda x: [float(i) for i in x.split(',')]),
+           HpParser.hp('rnn_activation', 'tanh')
+           ]
 hp_parser = HpParser(hp_list)
 
 
-class Fasttext(object):
+def build_rnn_cell(cell_type, activation, hidden_units_list, keep_prob_list, cell_size):
+    if cell_type.lower() == 'rnn':
+        cell_class = tf.nn.rnn_cell.RNNCell
+    elif cell_type.lower() == 'gru':
+        cell_class = tf.nn.rnn_cell.GRUCell
+    elif cell_type.lower() == 'lstm':
+        cell_class = tf.nn.rnn_cell.LSTMCell
+    else:
+        raise Exception('Only rnn, gru, lstm are supported as cell_type')
+
+    return tf.nn.rnn_cell.MultiRNNCell(
+        cells=[tf.nn.rnn_cell.DropoutWrapper(cell=cell_class(num_units=hidden_units_list[i], activation=activation),
+                                             output_keep_prob=keep_prob_list[i],
+                                             state_keep_prob=keep_prob_list[i]) for i in range(cell_size)])
+
+
+def bilstm(embedding, cell_type, activation, hidden_units_list, keep_prob_list, cell_size, seq_len, is_training):
+    with tf.variable_scope('bilstm_layer'):
+        if not is_training:
+            keep_prob_list = len(keep_prob_list) * [1.0]
+        fw = build_rnn_cell(cell_type, activation, hidden_units_list, keep_prob_list, cell_size)
+        bw = build_rnn_cell(cell_type, activation, hidden_units_list, keep_prob_list, cell_size)
+
+        # tuple of 2 : batch_size * max_seq_len * hidden_size
+        outputs, _ = tf.nn.bidirectional_dynamic_rnn(fw, bw, embedding, seq_len, dtype=tf.float32)
+
+        # concat forward and backward along embedding axis
+        outputs = tf.concat(outputs, axis=-1)  # batch_size * max_seq_len * (hidden_size * 2)
+        add_layer_summary('bilstm_concat', outputs)
+    return outputs
+
+
+class Textrcnn(object):
     def __init__(self):
         self.params = None
         self.embedding = None
-
-    def get_input_mask(self, seq_len):
-        """
-        Return Sequence Mask: batch_size * maxlen
-        """
-        maxlen = tf.reduce_max(seq_len)
-        input_mask = tf.cast(tf.sequence_mask(seq_len, maxlen=maxlen), tf.float32)
-        return input_mask
 
     def encode(self, features, is_training):
         with tf.variable_scope('embedding', reuse=tf.AUTO_REUSE):
@@ -35,11 +65,13 @@ class Fasttext(object):
             input_emb = tf.layers.dropout(input_emb, rate=self.params['embedding_dropout'], seed=1234, training=is_training)
             add_layer_summary('input_emb', input_emb)
 
-        with tf.variable_scope('avg_pool', reuse=tf.AUTO_REUSE):
-            mask = self.get_input_mask(features['seq_len'])
-            input_emb = tf.multiply(input_emb, tf.expand_dims(mask, axis=-1)) # mask PAD
-            output_emb = tf.reduce_sum(input_emb, axis=1)/tf.reduce_sum(mask) # divide by number of tokens
-            add_layer_summary('output_emb', output_emb)
+        with tf.variable_scope('textrcnn', reuse=tf.AUTO_REUSE):
+            lstm_output = bilstm(input_emb, self.params['cell_type'], self.params['rnn_activation'],
+                                 self.params['cell_hidden_list'], self.params['keep_prob_list'],
+                                 self.params['cell_size'], features['seq_len'], is_training)  # batch, max_seq_len, emb*2
+
+            output_emb = tf.reduce_max(lstm_output, axis=1, keep_dims=False)
+
         return output_emb
 
     def __call__(self, features, labels, params, is_training):
@@ -97,7 +129,7 @@ class Trainer(BaseTrainer):
         })
 
 
-trainer = Trainer(model_fn=build_model_fn(Fasttext()),
+trainer = Trainer(model_fn=build_model_fn(Textrcnn()),
                   dataset_cls=WordDataset)
 
 

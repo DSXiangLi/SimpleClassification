@@ -1,14 +1,19 @@
 python main.py \
-  --model 'fasttext'\
+  --model 'textrcnn'\
   --loss 'ce'\
   --data_dir 'weibo'\
   --nlp_pretrain_model 'word2vec_baike' \
-  --ckpt_dir 'weibo_fasttext_v1' \
+  --ckpt_dir 'weibo_textrcnn_v1' \
   --epoch_size 10\
   --batch_size 64\
   --max_seq_len 1000\
   --lr 1e-3\
   --label_size 2\
+  --cell_type 'lstm'\
+  --cell_size 1\
+  --cell_hidden_list '128'\
+  --keep_prob_list '0.8'\
+  --rnn_activation 'tanh'\
   --use_gpu \
   --device 4\
   --enable_cache\
