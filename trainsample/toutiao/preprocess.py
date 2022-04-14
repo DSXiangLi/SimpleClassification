@@ -4,7 +4,7 @@ import os
 from trainsample.converter import single_text
 from sklearn.model_selection import train_test_split
 
-CategoryMapping = {
+Label2Idx = {
     'news_story':0,
     'news_culture':1,
     'news_entertainment':2,
@@ -30,7 +30,7 @@ def main():
         for line in f.readlines():
             df.append(line.strip().split('_!_'))
     df = pd.DataFrame(df, columns = ['gid', 'cat_id', 'cat', 'title', 'keywords'])
-    df['label'] = df['cat'].map(lambda x: CategoryMapping[x])
+    df['label'] = df['cat'].map(lambda x: Label2Idx[x])
 
     train, test = train_test_split(df, test_size=0.2)
     train, valid = train_test_split(train, test_size=0.2)

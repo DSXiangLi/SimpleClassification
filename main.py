@@ -10,9 +10,12 @@ from dataset.tokenizer import PRETRAIN_CONFIG
 
 def main():
     parser = ArgumentParser()
-    # 确认训练模型
+    # 确认训练模型和Loss Function
     parser.add_argument("--model", default='bert', type=str)
     parser.add_argument("--loss", default='ce', type=str)
+
+    #Semi-Supervised Method
+    parser.add_argument('--use_mixup', action='store_true', default=False) #使用mixup
 
     # 导入模型特有HP
     model_name = parser.parse_known_args()[0].model
@@ -23,6 +26,11 @@ def main():
     loss_name = parser.parse_known_args()[0].loss
     loss_hp_parser = LossHP[loss_name]
     parser = loss_hp_parser.append(parser)
+
+    # 导入半监督所需HP
+    if parser.parse_known_args()[0].use_mixup:
+        mixup_hp_parser = getattr(importlib.import_module('model.mixup'), 'hp_parser')
+        parser = mixup_hp_parser.append(parser)
 
     # 所有模型通用HP
     parser.add_argument('--nlp_pretrain_model', default='chinese_L-12_H-768_A-12', type=str)
@@ -55,6 +63,7 @@ def main():
     parser.add_argument("--enable_cache", action='store_true', default=False) # 使用之前tokenizer cache的特征
     parser.add_argument("--clear_cache", action='store_true', default=False) # 清楚之前tokenizer cache的特征
     parser.add_argument("--thresholds", default='0.6,0.7,0.8,0.9') # 评估F1的阈值
+
 
     args = parser.parse_args()
 
@@ -97,6 +106,11 @@ def main():
     loss_hp = loss_hp_parser.parse(args)
     TP['loss_func'] = LossFunc[loss_name](**loss_hp)
 
+    # 多分类问题加入labelid到分类名称的映射
+    if TP['label_size']>2:
+        TP['label2idx'] = getattr(importlib.import_module('trainsample.{}.preprocess'.format(args.data_dir)), 'Label2Idx')
+        TP['idx2label'] = dict([(j,i) for i,j in TP['label2idx']])
+
     if args.clear_model:
         #删除checkpoint，summary cache，创建新的ckpt
         clear_model(TP['ckpt_dir'])
@@ -110,7 +124,12 @@ def main():
         'summary_steps': args.save_steps
     })
 
-    trainer = getattr(importlib.import_module('model.{}.model'.format(args.model)), 'trainer')
+    if args.use_mixup:
+        from model.mixup import get_trainer
+        trainer = get_trainer(args.model)
+    else:
+        trainer = getattr(importlib.import_module('model.{}.model'.format(args.model)), 'trainer')
+
     trainer.train(TP, RUN_CONFIG, args.do_train, args.do_eval, args.do_export)
 
 
