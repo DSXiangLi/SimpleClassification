@@ -1,6 +1,6 @@
 # -*-coding:utf-8 -*-
 import tensorflow as tf
-from dataset.text_dataset import WordDataset
+from dataset.text_dataset import WordDataset as dataset
 from dataset.tokenizer import get_tokenizer
 from model.train_helper import BaseTrainer, build_model_fn
 from tools.opt_utils import train_op_clip_decay
@@ -142,6 +142,6 @@ class Trainer(BaseTrainer):
 
 
 trainer = Trainer(model_fn=build_model_fn(Textcnn()),
-                  dataset_cls=WordDataset)
+                  dataset_cls=dataset)
 
 

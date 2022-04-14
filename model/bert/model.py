@@ -3,7 +3,7 @@ import os
 import tensorflow as tf
 from bert_base.bert import optimization, modeling
 from tools.train_utils import add_layer_summary, get_variables, get_assignment_from_ckpt, HpParser
-from dataset.text_dataset import SeqDataset
+from dataset.text_dataset import SeqDataset as dataset
 from dataset.tokenizer import get_tokenizer
 from model.train_helper import BaseTrainer, build_model_fn
 
@@ -93,6 +93,6 @@ class Trainer(BaseTrainer):
 
 
 trainer = Trainer(model_fn=build_model_fn(BertEncoder()),
-                  dataset_cls=SeqDataset)
+                  dataset_cls=dataset)
 
 
