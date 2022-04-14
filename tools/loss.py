@@ -35,17 +35,24 @@ def ce():
     Cross Entropy, all below loss function adapts to it
     """
     def helper(labels, logits):
-        return tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels, logits=logits)
+        num_labels = logits.get_shape().as_list()[-1]
+        probs = tf.nn.softmax(logits, axis=-1)
+        # transformer labels to one-hot
+        if len(labels.get_shape().as_list()) == 1:
+            labels = tf.one_hot(labels, depth=num_labels)
+        ce = -tf.reduce_sum(labels * tf.log(tf.clip_by_value(probs, 1e-10, 1.0)), axis=-1)
+        return ce
     return helper
 
 
 @add_loss_hp
 def gce(q=0.7):
     def helper(labels, logits):
-        # reshape
-        probs = tf.nn.softmax(logits, axis=-1)
         num_labels = logits.get_shape().as_list()[-1]
-        labels = tf.one_hot(labels, depth=num_labels)
+        probs = tf.nn.softmax(logits, axis=-1)
+        # transformer labels to one-hot
+        if len(labels.get_shape().as_list()) == 1:
+            labels = tf.one_hot(labels, depth=num_labels)
         # (1-f(x)^q)/q
         loss = 1- tf.pow(tf.reduce_sum(labels * probs, axis=-1),q)/q
         return loss
@@ -54,19 +61,19 @@ def gce(q=0.7):
 @add_loss_hp
 def sce(alpha=0.1, beta=1):
     def helper(labels, logits):
-        # reshape
-        probs = tf.nn.softmax(logits, axis=-1)
         num_labels = logits.get_shape().as_list()[-1]
-        labels = tf.one_hot(labels, depth=num_labels)
-
+        probs = tf.nn.softmax(logits, axis=-1)
+        # transformer labels to one-hot
+        if len(labels.get_shape().as_list()) == 1:
+            labels = tf.one_hot(labels, depth=num_labels)
         # KL(p|q) + KL(q|p)
-        y_true = tf.clip_by_value(labels, 1e-7, 1.0)
+        y_true = tf.clip_by_value(labels, 1e-10, 1.0)
         y_pred = probs
         ce = -tf.reduce_sum(y_true * tf.log(y_pred), axis=-1)
         add_layer_summary('ce', ce)
 
         y_true = probs
-        y_pred = tf.clip_by_value(labels, 1e-7, 1.0)
+        y_pred = tf.clip_by_value(labels, 1e-10, 1.0)
         rce = -tf.reduce_sum(y_true * tf.log(y_pred), axis=-1)
         add_layer_summary('rce', rce)
 
@@ -76,13 +83,14 @@ def sce(alpha=0.1, beta=1):
 @add_loss_hp
 def bootce(beta=0.95, is_hard=0):
     def helper(labels, logits):
-        # reshape
-        probs = tf.nn.softmax(logits, axis=-1)
         num_labels = logits.get_shape().as_list()[-1]
-        labels = tf.one_hot(labels, depth=num_labels)
+        probs = tf.nn.softmax(logits, axis=-1)
+        # transformer labels to one-hot
+        if len(labels.get_shape().as_list()) == 1:
+            labels = tf.one_hot(labels, depth=num_labels)
 
         # (y+p) * log(p)
-        eps = 1e-7
+        eps = 1e-10
         probs = tf.clip_by_value(probs, eps, 1-eps)
         if is_hard:
             pred_label = tf.one_hot(tf.argmax(probs, axis=-1),depth=num_labels)
@@ -97,9 +105,13 @@ def bootce(beta=0.95, is_hard=0):
 @add_loss_hp
 def peerce(alpha=0.5):
     def helper(labels, logits):
+        num_labels = logits.get_shape().as_list()[-1]
+        # transformer labels to one-hot
+        if len(labels.get_shape().as_list()) == 1:
+            labels = tf.one_hot(labels, depth=num_labels)
         rand_labels = tf.random.shuffle(labels)
-        ce_true = tf.nn.sparse_softmax_cross_entropy_with_logits(labels, logtis=logits)
-        ce_rand = tf.nn.sparse_softmax_cross_entropy_with_logits(rand_labels, logtis=logits)
+        ce_true = ce()(labels, logits)
+        ce_rand = ce()(rand_labels, logits)
         loss = alpha * ce_true + (1-alpha) * ce_rand
         return loss
     return helper
@@ -108,10 +120,11 @@ def peerce(alpha=0.5):
 @add_loss_hp
 def focal(gamma=2, alpha=0.24):
     def helper(labels, logits):
-        # reshape
-        probs = tf.nn.softmax(logits, axis=-1)
         num_labels = logits.get_shape().as_list()[-1]
-        labels = tf.one_hot(labels, depth=num_labels)
+        probs = tf.nn.softmax(logits, axis=-1)
+        # transformer labels to one-hot
+        if len(labels.get_shape().as_list()) == 1:
+            labels = tf.one_hot(labels, depth=num_labels)
 
         focus = -tf.reduce_sum(labels * tf.log(probs) * tf.pow(1-probs, gamma), axis=-1)
         imbalance = tf.reduce_sum(labels * tf.constant([alpha, 1-alpha]), axis=-1)
