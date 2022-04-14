@@ -4,7 +4,7 @@ import json
 import tensorflow as tf
 from tools.train_utils import build_estimator, get_log_hook
 from tools.logger import get_logger
-from tools.metrics import binary_cls_report, binary_cls_metrics, pr_summary_hook
+from tools.metrics import binary_cls_report, binary_cls_metrics, pr_summary_hook, multi_cls_metrics, multi_cls_report
 
 
 class BaseTrainer(object):
@@ -62,8 +62,11 @@ class BaseTrainer(object):
                 f.write(json.dumps({'prob': prob.tolist(), 'label': label}, ensure_ascii=False) + '\n')
 
         self.logger.info('='*10 + 'Evaluation Report' + '='*10)
+        if self.train_params['label_size']==2:
+            eval_report = binary_cls_report(probs, labels, self.train_params['thresholds'])
+        else:
+            eval_report = multi_cls_report(probs, labels, self.train_params['idx2label'])
 
-        eval_report = binary_cls_report(probs, labels, self.train_params['thresholds'])
         self.logger.info('\n' + eval_report + '\n')
 
     def train(self, train_params, run_config, do_train, do_eval, do_export):
@@ -97,7 +100,7 @@ def build_model_fn(encoder):
 
         # For prediction label is not used
         if mode == tf.estimator.ModeKeys.PREDICT:
-            spec = tf.estimator.EstimatorSpec(mode, predictions={ 'prob': probs})
+            spec = tf.estimator.EstimatorSpec(mode, predictions={'prob': probs})
             return spec
 
         # Custom Loss function
@@ -110,16 +113,21 @@ def build_model_fn(encoder):
 
         if is_training:
             train_op = encoder.optimize(total_loss)
-
             spec = tf.estimator.EstimatorSpec(mode, loss=total_loss,
                                               train_op=train_op,
                                               scaffold = scaffold,
                                               training_hooks=[get_log_hook(total_loss, params['log_steps'])])
 
         else:
-            metric_ops = binary_cls_metrics(probs, labels)
-            summary_hook = pr_summary_hook(probs, labels, num_threshold=20,
-                                           output_dir=params['model_dir'], save_steps=params['save_steps'])
+            if params['label_size']==2:
+                metric_ops = binary_cls_metrics(probs, labels)
+                summary_hook = pr_summary_hook(probs, labels, num_threshold=20,
+                                               output_dir=params['model_dir'], save_steps=params['save_steps'])
+
+            else:
+                metric_ops = multi_cls_metrics(probs, labels, params['idx2label'])
+                summary_hook = None
+
             spec = tf.estimator.EstimatorSpec(mode=mode, loss=total_loss,
                                               scaffold=scaffold,
                                               eval_metric_ops=metric_ops,

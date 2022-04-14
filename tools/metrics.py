@@ -77,18 +77,18 @@ def binary_cls_report(probs, labels, thresholds):
     return df
 
 
-def multi_cls_metrics(probs, labels, idx2tag):
+def multi_cls_metrics(probs, labels, idx2label):
     """
     多分类任务 TF Metrics
         probs: (n_samples, 2)
         labels: (n_samples,)
-        idx2tag: labelid 到分类名称的映射
+        idx2label: labelid 到分类名称的映射
     支持
     1. Overall Accuracy, AUC, AP
     2. 分label的precision， recall，f1
     3. micro, macro: precision, recall, f1
     """
-    num_labels = len(idx2tag)
+    num_labels = len(idx2label)
     predictions = tf.argmax(probs, axis=-1)
     metric_ops = {
         'metrics/overall_accuracy': tf.metrics.accuracy(labels, predictions),
@@ -97,7 +97,7 @@ def multi_cls_metrics(probs, labels, idx2tag):
                                       summation_method='careful_interpolation'),
         'metrics/overall_pr': tf.metrics.auc(labels, predictions=probs[:, 1], curve='PR',
                                      multi_label=True, num_labels=num_labels,
-                                     summation_method='careful_interpolation'),
+                                     summation_method='careful_interpolation')
     }
     recalls = []
     precisions = []
@@ -116,9 +116,9 @@ def multi_cls_metrics(probs, labels, idx2tag):
         )
         f1 = 2 * (precision * recall) / (precision + recall)
         metric_ops.update(
-            {'metrics/{}_precision'.format(idx2tag[idx]): (precision, precision_op),
-             'metrics/{}_recall'.format(idx2tag[idx]): (recall, recall_op),
-             'metrics/{}_f1'.format(idx2tag[idx]): (f1, tf.identity(f1))
+            {'metrics/{}_precision'.format(idx2label[idx]): (precision, precision_op),
+             'metrics/{}_recall'.format(idx2label[idx]): (recall, recall_op),
+             'metrics/{}_f1'.format(idx2label[idx]): (f1, tf.identity(f1))
              }
         )
         recalls.append(recall)
@@ -136,18 +136,15 @@ def multi_cls_metrics(probs, labels, idx2tag):
     return metric_ops
 
 
-def multi_cls_report(probs, labels, idx2tag):
-    pass
-
-
-
-
-
-def cls_report(probs, labels, idx2tag=None, threshold=None):
+def multi_cls_report(probs, labels, idx2label):
     """
-    分类任务Evaluation Wrapper
+    多分类任务 Evaluation
+        probs: (n_samples, 2)
+        labels: (n_samples,)
+        idx2label: labelid 到分类名称的映射
+    支持
+    1. Overall Accuracy, AUC, AP
+    2. 分label的precision， recall，f1
+    3. micro, macro: precision, recall, f1
     """
-    if probs[0].shape ==2:
-        # 二分类任务: probs和label
-        probs = []
-        pass
+    return None
