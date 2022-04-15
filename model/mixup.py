@@ -5,7 +5,7 @@ import importlib
 from tools.train_utils import HpParser, add_layer_summary
 from model.train_helper import  build_model_fn
 
-hp_list = [HpParser.hp('alpha', 0.1)]
+hp_list = [HpParser.hp('mixup_alpha', 0.1)]
 hp_parser = HpParser(hp_list)
 
 
@@ -14,7 +14,7 @@ class MixupWrapper(object):
         self.encoder = encoder
 
     @staticmethod
-    def mixup(input_x, input_y, alpha):
+    def mixup(input_x, input_y, label_size, alpha):
         """
         Input
             input_x: batch_size * emb_size
@@ -24,6 +24,8 @@ class MixupWrapper(object):
         """
         # get mixup lambda
         batch_size = tf.shape(input_x)[0]
+        input_y = tf.one_hot(input_y, depth=label_size)
+
         mix = tf.distributions.Beta(alpha, alpha).sample(1)
         mix = tf.maximum(mix, 1 - mix)
 
@@ -34,7 +36,7 @@ class MixupWrapper(object):
 
         # get mixed input
         xmix = input_x * mix + random_x * (1 - mix)
-        ymix = input_y * mix + random_y * (1 - mix)
+        ymix = tf.cast(input_y, tf.float32) * mix + tf.cast(random_y, tf.float32) * (1 - mix)
         return xmix, ymix
 
     def __call__(self, features, labels, params, is_training):
@@ -44,7 +46,7 @@ class MixupWrapper(object):
 
         with tf.variable_scope('mixup'):
             if is_training:
-                xmix, ymix = self.mixup(embedding, labels, self.params['alpha'])
+                xmix, ymix = self.mixup(embedding, labels, self.params['label_size'], self.params['mixup_alpha'])
             else:
                 # keep testing sample unchanged
                 xmix, ymix = embedding, labels
@@ -55,6 +57,9 @@ class MixupWrapper(object):
 
         return preds, ymix
 
+    def init_fn(self):
+        return self.encoder.init_fn()
+
     def optimize(self, loss):
         train_op = self.encoder.optimize(loss)
         return train_op
@@ -62,10 +67,10 @@ class MixupWrapper(object):
 
 def get_trainer(model):
     module = importlib.import_module('model.{}.model'.format(model))
-    encoder = getattr(module, '{}Encoder'.format(model.captialize()))
+    encoder = getattr(module, '{}Encoder'.format(model.capitalize()))
     dataset = getattr(module, 'dataset')
     Trainer = getattr(module, 'Trainer')
 
-    trainer = Trainer(model_fn=build_model_fn(MixupWrapper(encoder)),
+    trainer = Trainer(model_fn=build_model_fn(MixupWrapper(encoder())),
                       dataset_cls=dataset)
     return trainer

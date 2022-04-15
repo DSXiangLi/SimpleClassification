@@ -28,8 +28,8 @@ def main():
     parser = loss_hp_parser.append(parser)
 
     # 导入半监督所需HP
+    mixup_hp_parser = getattr(importlib.import_module('model.mixup'), 'hp_parser')
     if parser.parse_known_args()[0].use_mixup:
-        mixup_hp_parser = getattr(importlib.import_module('model.mixup'), 'hp_parser')
         parser = mixup_hp_parser.append(parser)
 
     # 所有模型通用HP
@@ -67,8 +67,6 @@ def main():
 
     args = parser.parse_args()
 
-    os.environ["CUDA_VISIBLE_DEVICES"] = args.device
-
     CKPT_DIR = './checkpoint'
     EXPORT_DIR = './serving'
     DATA_DIR = './trainsample'
@@ -101,6 +99,8 @@ def main():
     }
 
     TP = model_hp_parser.update(TP, args)
+    if parser.parse_known_args()[0].use_mixup:
+        TP = mixup_hp_parser.update(TP, args)
 
     # get loss function
     loss_hp = loss_hp_parser.parse(args)
@@ -109,13 +109,16 @@ def main():
     # 多分类问题加入labelid到分类名称的映射
     if TP['label_size']>2:
         TP['label2idx'] = getattr(importlib.import_module('trainsample.{}.preprocess'.format(args.data_dir)), 'Label2Idx')
-        TP['idx2label'] = dict([(j,i) for i,j in TP['label2idx']])
+        TP['idx2label'] = dict([(j,i) for i,j in TP['label2idx'].items()])
 
     if args.clear_model:
-        #删除checkpoint，summary cache，创建新的ckpt
+        #删除checkpoint，summary cache
         clear_model(TP['ckpt_dir'])
-        os.mkdir(TP['ckpt_dir'])
         tf.summary.FileWriterCache.clear()
+
+    if not os.path.isdir(TP['ckpt_dir']):
+        #如果ckpt目录为空创建目录
+        os.mkdir(TP['ckpt_dir'])
 
     RUN_CONFIG.update({
         'use_gpu': args.use_gpu,
@@ -123,6 +126,8 @@ def main():
         'save_steps': args.save_steps,
         'summary_steps': args.save_steps
     })
+
+    os.environ["CUDA_VISIBLE_DEVICES"] = args.device
 
     if args.use_mixup:
         from model.mixup import get_trainer
