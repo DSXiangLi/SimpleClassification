@@ -122,7 +122,14 @@ def get_glove_tokenizer(vocab_file, **kwargs):
 
 def get_bert_tokenizer(vocab_file, **kwargs):
     logger.info('Loading vocab_file {} '.format(vocab_file))
-    from bert_base.bert import tokenization
+    from backbone.bert import tokenization
+    tokenizer = tokenization.FullTokenizer(vocab_file,  **kwargs)
+    return tokenizer
+
+
+def get_albert_tokenizer(vocab_file, **kwargs):
+    logger.info('Loading vocab_file {} '.format(vocab_file))
+    from backbone.albert import tokenization
     tokenizer = tokenization.FullTokenizer(vocab_file,  **kwargs)
     return tokenizer
 
@@ -131,8 +138,9 @@ PTM = namedtuple('PTM', ['model_dir', 'model_file'])
 
 PRETRAIN_CONFIG = {
     'bert_base': PTM('pretrain/chinese_L-12_H-768_A-12', 'bert_model.ckpt'),
-    'roberta_base': PTM('pretrain/roberta_zh_L-24_H-1024_A-16', 'bert_model.ckpt'),
+    'roberta_base': PTM('pretrain/roberta_zh_l12', 'bert_model.ckpt'),
     'bert_base_wwm': PTM('pretrain/chinese_wwm_L-12_H-768_A-12', 'bert_model.ckpt'),
+    'albert_base': PTM('pretrain/albert_base', 'model.ckpt-best'),
 
     'fasttext':  PTM('pretrain_model/fasttext', 'cc.zh.300.bin'),
     'word2vec_news': PTM('pretrain/word2vec_news', 'sgns.renmin.bigram-char.bz2'),
@@ -154,8 +162,9 @@ def get_tokenizer(name, **kwargs):
         'bert_base_wwm': partial(get_bert_tokenizer,
                                  vocab_file=os.path.join(pkg_path, PRETRAIN_CONFIG['bert_base_wwm'].model_dir, 'vocab.txt')),
         'roberta_base': partial(get_bert_tokenizer,
-                                 vocab_file=os.path.join(pkg_path, PRETRAIN_CONFIG['roberta_base'].model_dir, 'vocab.txt')),
-
+                                vocab_file=os.path.join(pkg_path, PRETRAIN_CONFIG['roberta_base'].model_dir, 'vocab.txt')),
+        'albert_base': partial(get_albert_tokenizer,
+                               vocab_file=os.path.join(pkg_path, PRETRAIN_CONFIG['albert_base'].model_dir, 'vocab_chinese.txt')),
         'fasttext': partial(get_fasttext_tokenizer,
                             vocab_file=os.path.join(pkg_path, *PRETRAIN_CONFIG['fasttext'])),
         'word2vec_news': partial(get_word2vec_tokenizer,

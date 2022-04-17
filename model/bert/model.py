@@ -1,7 +1,7 @@
 # -*-coding:utf-8 -*-
 import os
 import tensorflow as tf
-from bert_base.bert import optimization, modeling
+from backbone.bert import optimization, modeling
 from tools.train_utils import add_layer_summary, get_variables, get_assignment_from_ckpt, HpParser
 from dataset.text_dataset import SeqDataset as dataset
 from dataset.tokenizer import get_tokenizer
@@ -13,7 +13,7 @@ hp_list = [HpParser.hp('warmup_ratio', 0.1),
 hp_parser = HpParser(hp_list)
 
 
-class BertBase(object):
+class BertEncoder(object):
     def __init__(self):
         self.params = None
 
@@ -40,6 +40,14 @@ class BertBase(object):
         add_layer_summary('ouput_emb', embedding)
         return embedding
 
+    def __call__(self, features, labels, params, is_training):
+        self.params = params
+        embedding = self.encode(features, is_training)
+        with tf.variable_scope('transfer'):
+            preds = tf.layers.dense(embedding, units=self.params['label_size'], activation=None, use_bias=True)
+            add_layer_summary('preds', preds)
+        return preds, labels
+
     def init_fn(self):
         """
         # load vars from ckpt: Default for finetune all bert variables
@@ -48,19 +56,6 @@ class BertBase(object):
         assignment_map = get_assignment_from_ckpt(self.params['nlp_pretrain_ckpt'], tvars)
         tf.train.init_from_checkpoint(self.params['nlp_pretrain_ckpt'], assignment_map)
         return None
-
-
-class BertEncoder(BertBase):
-    def __init__(self):
-        super().__init__()
-
-    def __call__(self, features, labels, params, is_training):
-        self.params = params
-        embedding = self.encode(features, is_training)
-        with tf.variable_scope('transfer'):
-            preds = tf.layers.dense(embedding, units=self.params['label_size'], activation=None, use_bias=True)
-            add_layer_summary('preds', preds)
-        return preds, labels
 
     def optimize(self, loss):
         train_op = optimization.create_optimizer(loss, self.params['lr'],
