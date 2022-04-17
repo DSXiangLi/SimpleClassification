@@ -56,7 +56,6 @@ class BaseTrainer(object):
                                                                         self.train_params['predict_file'])))
         labels = [i['label'] for i in self.input_pipe.samples]
 
-        ##TODO: 区分多分类任务和二分类任务
         with open(os.path.join(self.train_params['data_dir'], self.train_params['predict_file']), 'w') as f:
             for prob, label in zip(probs, labels):
                 f.write(json.dumps({'prob': prob.tolist(), 'label': label}, ensure_ascii=False) + '\n')
@@ -121,8 +120,8 @@ def build_model_fn(encoder):
         else:
             if params['label_size']==2:
                 metric_ops = binary_cls_metrics(probs, labels)
-                summary_hook = pr_summary_hook(probs, labels, num_threshold=20,
-                                               output_dir=params['model_dir'], save_steps=params['save_steps'])
+                summary_hook = [pr_summary_hook(probs, labels, num_threshold=20,
+                                               output_dir=params['model_dir'], save_steps=params['save_steps'])]
 
             else:
                 metric_ops = multi_cls_metrics(probs, labels, params['idx2label'])
@@ -131,6 +130,6 @@ def build_model_fn(encoder):
             spec = tf.estimator.EstimatorSpec(mode=mode, loss=total_loss,
                                               scaffold=scaffold,
                                               eval_metric_ops=metric_ops,
-                                              evaluation_hooks=[summary_hook])
+                                              evaluation_hooks=summary_hook)
         return spec
     return model_fn
