@@ -73,9 +73,10 @@ class SampleCache(object):
 
     def dump(self, samples, file_name):
         file = self.cache_file(file_name)
-        with open(file, 'wb') as f:
-            pickle.dump(samples, f)
-        logger.info('Dumping Cache to {}'.format(file))
+        if self.enable_cache:
+            with open(file, 'wb') as f:
+                pickle.dump(samples, f)
+            logger.info('Dumping Cache to {}'.format(file))
 
     def load(self, file_name):
         file = self.cache_file(file_name)
