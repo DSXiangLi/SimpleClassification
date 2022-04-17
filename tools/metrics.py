@@ -5,7 +5,8 @@
 import tensorflow as tf
 import pandas as pd
 from tensorboard import summary
-from sklearn.metrics import roc_auc_score, average_precision_score, precision_score, recall_score, accuracy_score
+from sklearn.metrics import roc_auc_score, average_precision_score, precision_score, recall_score, accuracy_score,\
+classification_report
 
 
 def pr_summary_hook(probs, labels, num_threshold, output_dir, save_steps):
@@ -90,14 +91,15 @@ def multi_cls_metrics(probs, labels, idx2label):
     """
     num_labels = len(idx2label)
     predictions = tf.argmax(probs, axis=-1)
+
+    label_o = tf.one_hot(labels, depth=num_labels)
+    prediction_o = tf.one_hot(predictions, depth=num_labels)
     metric_ops = {
-        'metrics/overall_accuracy': tf.metrics.accuracy(labels, predictions),
-        'metrics/overall_auc': tf.metrics.auc(labels, predictions=probs[:, 1], curve='ROC',
-                                      multi_label=True, num_labels = num_labels,
-                                      summation_method='careful_interpolation'),
-        'metrics/overall_pr': tf.metrics.auc(labels, predictions=probs[:, 1], curve='PR',
-                                     multi_label=True, num_labels=num_labels,
-                                     summation_method='careful_interpolation')
+        'metrics/overall_accuracy': tf.metrics.accuracy(label_o, prediction_o),
+        'metrics/overall_auc': tf.metrics.auc(label_o, predictions=probs, curve='ROC',
+                                              summation_method='careful_interpolation'),
+        'metrics/overall_pr': tf.metrics.auc(label_o, predictions=probs, curve='PR',
+                                             summation_method='careful_interpolation')
     }
     recalls = []
     precisions = []
@@ -129,9 +131,9 @@ def multi_cls_metrics(probs, labels, idx2label):
     recall, recall_op = (sum(recalls)/num_labels, sum(recall_ops)/num_labels)
     f1 = 2 * (precision * recall) / (precision + recall)
     metric_ops.update({
-        'metrics/micro_precision': (precision, precision_op),
-        'metrics/micro_recall': (recall, recall_op),
-        'metrics/micro_f1': (f1, tf.identity(f1))
+        'metrics/macro_precision': (precision, precision_op),
+        'metrics/macro_recall': (recall, recall_op),
+        'metrics/macro_f1': (f1, tf.identity(f1))
     })
     return metric_ops
 
@@ -139,7 +141,7 @@ def multi_cls_metrics(probs, labels, idx2label):
 def multi_cls_report(probs, labels, idx2label):
     """
     多分类任务 Evaluation
-        probs: (n_samples, 2)
+        probs: (n_samples, label_size)
         labels: (n_samples,)
         idx2label: labelid 到分类名称的映射
     支持
@@ -147,4 +149,8 @@ def multi_cls_report(probs, labels, idx2label):
     2. 分label的precision， recall，f1
     3. micro, macro: precision, recall, f1
     """
-    return None
+    predictions = tf.argmax(probs, axis=-1)
+    label_names = idx2label.values()
+    report = classification_report(labels, predictions, target_names=label_names)
+    # cm = confusion_matrix(labels, predictions)
+    return report
