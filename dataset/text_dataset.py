@@ -75,8 +75,8 @@ class WordDataset(GeneratorDataset):
 
     def build_single_feature(self, data):
         tokens = self.tokenizer.tokenize(data['text'][:self.max_seq_len])
-        seq_len = len(tokens)
         input_ids = self.tokenizer.convert_tokens_to_ids(tokens)
+        seq_len = len(input_ids) # do after ids due to oov removal
         return {
             'input_ids': input_ids,
             'seq_len': seq_len,
@@ -86,7 +86,7 @@ class WordDataset(GeneratorDataset):
 
 if __name__ =='__main__':
     from dataset.tokenizer import get_tokenizer
-    pipe = SeqDataset('./trainsample/weibo',5, 50, get_tokenizer('bert_base'), True)
+    pipe = SeqDataset('./trainsample/weibo',5, 50, get_tokenizer('bert'), True)
     pipe.build_feature('train')
 
     pipe = WordDataset('./trainsample/weibo',5, 50, get_tokenizer('word2vec_baike'), False)
