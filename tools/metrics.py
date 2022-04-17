@@ -3,6 +3,7 @@
     二分类/多分类 TF Metrics & Evaluation Report
 """
 import tensorflow as tf
+import numpy as np
 import pandas as pd
 from tensorboard import summary
 from sklearn.metrics import roc_auc_score, average_precision_score, precision_score, recall_score, accuracy_score,\
@@ -149,7 +150,7 @@ def multi_cls_report(probs, labels, idx2label):
     2. 分label的precision， recall，f1
     3. micro, macro: precision, recall, f1
     """
-    predictions = tf.argmax(probs, axis=-1)
+    predictions = np.argmax(probs, axis=-1)
     label_names = idx2label.values()
     report = classification_report(labels, predictions, target_names=label_names)
     # cm = confusion_matrix(labels, predictions)
