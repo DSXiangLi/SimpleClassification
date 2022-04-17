@@ -81,7 +81,10 @@ class SampleCache(object):
     def load(self, file_name):
         file = self.cache_file(file_name)
         if self.clear_cache:
-            os.remove(file)
+            try:
+                os.remove(file)
+            except Exception:
+                pass
         if self.enable_cache:
             return self._load(file)
         else:
