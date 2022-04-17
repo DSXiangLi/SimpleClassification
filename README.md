@@ -16,8 +16,9 @@
 - [x]  Bert
 - [x] Bert-wwm
 - [x] Roberta
-- [ ] Albert
+- [x] Albert
 - [ ] Xlnet
+- [x] Electra
 - [ ] Distill Bert
 
 ### 多任务
