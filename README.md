@@ -17,6 +17,7 @@
 - [x] Bert-wwm
 - [x] Roberta
 - [ ] Albert
+- [ ] Xlnet
 - [ ] Distill Bert
 
 ### 多任务
@@ -25,6 +26,10 @@
 
 ### 半监督 & 增强
 - [x] Mixup
+- [ ] Temporal 
+- [ ] MixMatch
+- [ ] EDA: SR, RS, RD
+- [ ] Mask LM
 
 ### Loss
 - [x] Focal Loss
