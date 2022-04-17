@@ -1,9 +1,9 @@
 python main.py \
-  --model 'bert'\
+  --model 'albert'\
   --loss 'ce'\
   --data_dir 'weibo'\
-  --nlp_pretrain_model 'bert_base' \
-  --ckpt_dir 'weibo_bert_v1' \
+  --nlp_pretrain_model 'albert_base' \
+  --ckpt_dir 'weibo_albert_v1' \
   --epoch_size 5\
   --batch_size 32\
   --max_seq_len 150\
