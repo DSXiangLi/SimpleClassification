@@ -24,16 +24,16 @@ class ElectraEncoder(object):
 
     def encode(self, features, is_training):
         electra_config = modeling.BertConfig.from_json_file(os.path.join(self.params['nlp_pretrain_dir'],
-                                                                      'bert_discriminator_config.json'))
+                                                                      'base_discriminator_config.json'))
 
         electra_model = modeling.BertModel(
-            config=electra_config,
+            bert_config=electra_config,
             is_training=is_training,
             input_ids=features['input_ids'],
             input_mask=self.get_input_mask(features['seq_len']),
             token_type_ids=features['segment_ids'],
             use_one_hot_embeddings=False,
-            scope='bert'
+            scope='electra'
         )
 
         embedding = electra_model.get_pooled_output()
