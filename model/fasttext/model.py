@@ -2,7 +2,7 @@
 import tensorflow as tf
 from dataset.text_dataset import WordDataset as dataset
 from dataset.tokenizer import get_tokenizer
-from model.train_helper import BaseTrainer, build_model_fn
+from model.train_helper import BaseTrainer, build_model_fn, BaseEncoder
 from tools.opt_utils import train_op_clip_decay
 from tools.train_utils import add_layer_summary, HpParser
 
@@ -14,18 +14,10 @@ hp_list = [HpParser.hp('embedding_dropout', 0.3),
 hp_parser = HpParser(hp_list)
 
 
-class Fasttext(object):
+class Fasttext(BaseEncoder):
     def __init__(self):
-        self.params = None
+        super(Fasttext, self).__init__()
         self.embedding = None
-
-    def get_input_mask(self, seq_len):
-        """
-        Return Sequence Mask: batch_size * maxlen
-        """
-        maxlen = tf.reduce_max(seq_len)
-        input_mask = tf.cast(tf.sequence_mask(seq_len, maxlen=maxlen), tf.float32)
-        return input_mask
 
     def encode(self, features, is_training):
         with tf.variable_scope('embedding', reuse=tf.AUTO_REUSE):
@@ -36,7 +28,7 @@ class Fasttext(object):
             add_layer_summary('input_emb', input_emb)
 
         with tf.variable_scope('avg_pool', reuse=tf.AUTO_REUSE):
-            mask = self.get_input_mask(features['seq_len'])
+            mask = tf.cast(self.get_input_mask(features['seq_len']), tf.float32)
             input_emb = tf.multiply(input_emb, tf.expand_dims(mask, axis=-1)) # mask PAD
             output_emb = tf.reduce_sum(input_emb, axis=1)/tf.reduce_sum(mask) # divide by number of tokens
             add_layer_summary('output_emb', output_emb)

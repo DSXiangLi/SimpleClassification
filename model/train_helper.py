@@ -7,6 +7,92 @@ from tools.logger import get_logger
 from tools.metrics import binary_cls_report, binary_cls_metrics, pr_summary_hook, multi_cls_metrics, multi_cls_report
 
 
+class BaseEncoder(object):
+    def __init__(self):
+        self.params = None
+
+    def get_input_mask(self, seq_len):
+        maxlen = tf.reduce_max(seq_len)
+        input_mask = tf.sequence_mask(seq_len, maxlen=maxlen)
+        return input_mask
+
+    def encode(self, features, is_training):
+        """
+        Raw data encoding logic
+        """
+        raise NotImplementedError
+
+    def __call__(self, features, labels, params, is_training):
+        """
+        core computation goes here
+        """
+        raise NotImplementedError
+
+    def init_fn(self):
+        """
+        checkpoint or variable initialization
+        """
+        raise NotImplementedError
+
+    def optimize(self, loss):
+        """
+        :param loss:
+        :return: train op
+        """
+        raise NotImplementedError
+
+    def compute_loss(self, predictions, labels):
+        loss_func = self.params['loss_func']
+        loss = loss_func(labels, predictions)
+        total_loss = tf.reduce_mean(loss)
+        return total_loss
+
+
+def build_model_fn(encoder):
+    def model_fn(features, labels, params, mode):
+        if labels is not None:
+            labels = labels['label']
+        is_training = (mode == tf.estimator.ModeKeys.TRAIN)
+
+        predictions, labels = encoder(features, labels, params, is_training)
+        probs = tf.nn.softmax(predictions, axis=-1)
+
+        # For prediction label is not used
+        if mode == tf.estimator.ModeKeys.PREDICT:
+            spec = tf.estimator.EstimatorSpec(mode, predictions={'prob': probs})
+            return spec
+
+        # Custom Loss function
+        total_loss = encoder.compute_loss(predictions, labels)
+
+        # None for pretrain model, init_fn for word embedding
+        scaffold = encoder.init_fn()
+
+        if is_training:
+            train_op = encoder.optimize(total_loss)
+            spec = tf.estimator.EstimatorSpec(mode, loss=total_loss,
+                                              train_op=train_op,
+                                              scaffold=scaffold,
+                                              training_hooks=[get_log_hook(total_loss, params['log_steps'])])
+
+        else:
+            if params['label_size']==2:
+                metric_ops = binary_cls_metrics(probs, labels)
+                summary_hook = [pr_summary_hook(probs, labels, num_threshold=20,
+                                                output_dir=params['model_dir'], save_steps=params['save_steps'])]
+
+            else:
+                metric_ops = multi_cls_metrics(probs, labels, params['idx2label'])
+                summary_hook = None
+
+            spec = tf.estimator.EstimatorSpec(mode=mode, loss=total_loss,
+                                              scaffold=scaffold,
+                                              eval_metric_ops=metric_ops,
+                                              evaluation_hooks=summary_hook)
+        return spec
+    return model_fn
+
+
 class BaseTrainer(object):
     def __init__(self, model_fn, dataset_cls):
         self.model_fn = model_fn
@@ -86,50 +172,3 @@ class BaseTrainer(object):
             self._eval()
         if do_export:
             self._export()
-
-
-def build_model_fn(encoder):
-    def model_fn(features, labels, params, mode):
-        if labels is not None:
-            labels = labels['label']
-        is_training = (mode == tf.estimator.ModeKeys.TRAIN)
-
-        predictions, labels = encoder(features, labels, params, is_training)
-        probs = tf.nn.softmax(predictions, axis=-1)
-
-        # For prediction label is not used
-        if mode == tf.estimator.ModeKeys.PREDICT:
-            spec = tf.estimator.EstimatorSpec(mode, predictions={'prob': probs})
-            return spec
-
-        # Custom Loss function
-        loss_func = params['loss_func']
-        loss = loss_func(labels, predictions)
-        total_loss = tf.reduce_mean(loss)
-
-        # None for pretrain model, init_fn for word embedding
-        scaffold = encoder.init_fn()
-
-        if is_training:
-            train_op = encoder.optimize(total_loss)
-            spec = tf.estimator.EstimatorSpec(mode, loss=total_loss,
-                                              train_op=train_op,
-                                              scaffold = scaffold,
-                                              training_hooks=[get_log_hook(total_loss, params['log_steps'])])
-
-        else:
-            if params['label_size']==2:
-                metric_ops = binary_cls_metrics(probs, labels)
-                summary_hook = [pr_summary_hook(probs, labels, num_threshold=20,
-                                               output_dir=params['model_dir'], save_steps=params['save_steps'])]
-
-            else:
-                metric_ops = multi_cls_metrics(probs, labels, params['idx2label'])
-                summary_hook = None
-
-            spec = tf.estimator.EstimatorSpec(mode=mode, loss=total_loss,
-                                              scaffold=scaffold,
-                                              eval_metric_ops=metric_ops,
-                                              evaluation_hooks=summary_hook)
-        return spec
-    return model_fn

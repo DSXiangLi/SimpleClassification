@@ -2,7 +2,7 @@
 import tensorflow as tf
 from dataset.text_dataset import WordDataset as dataset
 from dataset.tokenizer import get_tokenizer
-from model.train_helper import BaseTrainer, build_model_fn
+from model.train_helper import BaseTrainer, build_model_fn, BaseEncoder
 from tools.opt_utils import train_op_clip_decay
 from tools.train_utils import add_layer_summary, HpParser
 
@@ -52,9 +52,9 @@ def bilstm(embedding, cell_type, activation, hidden_units_list, keep_prob_list, 
     return outputs
 
 
-class Textrcnn(object):
+class Textrcnn(BaseEncoder):
     def __init__(self):
-        self.params = None
+        super(Textrcnn, self).__init__()
         self.embedding = None
 
     def encode(self, features, is_training):

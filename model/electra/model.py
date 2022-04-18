@@ -5,7 +5,7 @@ from backbone.electra import optimization, modeling
 from tools.train_utils import add_layer_summary, get_variables, get_assignment_from_ckpt, HpParser
 from dataset.text_dataset import SeqDataset as dataset
 from dataset.tokenizer import get_tokenizer
-from model.train_helper import BaseTrainer, build_model_fn
+from model.train_helper import BaseTrainer, build_model_fn, BaseEncoder
 
 
 hp_list = [HpParser.hp('warmup_ratio', 0.1),
@@ -13,14 +13,9 @@ hp_list = [HpParser.hp('warmup_ratio', 0.1),
 hp_parser = HpParser(hp_list)
 
 
-class ElectraEncoder(object):
+class ElectraEncoder(BaseEncoder):
     def __init__(self):
-        self.params = None
-
-    def get_input_mask(self, seq_len):
-        maxlen = tf.reduce_max(seq_len)
-        input_mask = tf.sequence_mask(seq_len, maxlen=maxlen)
-        return input_mask
+        super(ElectraEncoder, self).__init__()
 
     def encode(self, features, is_training):
         electra_config = modeling.BertConfig.from_json_file(os.path.join(self.params['nlp_pretrain_dir'],
