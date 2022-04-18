@@ -24,11 +24,11 @@ class AlbertEncoder(object):
         return input_mask
 
     def encode(self, features, is_training):
-        bert_config = modeling.AlbertConfig.from_json_file(os.path.join(self.params['nlp_pretrain_dir'],
+        albert_config = modeling.AlbertConfig.from_json_file(os.path.join(self.params['nlp_pretrain_dir'],
                                                                         'albert_config.json'))
 
         albert_model = modeling.AlbertModel(
-            config=bert_config,
+            config=albert_config,
             is_training=is_training,
             input_ids=features['input_ids'],
             input_mask=self.get_input_mask(features['seq_len']),
