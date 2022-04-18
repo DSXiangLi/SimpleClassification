@@ -12,10 +12,10 @@ class BaseDataset(object):
         self.batch_size = batch_size
         self.raw_data = []
         self.samples = []
-        self.dtypes = {}
-        self.shapes = {}
-        self.pads = {}
-        self.feature_names = []
+        self.dtypes = {'idx': tf.int32} # sample id
+        self.shapes = {'idx': []}
+        self.pads = {'idx': -1}
+        self.feature_names = ['idx']
         self.label_names = []
         self.build_proto()
 
@@ -38,9 +38,11 @@ class BaseDataset(object):
         By Default, each data folder has 3 files: train/valid/test
         """
         raw_data = []
-        with open(os.path.join(self.data_dir, file_name+ '.txt'), 'rb') as f:
-            for line in f:
-                raw_data.append(json.loads(line.strip()))
+        with open(os.path.join(self.data_dir, file_name + '.txt'), 'rb') as f:
+            for idx, line in enumerate(f):
+                line = json.loads(line.strip())
+                line['idx'] = idx
+                raw_data.append(line)
         self.raw_data = raw_data
 
     def build_serving_proto(self):
@@ -110,9 +112,9 @@ class GeneratorDataset(BaseDataset):
         self.cacher.dump(self.samples, file_name)
 
     def build_generator(self):
-        for s in self.samples:
+        for idx, s in enumerate(self.samples):
             feature = {i: s[i] for i in self.feature_names}
-            label = {i:s[i] for i in self.label_names}
+            label = {i: s[i] for i in self.label_names}
             yield feature, label
 
     def build_input_fn(self, is_predict=False, unbatch=False):

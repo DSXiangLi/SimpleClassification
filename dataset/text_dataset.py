@@ -10,27 +10,27 @@ class SeqDataset(GeneratorDataset):
         super(SeqDataset, self).__init__(data_dir, batch_size, enable_cache, clear_cache)
 
     def build_proto(self):
-        self.dtypes = {
+        self.dtypes.update({
             'input_ids': tf.int32,
             'segment_ids': tf.int32,
             'seq_len': tf.int32,
             'label': tf.int32
-        }
-        self.shapes = {
+        })
+        self.shapes.update({
             'input_ids': [None],
             'segment_ids': [None],
             'seq_len': [],
             'label': []
-        }
-        self.pads = {
+        })
+        self.pads.update({
             'input_ids': self.tokenizer.convert_tokens_to_ids(['[PAD]'])[0],
             'segment_ids': 1,
             'seq_len': 0,
             'label': 0
-        }
+        })
 
         self.label_names = ['label']
-        self.feature_names = ['input_ids', 'segment_ids', 'seq_len']
+        self.feature_names.extend(['input_ids', 'segment_ids', 'seq_len'])
 
     def build_single_feature(self, data):
         tokens = self.tokenizer.tokenize(data['text'][:self.max_seq_len])
@@ -43,6 +43,7 @@ class SeqDataset(GeneratorDataset):
             'input_ids': input_ids,
             'segment_ids': segment_ids,
             'seq_len': seq_len,
+            'idx': int(data['idx']),
             'label': int(data['label'])
         }
 
@@ -54,11 +55,11 @@ class WordDataset(GeneratorDataset):
         super(WordDataset, self).__init__(data_dir, batch_size, enable_cache, clear_cache)
 
     def build_proto(self):
-        self.dtypes = {
+        self.dtypes.update({
             'input_ids': tf.int32,
             'seq_len': tf.int32,
             'label': tf.int32
-        }
+        })
         self.shapes = {
             'input_ids': [None],
             'seq_len': [],
@@ -80,7 +81,8 @@ class WordDataset(GeneratorDataset):
         return {
             'input_ids': input_ids,
             'seq_len': seq_len,
-            'label': int(data['label'])
+            'label': int(data['label']),
+            'idx': int(data['idx'])
         }
 
 
