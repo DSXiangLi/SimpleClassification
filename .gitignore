@@ -7,3 +7,4 @@ pretrain/*/*.vec*
 pretrain/*/*.ckpt*
 pretrain/*/checkpoint
 pretrain/*/*.bz2
+trainsample/douban/ratings.csv
