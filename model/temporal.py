@@ -89,18 +89,20 @@ class TemporalWrapper(BaseEncoder):
     def compute_loss(self, predictions, labels):
         # supervised loss
         mask = tf.cast(tf.where(labels>=0, tf.ones_like(labels), tf.zeros_like(labels)), tf.float32) # select labeled sample
-        loss_func = self.params['loss_func']
-        loss = loss_func(labels, predictions)
+        loss = self.params['loss_func'](labels, predictions)
         supervised_loss = tf.reduce_mean(loss * mask)
-        tf.summary.scaler('loss/supervised_loss', supervised_loss)
+        add_layer_summary('supervised_mask', mask)
+        tf.summary.scalar('loss/supervised_loss', supervised_loss)
+
         # MSE between current prediction and temporal ensemble
         cur_epoch = tf.cast(tf.train.get_or_create_global_step()/self.params['steps_per_epoch'], tf.int32)
         temporal_logits = self.Z/(1-tf.pow(self.alpha, tf.cast(cur_epoch+1, tf.float32)))  # startup bias
         mse_loss = tf.reduce_mean((tf.nn.softmax(predictions) - tf.nn.softmax(temporal_logits))**2)
-        tf.summary.scaler('loss/mse_loss', mse_loss)
+        tf.summary.scalar('loss/mse_loss', mse_loss)
+
         # Loss加权
         weight = ramp_up(cur_epoch, self.params['epoch_size'], self.params['ramp_up_method']) * self.wmax
-        tf.summary.scaler('loss_weight', weight)
+        tf.summary.scalar('loss_weight', weight)
         total_loss = supervised_loss + mse_loss * weight
         return total_loss
 
