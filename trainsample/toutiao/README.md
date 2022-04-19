@@ -1,8 +1,8 @@
 ## 今日头条文本分类数据集
 
-数据来源：https://github.com/aceimnorstuvwxz/toutiao-text-classfication-dataset
+1. 数据来源：https://github.com/aceimnorstuvwxz/toutiao-text-classfication-dataset
 
-今日头条客户端
+2. 样本概述
 
 数据格式：
 
