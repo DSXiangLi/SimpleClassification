@@ -1,0 +1,23 @@
+python main.py \
+  --model 'bert'\
+  --loss 'ce'\
+  --use_temporal\
+  --temporal_alpha 0.1\
+  --max_unsupervised 1.0\
+  --ramp_up_method 'sigmoid'\
+  --data_dir 'toutiao'\
+  --nlp_pretrain_model 'bert_base' \
+  --ckpt_dir 'toutiao_bert_temporal' \
+  --epoch_size 5\
+  --batch_size 32\
+  --max_seq_len 150\
+  --lr 1e-5\
+  --label_size 2\
+  --use_gpu \
+  --device 5\
+  --clear_cache\
+  --enable_cache\
+  --clear_model\
+  --do_train\
+  --do_eval\
+  --do_export
