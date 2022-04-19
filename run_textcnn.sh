@@ -15,6 +15,7 @@ python main.py \
   --use_gpu \
   --device 4\
   --enable_cache\
+  --clear_cache\
   --clear_model\
   --do_train\
   --do_eval\

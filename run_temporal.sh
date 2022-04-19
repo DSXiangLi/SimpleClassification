@@ -12,11 +12,9 @@ python main.py \
   --batch_size 32\
   --max_seq_len 150\
   --lr 1e-5\
-  --label_size 2\
+  --label_size 15\
   --use_gpu \
   --device 5\
-  --clear_cache\
-  --enable_cache\
   --clear_model\
   --do_train\
   --do_eval\

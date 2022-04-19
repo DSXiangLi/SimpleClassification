@@ -13,8 +13,6 @@ python main.py \
   --label_size 2\
   --use_gpu \
   --device 5\
-  --enable_cache\
-  --clear_model\
   --do_train\
   --do_eval\
   --do_export
