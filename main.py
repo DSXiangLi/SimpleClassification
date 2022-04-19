@@ -16,6 +16,7 @@ def main():
 
     #Semi-Supervised Method
     parser.add_argument('--use_mixup', action='store_true', default=False)  # 使用mixup
+    parser.add_argument('--use_temporal', action='store_true', default=False)  # 使用Temporal
 
     #多任务和对抗训练相关
     parser.add_argument('--use_multitask', action='store_true', default=False)  # 使用share private multitask
@@ -35,6 +36,10 @@ def main():
     mixup_hp_parser = getattr(importlib.import_module('model.mixup'), 'hp_parser')
     if parser.parse_known_args()[0].use_mixup:
         parser = mixup_hp_parser.append(parser)
+
+    temporal_hp_parser = getattr(importlib.import_module('model.temporal'), 'hp_parser')
+    if parser.parse_known_args()[0].use_temporal:
+        parser = temporal_hp_parser.append(parser)
 
     # 所有模型通用HP
     parser.add_argument('--nlp_pretrain_model', default='chinese_L-12_H-768_A-12', type=str)
@@ -100,9 +105,13 @@ def main():
         'thresholds': [float(i) for i in args.thresholds.split(',')] # threshold list to evaluate F1/precision/recall
     }
 
+    # Update TP
     TP = model_hp_parser.update(TP, args)
     if parser.parse_known_args()[0].use_mixup:
         TP = mixup_hp_parser.update(TP, args)
+
+    if parser.parse_known_args()[0].use_temporal:
+        TP = temporal_hp_parser.update(TP, args)
 
     # get loss function
     loss_hp = loss_hp_parser.parse(args)
@@ -140,6 +149,9 @@ def main():
 
     if args.use_mixup:
         from model.mixup import get_trainer
+        trainer = get_trainer(args.model)
+    elif args.use_temporal:
+        from model.temporal import get_trainer
         trainer = get_trainer(args.model)
     elif args.use_multitask:
         from model.multitask import get_trainer
