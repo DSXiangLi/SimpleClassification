@@ -3,41 +3,42 @@ import os
 import tensorflow as tf
 import importlib
 from tools.train_utils import HpParser, add_layer_summary
-from model.train_helper import  build_model_fn
+from model.train_helper import build_model_fn, BaseEncoder
 
 hp_list = [HpParser.hp('mixup_alpha', 0.1)]
 hp_parser = HpParser(hp_list)
 
 
-class MixupWrapper(object):
+def mixup(input_x, input_y, label_size, alpha):
+    """
+    Input
+        input_x: batch_size * emb_size
+        input_y: batch_size * label_size
+    Return:
+        same shape as above
+    """
+    # get mixup lambda
+    batch_size = tf.shape(input_x)[0]
+    input_y = tf.one_hot(input_y, depth=label_size)
+
+    mix = tf.distributions.Beta(alpha, alpha).sample(1)
+    mix = tf.maximum(mix, 1 - mix)
+
+    # get random shuffle sample
+    index = tf.random_shuffle(tf.range(batch_size))
+    random_x = tf.gather(input_x, index)
+    random_y = tf.gather(input_y, index)
+
+    # get mixed input
+    xmix = input_x * mix + random_x * (1 - mix)
+    ymix = tf.cast(input_y, tf.float32) * mix + tf.cast(random_y, tf.float32) * (1 - mix)
+    return xmix, ymix
+
+
+class MixupWrapper(BaseEncoder):
     def __init__(self, encoder):
+        super(MixupWrapper, self).__init__()
         self.encoder = encoder
-
-    @staticmethod
-    def mixup(input_x, input_y, label_size, alpha):
-        """
-        Input
-            input_x: batch_size * emb_size
-            input_y: batch_size * label_size
-        Return:
-            same shape as above
-        """
-        # get mixup lambda
-        batch_size = tf.shape(input_x)[0]
-        input_y = tf.one_hot(input_y, depth=label_size)
-
-        mix = tf.distributions.Beta(alpha, alpha).sample(1)
-        mix = tf.maximum(mix, 1 - mix)
-
-        # get random shuffle sample
-        index = tf.random_shuffle(tf.range(batch_size))
-        random_x = tf.gather(input_x, index)
-        random_y = tf.gather(input_y, index)
-
-        # get mixed input
-        xmix = input_x * mix + random_x * (1 - mix)
-        ymix = tf.cast(input_y, tf.float32) * mix + tf.cast(random_y, tf.float32) * (1 - mix)
-        return xmix, ymix
 
     def __call__(self, features, labels, params, is_training):
         self.params = params
@@ -46,7 +47,7 @@ class MixupWrapper(object):
 
         with tf.variable_scope('mixup'):
             if is_training:
-                xmix, ymix = self.mixup(embedding, labels, self.params['label_size'], self.params['mixup_alpha'])
+                xmix, ymix = mixup(embedding, labels, self.params['label_size'], self.params['mixup_alpha'])
             else:
                 # keep testing sample unchanged
                 xmix, ymix = embedding, labels
