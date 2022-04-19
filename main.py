@@ -15,7 +15,11 @@ def main():
     parser.add_argument("--loss", default='ce', type=str)
 
     #Semi-Supervised Method
-    parser.add_argument('--use_mixup', action='store_true', default=False) #使用mixup
+    parser.add_argument('--use_mixup', action='store_true', default=False)  # 使用mixup
+
+    #多任务和对抗训练相关
+    parser.add_argument('--use_multitask', action='store_true', default=False)  # 使用share private multitask
+    parser.add_argument('--use_adversarial', action='store_true', default=False)  # 使用share private adversarial
 
     # 导入模型特有HP
     model_name = parser.parse_known_args()[0].model
@@ -36,7 +40,7 @@ def main():
     parser.add_argument('--nlp_pretrain_model', default='chinese_L-12_H-768_A-12', type=str)
 
     parser.add_argument("--ckpt_dir", type=str)
-    parser.add_argument("--data_dir", type=str) # 数据目录，默认包含train.txt/valid.txt/test.txt
+    parser.add_argument("--data_dir", type=str) # 数据目录默认包含train/test/valid.txt,如果多输入用，分割
 
     parser.add_argument("--max_seq_len", default=150, type=int)  # 文本最大长度
     parser.add_argument("--label_size", default=2, type=int)  # 文本最大长度
@@ -55,15 +59,14 @@ def main():
 
     # train/predict/export
     parser.add_argument("--clear_model", action='store_true', default=False)
-    parser.add_argument("--do_train", action='store_true', default=False) # 训练
-    parser.add_argument("--do_eval", action='store_true', default=False) # 测试集预测 & 评估
-    parser.add_argument("--do_export", action='store_true', default=False) # 导出模型
+    parser.add_argument("--do_train", action='store_true', default=False)  # 训练
+    parser.add_argument("--do_eval", action='store_true', default=False)  # 测试集预测 & 评估
+    parser.add_argument("--do_export", action='store_true', default=False)  # 导出模型
 
     #其他
-    parser.add_argument("--enable_cache", action='store_true', default=False) # 使用之前tokenizer cache的特征
-    parser.add_argument("--clear_cache", action='store_true', default=False) # 清楚之前tokenizer cache的特征
-    parser.add_argument("--thresholds", default='0.6,0.7,0.8,0.9') # 评估F1的阈值
-
+    parser.add_argument("--enable_cache", action='store_true', default=False)  # 使用之前tokenizer cache的特征
+    parser.add_argument("--clear_cache", action='store_true', default=False)  # 清楚之前tokenizer cache的特征
+    parser.add_argument("--thresholds", default='0.6,0.7,0.8,0.9')  # 评估F1的阈值
 
     args = parser.parse_args()
 
@@ -77,7 +80,6 @@ def main():
         'export_dir': os.path.join(EXPORT_DIR, args.ckpt_dir),# 这里导出模型和checkpoint默认保持同名
         'data_dir': os.path.join(DATA_DIR, args.data_dir),
         'predict_file': args.ckpt_dir + '.txt', # 默认预测文件名和ckpt相同
-
 
         'nlp_pretrain_model': args.nlp_pretrain_model,
         'nlp_pretrain_dir': PRETRAIN_CONFIG[args.nlp_pretrain_model].model_dir,
@@ -106,18 +108,25 @@ def main():
     loss_hp = loss_hp_parser.parse(args)
     TP['loss_func'] = LossFunc[loss_name](**loss_hp)
 
-    # 多分类问题加入labelid到分类名称的映射
+    # 多分类问题：加入labelid到分类名称的映射
     if TP['label_size']>2:
         TP['label2idx'] = getattr(importlib.import_module('trainsample.{}.preprocess'.format(args.data_dir)), 'Label2Idx')
         TP['idx2label'] = dict([(j,i) for i,j in TP['label2idx'].items()])
 
+    # 多任务问题：得到任务列表和任务数
+    if ',' in TP['data_dir']:
+        TP['data_dir'] = TP['data_dir'].split(',')
+        TP['task_size'] = len(TP['data_dir'])
+        if not args.use_multitask and not args.use_adversarial:
+            raise ValueError('For multi data source, you must enable either mutlitask or adversarial')
+
+    # 删除checkpoint，summary cache
     if args.clear_model:
-        #删除checkpoint，summary cache
         clear_model(TP['ckpt_dir'])
         tf.summary.FileWriterCache.clear()
 
+    # 如果ckpt为空创建目录
     if not os.path.isdir(TP['ckpt_dir']):
-        #如果ckpt目录为空创建目录
         os.mkdir(TP['ckpt_dir'])
 
     RUN_CONFIG.update({
@@ -131,6 +140,12 @@ def main():
 
     if args.use_mixup:
         from model.mixup import get_trainer
+        trainer = get_trainer(args.model)
+    elif args.use_multitask:
+        from model.multitask import get_trainer
+        trainer = get_trainer(args.model)
+    elif args.use_adversarial:
+        from model.adversarial import get_trainer
         trainer = get_trainer(args.model)
     else:
         trainer = getattr(importlib.import_module('model.{}.model'.format(args.model)), 'trainer')
