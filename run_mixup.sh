@@ -4,7 +4,7 @@ python main.py \
   --use_mixup\
   --mixup_alpha 0.1\
   --data_dir 'weibo'\
-  --nlp_pretrain_model 'bert' \
+  --nlp_pretrain_model 'bert_base' \
   --ckpt_dir 'weibo_bert_mixup' \
   --epoch_size 5\
   --batch_size 32\

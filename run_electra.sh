@@ -7,7 +7,7 @@ python main.py \
   --epoch_size 5\
   --batch_size 32\
   --max_seq_len 150\
-  --lr 1e-5\
+  --lr 1e-4\
   --label_size 2\
   --use_gpu \
   --device 3\
