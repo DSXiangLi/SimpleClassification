@@ -9,3 +9,7 @@ pretrain/*/checkpoint
 pretrain/*/*.bz2
 trainsample/douban/*.csv
 trainsample/douban/*.txt
+trainsample/dianping/*.txt
+trainsample/dianping/*.csv
+trainsample/chinanews/*.txt
+trainsample/chinanews/*.csv
