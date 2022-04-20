@@ -40,10 +40,13 @@ class MixupWrapper(BaseEncoder):
         super(MixupWrapper, self).__init__()
         self.encoder = encoder
 
+    def encode(self, features, is_training):
+        return self.encoder.encode(features, is_training)
+
     def __call__(self, features, labels, params, is_training):
         self.params = params
         self.encoder.params = params
-        embedding = self.encoder.encode(features, is_training)
+        embedding = self.encode(features, is_training)
 
         with tf.variable_scope('mixup'):
             if is_training:

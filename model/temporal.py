@@ -54,13 +54,16 @@ class TemporalWrapper(BaseEncoder):
         self.alpha = None  # temporal ensemble momentum
         self.wmax = None  # max weight unsupervised loss
 
+    def encode(self, features, is_training):
+        return self.encoder.encode(features, is_training)
+
     def __call__(self, features, labels, params, is_training):
         self.params = params
         self.encoder.params = params
         self.alpha = self.params['temporal_alpha']
         self.wmax = tf.cast(self.params['max_unsupervised'] * self.params['labeled_size'] / self.params['sample_size'], tf.float32)
 
-        embedding = self.encoder.encode(features, is_training)
+        embedding = self.encode(features, is_training)
 
         with tf.variable_scope('mlp'):
             preds = tf.layers.dense(embedding, units=self.params['label_size'], activation=None, use_bias=True)
