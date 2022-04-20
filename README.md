@@ -18,19 +18,21 @@
 - [x] Roberta
 - [x] Albert
 - [ ] Xlnet
-- [x] Electra
+- [ ] Electra
 - [ ] Distill Bert
 
-### 多任务
-- [ ] Bert Multitask 
-- [ ] Bert Adversarial 
-
-### 半监督 & 增强
+### 训练框架
+- [ ] Multitask 
+- [ ] Adversarial 
 - [x] Mixup
-- [ ] Temporal 
+- [x] Temporal 
 - [ ] MixMatch
+
+### 文本增强
 - [ ] EDA: SR, RS, RD
+- [ ] Entity Replacement 
 - [ ] Mask LM
+- [ ] Vote
 
 ### Loss
 - [x] Focal Loss
