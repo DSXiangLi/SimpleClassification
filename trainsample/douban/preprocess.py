@@ -4,6 +4,13 @@ import os
 from trainsample.converter import single_text
 from sklearn.model_selection import train_test_split
 
+Label2Idx = {
+    1:1,
+    2:2,
+    3:3,
+    4:4,
+    5:5
+}
 
 def main():
     data_dir = './trainsample/douban'
