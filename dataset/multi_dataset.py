@@ -82,16 +82,16 @@ class MultiDataset(object):
             else:
                 # 等权合并多个数据源
                 dataset_list = [ds.build_input_fn(is_predict, unbatch=True)().\
-                                    map(lambda feature, label: pipe.add_task_id(feature, label, task))
-                                for task, ds in pipe.datasets.items()]
-                choice = tf.data.Dataset.range(pipe.task_size).repeat()
+                                    map(lambda feature, label: self.add_task_id(feature, label, task))
+                                for task, ds in self.datasets.items()]
+                choice = tf.data.Dataset.range(self.task_size).repeat()
 
                 dataset = tf.data.experimental.choose_from_datasets(dataset_list, choice)
 
             if not is_predict:
                 dataset = dataset.shuffle(int(self.batch_size * 5)).repeat()
 
-            dataset = dataset.padded_batch(pipe.batch_size, shapes, pads).\
+            dataset = dataset.padded_batch(self.batch_size, shapes, pads).\
                 prefetch(tf.data.experimental.AUTOTUNE)
 
             return dataset
