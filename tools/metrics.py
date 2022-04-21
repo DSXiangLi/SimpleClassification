@@ -24,6 +24,22 @@ def pr_summary_hook(probs, labels, num_threshold, output_dir, save_steps):
     return summary_hook
 
 
+def get_metric_ops(probs, labels, idx2label):
+    if probs.shape.as_list()[-1] == 2:
+        metric_ops = binary_cls_metrics(probs, labels)
+    else:
+        metric_ops = multi_cls_metrics(probs, labels, idx2label)
+    return metric_ops
+
+
+def get_eval_report(probs, labels, idx2label, thresholds):
+    if len(probs[0]) == 2:
+        eval_report = binary_cls_report(probs, labels, thresholds)
+    else:
+        eval_report = multi_cls_report(probs, labels, idx2label)
+    return eval_report
+
+
 def binary_cls_metrics(probs, labels):
     """
     二分类任务 TF Metrics
