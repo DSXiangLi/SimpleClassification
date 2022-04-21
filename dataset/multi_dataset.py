@@ -17,6 +17,7 @@ class MultiDataset(object):
         self.dtypes = {'task_ids': tf.int32}
         self.feature_names = ['task_ids']
         self.label_names = []
+        self.build_proto()
 
     @property
     def task_size(self):
@@ -81,17 +82,31 @@ class MultiDataset(object):
             else:
                 # 等权合并多个数据源
                 dataset_list = [ds.build_input_fn(is_predict, unbatch=True)().\
-                                    map(lambda feature, label: self.add_task_id(feature, label, task))
-                                for task, ds in self.datasets.items()]
-                choice = tf.data.Dataset.range(self.task_size).repeat()
+                                    map(lambda feature, label: pipe.add_task_id(feature, label, task))
+                                for task, ds in pipe.datasets.items()]
+                choice = tf.data.Dataset.range(pipe.task_size).repeat()
 
                 dataset = tf.data.experimental.choose_from_datasets(dataset_list, choice)
 
             if not is_predict:
                 dataset = dataset.shuffle(int(self.batch_size * 5)).repeat()
 
-            dataset = dataset.padded_batch(self.batch_size, shapes, pads).\
+            dataset = dataset.padded_batch(pipe.batch_size, shapes, pads).\
                 prefetch(tf.data.experimental.AUTOTUNE)
 
             return dataset
         return helper
+
+
+if __name__ =='__main__':
+    import os
+    from dataset.tokenizer import get_tokenizer
+    from dataset.text_dataset import SeqDataset
+    pipe = MultiDataset(SeqDataset, ['./trainsample/weibo','./trainsample/waimai'],
+                        5, 10, get_tokenizer('bert_base'), False, False)
+    os.environ["CUDA_VISIBLE_DEVICES"] = '5'
+    pipe.build_feature('train')
+    sess = tf.Session()
+    it = tf.data.make_one_shot_iterator(pipe.build_input_fn())
+    f = sess.run(it.get_next())
+
