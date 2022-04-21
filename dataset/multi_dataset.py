@@ -6,16 +6,16 @@ import tensorflow as tf
 
 
 class MultiDataset(object):
-    def __init__(self,  batch_size, max_seq_len, data_dir_list, dataset_cls,tokenizer, use_cache):
+    def __init__(self, dataset_cls, data_dir_list, batch_size, max_seq_len, tokenizer, enable_cache, clear_cache):
         self.batch_size = batch_size
         self.max_seq_len = max_seq_len
         self.data_dir_list = data_dir_list
-        self.datasets = dict([(data_dir, dataset_cls(data_dir, batch_size, max_seq_len, tokenizer, use_cache))
+        self.datasets = dict([(data_dir, dataset_cls(data_dir, batch_size, max_seq_len, tokenizer, enable_cache, clear_cache))
                               for data_dir in data_dir_list])
-        self.shapes = {}
-        self.pads = {}
-        self.dtypes = {}
-        self.feature_names = []
+        self.shapes = {'task_ids': []}
+        self.pads = {'task_ids': 0}
+        self.dtypes = {'task_ids': tf.int32}
+        self.feature_names = ['task_ids']
         self.label_names = []
 
     @property
@@ -30,7 +30,7 @@ class MultiDataset(object):
         return int(sum([d.sample_size for d in self.datasets.values()]))
 
     @property
-    def steps_per_epochs(self):
+    def steps_per_epoch(self):
         return int(self.sample_size/self.batch_size)
 
     @property
@@ -48,15 +48,11 @@ class MultiDataset(object):
         """
         因为两个任务的输入相同，所以直接继承其中一个的proto，然后加入task即可
         """
-        self.shapes = self.datasets[self.data_dir_list[0]].shapes
-        self.dtypes = self.datasets[self.data_dir_list[0]].dtypes
-        self.pads = self.datasets[self.data_dir_list[0]].pads
+        self.shapes.update(self.datasets[self.data_dir_list[0]].shapes)
+        self.dtypes.update(self.datasets[self.data_dir_list[0]].dtypes)
+        self.pads.update(self.datasets[self.data_dir_list[0]].pads)
 
-        self.shapes.update({'task_ids': []})
-        self.dtypes.update({'task_ids': tf.int32})
-        self.pads.update({'task_ids': 0})
-
-        self.feature_names = self.datasets[self.data_dir_list[0]].feature_names + ['task_ids']
+        self.feature_names += self.datasets[self.data_dir_list[0]].feature_names
         self.label_names = self.datasets[self.data_dir_list[0]].label_names
 
     def build_feature(self, file_name):
@@ -71,19 +67,25 @@ class MultiDataset(object):
                                                 name=i)
         return tf.estimator.export.ServingInputReceiver(receiver_tensor, receiver_tensor)
 
-    def build_input_fn(self, is_predict=False):
+    def build_input_fn(self, is_predict=False, task_name=None):
         def helper():
             shapes = ({i: self.shapes[i] for i in self.feature_names},
                       {i: self.shapes[i] for i in self.label_names})
             pads = ({i: self.pads[i] for i in self.feature_names},
                       {i: self.pads[i] for i in self.label_names})
 
-            dataset_list = [ds.build_input_fn(is_predict, unbatch=True)().\
-                                map(lambda feature, label: self.add_task_id(task))
-                            for task, ds in self.datasets.items()]
-            choice = tf.data.Dataset.range(self.task_size).repeat()
+            if task_name:
+                # run single input fn
+                dataset = self.datasets[task_name].build_input_fn(is_predict, unbatch=True)(). \
+                    map(lambda feature, label: self.add_task_id(feature, label, task_name))
+            else:
+                # 等权合并多个数据源
+                dataset_list = [ds.build_input_fn(is_predict, unbatch=True)().\
+                                    map(lambda feature, label: self.add_task_id(feature, label, task))
+                                for task, ds in self.datasets.items()]
+                choice = tf.data.Dataset.range(self.task_size).repeat()
 
-            dataset = tf.contrib.data.choose_from_datasets(dataset_list, choice)
+                dataset = tf.data.experimental.choose_from_datasets(dataset_list, choice)
 
             if not is_predict:
                 dataset = dataset.shuffle(int(self.batch_size * 5)).repeat()

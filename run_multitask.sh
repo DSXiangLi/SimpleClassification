@@ -1,0 +1,22 @@
+python main.py \
+  --model 'bert'\
+  --loss 'ce'\
+  --use_multitask\
+  --data_dir 'weibo,waimai'\
+  --nlp_pretrain_model 'bert_base' \
+  --ckpt_dir 'weibo_waimai_bert_v1' \
+  --epoch_size 5\
+  --batch_size 32\
+  --max_seq_len 150\
+  --lr 1e-5\
+  --task_label_size '2,2'\
+  --task_weight '1,1'\
+  --share_size 100\
+  --share_dropout 0.3\
+  --share_activation 'relu'\
+  --use_gpu \
+  --device 3\
+  --do_train\
+  --clear_model\
+  --do_eval\
+  --do_export

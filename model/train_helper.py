@@ -4,7 +4,7 @@ import json
 import tensorflow as tf
 from tools.train_utils import build_estimator, get_log_hook
 from tools.logger import get_logger
-from tools.metrics import binary_cls_report, binary_cls_metrics, pr_summary_hook, multi_cls_metrics, multi_cls_report
+from tools.metrics import get_eval_report, get_metric_ops
 
 
 class BaseEncoder(object):
@@ -76,19 +76,22 @@ def build_model_fn(encoder):
                                               training_hooks=[get_log_hook(total_loss, params['log_steps'])])
 
         else:
-            if params['label_size']==2:
-                metric_ops = binary_cls_metrics(probs, labels)
-                summary_hook = [pr_summary_hook(probs, labels, num_threshold=20,
-                                                output_dir=params['model_dir'], save_steps=params['save_steps'])]
-
+            if params.get('task_size',1)==1:
+                # 单任务metrics
+                metric_ops = get_metric_ops(probs, labels, params['idx2lable'])
             else:
-                metric_ops = multi_cls_metrics(probs, labels, params['idx2label'])
-                summary_hook = None
+                # 多任务metrics
+                metric_ops = {}
+                for task_id, (task_name, idx2label) in enumerate(params['idx2label'].items()):
+                    task_idx = tf.where(tf.equal(features['task_ids'], task_id))
+                    task_probs = tf.gather_nd(probs, task_idx)
+                    task_labels = tf.gather_nd(labels, task_idx)
+                    task_ops = get_metric_ops(task_probs, task_labels, idx2label)
+                    metric_ops.update(dict([('task{}'.format(task_id) + i, j) for i,j in task_ops.items()]))
 
             spec = tf.estimator.EstimatorSpec(mode=mode, loss=total_loss,
                                               scaffold=scaffold,
-                                              eval_metric_ops=metric_ops,
-                                              evaluation_hooks=summary_hook)
+                                              eval_metric_ops=metric_ops)
         return spec
     return model_fn
 
@@ -129,30 +132,26 @@ class BaseTrainer(object):
         self.estimator.export_saved_model(self.train_params['export_dir'],
                                           lambda: self.input_pipe.build_serving_proto())
 
-    def infer(self, file):
-        self.logger.info('Running Prediction for test.text')
-        self.input_pipe.build_feature(file)
-        predictions = self.estimator.predict(self.input_pipe.build_input_fn(is_predict=True))
-        probs = [i['prob'] for i in predictions]
-        return probs
-
     def _eval(self):
-        probs = self.infer('test')
-        self.logger.info('Dumping Prediction at {}'.format(os.path.join(self.train_params['data_dir'],
-                                                                        self.train_params['predict_file'])))
-        labels = [i['label'] for i in self.input_pipe.samples]
+        self.input_pipe.build_feature('test')
+        for data_dir, idx2label in self.train_params['idx2label'].items():
+            self.logger.info('Dumping Prediction at {}'.format(os.path.join(data_dir, self.train_params['predict_file'])))
+            if self.train_params.get('task_size', 1)>1:
+                predictions = self.estimator.predict(self.input_pipe.build_input_fn(is_predict=True, task_name=data_dir))
+            else:
+                predictions = self.estimator.predict(self.input_pipe.build_input_fn(is_predict=True))
 
-        with open(os.path.join(self.train_params['data_dir'], self.train_params['predict_file']), 'w') as f:
-            for prob, label in zip(probs, labels):
-                f.write(json.dumps({'prob': prob.tolist(), 'label': label}, ensure_ascii=False) + '\n')
+            probs = [i['prob'] for i in predictions]
+            labels = [i['label'] for i in self.input_pipe.samples]
 
-        self.logger.info('='*10 + 'Evaluation Report' + '='*10)
-        if self.train_params['label_size']==2:
-            eval_report = binary_cls_report(probs, labels, self.train_params['thresholds'])
-        else:
-            eval_report = multi_cls_report(probs, labels, self.train_params['idx2label'])
+            with open(os.path.join(data_dir, self.train_params['predict_file']), 'w') as f:
+                for prob, label in zip(probs, labels):
+                    f.write(json.dumps({'prob': prob.tolist(), 'label': label}, ensure_ascii=False) + '\n')
 
-        self.logger.info('\n' + eval_report + '\n')
+            self.logger.info('='*10 + 'Evaluation Report' + '='*10)
+
+            eval_report = get_eval_report(probs, labels, idx2label, self.train_params['thresholds'])
+            self.logger.info('\n' + eval_report + '\n')
 
     def train(self, train_params, run_config, do_train, do_eval, do_export):
         self.train_params = train_params
