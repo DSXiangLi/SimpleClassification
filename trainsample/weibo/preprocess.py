@@ -5,9 +5,10 @@ from trainsample.converter import single_text
 from sklearn.model_selection import train_test_split
 
 Label2Idx = {
-    '负面':0,
-    '正面':1
+    '负面': 0,
+    '正面': 1
 }
+
 
 def main():
     data_dir = './trainsample/weibo'

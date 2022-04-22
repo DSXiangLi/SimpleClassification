@@ -5,22 +5,23 @@ from trainsample.converter import single_text
 from sklearn.model_selection import train_test_split
 
 Label2Idx = {
-    'news_story':0,
-    'news_culture':1,
-    'news_entertainment':2,
-    'news_sports':3,
-    'news_finance':4,
-    'news_house':5,
-    'news_car':6,
-    'news_edu':7,
-    'news_tech':8,
-    'news_military':9,
-    'news_travel':10,
-    'news_world':11,
-    'stock':12,
-    'news_agriculture':13,
-    'news_game':14
+    'news_story': 0,
+    'news_culture': 1,
+    'news_entertainment': 2,
+    'news_sports': 3,
+    'news_finance': 4,
+    'news_house': 5,
+    'news_car': 6,
+    'news_edu': 7,
+    'news_tech': 8,
+    'news_military': 9,
+    'news_travel': 10,
+    'news_world': 11,
+    'stock': 12,
+    'news_agriculture': 13,
+    'news_game': 14
 }
+
 
 def main():
     data_dir = './trainsample/toutiao'
@@ -29,7 +30,7 @@ def main():
     with open(os.path.join(data_dir, 'toutiao_cat_data.txt'), 'r') as f:
         for line in f.readlines():
             df.append(line.strip().split('_!_'))
-    df = pd.DataFrame(df, columns = ['gid', 'cat_id', 'cat', 'title', 'keywords'])
+    df = pd.DataFrame(df, columns=['gid', 'cat_id', 'cat', 'title', 'keywords'])
     df['label'] = df['cat'].map(lambda x: Label2Idx[x])
 
     train, test = train_test_split(df, test_size=0.2)
@@ -42,4 +43,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
