@@ -9,7 +9,7 @@ from collections import namedtuple
 
 
 def single_text(text_list, label_list, file_name):
-    Fmt = namedtuple('SingleText', ['text', 'label'])
+    Fmt = namedtuple('SingleText', ['text1', 'label'])
 
     with open(file_name, 'w') as f:
         for t, l in zip(text_list, label_list):
