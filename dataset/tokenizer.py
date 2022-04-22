@@ -15,6 +15,7 @@ class CustomTokenizer(object):
     """
     Word Embedding Tokenizer Adapter
     """
+
     def __init__(self, model, addon_vocab=('[UNK]', '[PAD]'), keep_oov=True):
         self.model = model
         self.keep_oov = keep_oov
@@ -34,7 +35,7 @@ class CustomTokenizer(object):
 
     def _add_vocab(self, vocab):
         self.vocab2idx.update({vocab: self.vocab_size})
-        self.vocab_size +=1
+        self.vocab_size += 1
 
     def _add_embedding(self):
         self._embedding = np.vstack((self._embedding,
@@ -69,7 +70,7 @@ class JiebaTokenizer(CustomTokenizer):
 class GensimJiebaTokenizer(JiebaTokenizer):
     def init_vocab(self):
         self.vocab2idx = dict([(word, idx) for idx, word in enumerate(self.model.wv.index2word)])
-        self.idx2vocab = dict([(j,i ) for i,j in self.vocab2idx.items()])
+        self.idx2vocab = dict([(j, i) for i, j in self.vocab2idx.items()])
 
         self._embedding = np.array(self.model.wv.syn0)
         self.vocab_size = len(self.vocab2idx)
@@ -122,22 +123,29 @@ def get_glove_tokenizer(vocab_file, **kwargs):
 
 def get_bert_tokenizer(vocab_file, **kwargs):
     logger.info('Loading vocab_file {} '.format(vocab_file))
-    from backbone.bert import tokenization
-    tokenizer = tokenization.FullTokenizer(vocab_file,  **kwargs)
+    from backbone.bert.tokenization import FullTokenizer
+    tokenizer = FullTokenizer(vocab_file, **kwargs)
     return tokenizer
 
 
 def get_albert_tokenizer(vocab_file, **kwargs):
     logger.info('Loading vocab_file {} '.format(vocab_file))
-    from backbone.albert import tokenization
-    tokenizer = tokenization.FullTokenizer(vocab_file,  **kwargs)
+    from backbone.albert.tokenization import FullTokenizer
+    tokenizer = FullTokenizer(vocab_file, **kwargs)
     return tokenizer
 
 
 def get_electra_tokenizer(vocab_file, **kwargs):
     logger.info('Loading vocab_file {} '.format(vocab_file))
-    from backbone.electra import tokenization # same as bert
-    tokenizer = tokenization.FullTokenizer(vocab_file,  **kwargs)
+    from backbone.electra.tokenization import FullTokenizer  # same as bert
+    tokenizer = FullTokenizer(vocab_file, **kwargs)
+    return tokenizer
+
+
+def get_xlnet_tokenizer(vocab_file, **kwargs):
+    logger.info('Loading vocab_file {} '.format(vocab_file))
+    from backbone.xlnet.tokenization import FullTokenizer  # same as bert
+    tokenizer = FullTokenizer(vocab_file, **kwargs)
     return tokenizer
 
 
@@ -148,16 +156,17 @@ PRETRAIN_CONFIG = {
     'roberta_base': PTM('pretrain/roberta_zh_l12', 'bert_model.ckpt'),
     'bert_wwm_base': PTM('pretrain/chinese_wwm_L-12_H-768_A-12', 'bert_model.ckpt'),
     'albert_base': PTM('pretrain/albert_base', 'model.ckpt-best'),
-    'xlnet_base': PTM('pretrain/chinese_xlnet_base_L-12_H-768_A-12', 'xlnet_model.ckpt'),
     'electra_base': PTM('pretrain/electra_180g_base', 'electra_180g_base.ckpt'),
+    'xlnet_base': PTM('pretrain/chinese_xlnet_base_L-12_H-768_A-12', 'xlnet_model.ckpt'),
 
-    'fasttext':  PTM('pretrain_model/fasttext', 'cc.zh.300.bin'),
+    'fasttext': PTM('pretrain_model/fasttext', 'cc.zh.300.bin'),
     'word2vec_news': PTM('pretrain/word2vec_news', 'sgns.renmin.bigram-char.bz2'),
     'word2vec_baike': PTM('pretrain/word2vec_baike', 'sgns.merge.word'),
 
     'ctb50': PTM('pretrain/ctb50', 'ctb.50d.vec'),
     'giga': PTM('pretrain/giga', 'gigaword_chn.all.a2b.uni.ite50.vec')
 }
+
 
 def get_tokenizer(name, **kwargs):
     """
@@ -169,14 +178,20 @@ def get_tokenizer(name, **kwargs):
         'bert_base': partial(get_bert_tokenizer,
                              vocab_file=os.path.join(pkg_path, PRETRAIN_CONFIG['bert_base'].model_dir, 'vocab.txt')),
         'bert_wwm_base': partial(get_bert_tokenizer,
-                                 vocab_file=os.path.join(pkg_path, PRETRAIN_CONFIG['bert_wwm_base'].model_dir, 'vocab.txt')),
+                                 vocab_file=os.path.join(pkg_path, PRETRAIN_CONFIG['bert_wwm_base'].model_dir,
+                                                         'vocab.txt')),
         'roberta_base': partial(get_bert_tokenizer,
-                                vocab_file=os.path.join(pkg_path, PRETRAIN_CONFIG['roberta_base'].model_dir, 'vocab.txt')),
+                                vocab_file=os.path.join(pkg_path, PRETRAIN_CONFIG['roberta_base'].model_dir,
+                                                        'vocab.txt')),
         'albert_base': partial(get_albert_tokenizer,
-                               vocab_file=os.path.join(pkg_path, PRETRAIN_CONFIG['albert_base'].model_dir, 'vocab_chinese.txt')),
+                               vocab_file=os.path.join(pkg_path, PRETRAIN_CONFIG['albert_base'].model_dir,
+                                                       'vocab_chinese.txt')),
         'electra_base': partial(get_electra_tokenizer,
-                               vocab_file=os.path.join(pkg_path, PRETRAIN_CONFIG['electra_base'].model_dir,
-                                                       'vocab.txt')),
+                                vocab_file=os.path.join(pkg_path, PRETRAIN_CONFIG['electra_base'].model_dir,
+                                                        'vocab.txt')),
+        'xlnet_base': partial(get_xlnet_tokenizer,
+                              vocab_file=os.path.join(pkg_path, PRETRAIN_CONFIG['xlnet_base'].model_dir,
+                                                      'spiece.model')),
         'fasttext': partial(get_fasttext_tokenizer,
                             vocab_file=os.path.join(pkg_path, *PRETRAIN_CONFIG['fasttext'])),
         'word2vec_news': partial(get_word2vec_tokenizer,
@@ -193,4 +208,3 @@ def get_tokenizer(name, **kwargs):
         raise ValueError('Only {} are supported'.format(tokenizer_factory.keys()))
     else:
         return tokenizer_factory[name](**kwargs)
-
