@@ -34,8 +34,9 @@ def ce():
     """
     Cross Entropy, all below loss function adapts to it
     """
-    def helper(labels, logits):
-        num_labels = logits.get_shape().as_list()[-1]
+    def helper(logits, labels, num_labels=None):
+        if not num_labels:
+            num_labels = logits.get_shape().as_list()[-1]
         probs = tf.nn.softmax(logits, axis=-1)
         # transformer labels to one-hot
         if len(labels.get_shape().as_list()) == 1:
@@ -47,8 +48,9 @@ def ce():
 
 @add_loss_hp
 def gce(q=0.7):
-    def helper(labels, logits):
-        num_labels = logits.get_shape().as_list()[-1]
+    def helper(logits, labels, num_labels=None):
+        if not num_labels:
+            num_labels = logits.get_shape().as_list()[-1]
         probs = tf.nn.softmax(logits, axis=-1)
         # transformer labels to one-hot
         if len(labels.get_shape().as_list()) == 1:
@@ -60,8 +62,9 @@ def gce(q=0.7):
 
 @add_loss_hp
 def sce(alpha=0.1, beta=1):
-    def helper(labels, logits):
-        num_labels = logits.get_shape().as_list()[-1]
+    def helper(logits, labels, num_labels=None):
+        if not num_labels:
+            num_labels = logits.get_shape().as_list()[-1]
         probs = tf.nn.softmax(logits, axis=-1)
         # transformer labels to one-hot
         if len(labels.get_shape().as_list()) == 1:
@@ -82,8 +85,9 @@ def sce(alpha=0.1, beta=1):
 
 @add_loss_hp
 def bootce(beta=0.95, is_hard=0):
-    def helper(labels, logits):
-        num_labels = logits.get_shape().as_list()[-1]
+    def helper(logits, labels, num_labels=None):
+        if not num_labels:
+            num_labels = logits.get_shape().as_list()[-1]
         probs = tf.nn.softmax(logits, axis=-1)
         # transformer labels to one-hot
         if len(labels.get_shape().as_list()) == 1:
@@ -104,9 +108,11 @@ def bootce(beta=0.95, is_hard=0):
 
 @add_loss_hp
 def peerce(alpha=0.5):
-    def helper(labels, logits):
-        num_labels = logits.get_shape().as_list()[-1]
+    def helper(logits, labels, num_labels=None):
         # transformer labels to one-hot
+        if not num_labels:
+            num_labels = logits.get_shape().as_list()[-1]
+
         if len(labels.get_shape().as_list()) == 1:
             labels = tf.one_hot(labels, depth=num_labels)
         rand_labels = tf.random.shuffle(labels)
@@ -119,8 +125,9 @@ def peerce(alpha=0.5):
 
 @add_loss_hp
 def focal(gamma=2, alpha=0.24):
-    def helper(labels, logits):
-        num_labels = logits.get_shape().as_list()[-1]
+    def helper(logits, labels, num_labels=None):
+        if not num_labels:
+            num_labels = logits.get_shape().as_list()[-1]
         probs = tf.nn.softmax(logits, axis=-1)
         # transformer labels to one-hot
         if len(labels.get_shape().as_list()) == 1:
