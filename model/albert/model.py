@@ -62,7 +62,6 @@ class AlbertEncoder(BaseEncoder):
         return train_op
 
 
-
 class Trainer(BaseTrainer):
     def __init__(self, model_fn, dataset_cls):
         super(Trainer, self).__init__(model_fn, dataset_cls)
@@ -76,14 +75,7 @@ class Trainer(BaseTrainer):
                                            enable_cache=self.train_params['enable_cache'],
                                            clear_cache=self.train_params['clear_cache'])
         self.input_pipe.build_feature('train')
-
-        self.train_params.update({
-            'model_dir': self.train_params['ckpt_dir'],
-            'sample_size': self.input_pipe.sample_size,
-            'steps_per_epoch': self.input_pipe.steps_per_epoch,
-            'num_train_steps': int(self.input_pipe.steps_per_epoch * self.train_params['epoch_size'])
-        })
-
+        self.train_params = self.input_pipe.update_params(self.train_params)
 
 trainer = Trainer(model_fn=build_model_fn(AlbertEncoder()),
                   dataset_cls=dataset)

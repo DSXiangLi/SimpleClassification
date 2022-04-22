@@ -14,9 +14,9 @@ hp_list = [HpParser.hp('embedding_dropout', 0.3),
 hp_parser = HpParser(hp_list)
 
 
-class Fasttext(BaseEncoder):
+class FasttextEncoder(BaseEncoder):
     def __init__(self):
-        super(Fasttext, self).__init__()
+        super(FasttextEncoder, self).__init__()
         self.embedding = None
 
     def encode(self, features, is_training):
@@ -77,19 +77,10 @@ class Trainer(BaseTrainer):
                                            enable_cache=self.train_params['enable_cache'],
                                            clear_cache=self.train_params['clear_cache'])
         self.input_pipe.build_feature('train')
-
-        self.train_params.update({
-            'embedding': self.input_pipe.tokenizer.embedding,
-            'embedding_size': self.input_pipe.tokenizer.embedding_size,
-            'vocab_size': self.input_pipe.tokenizer.vocab_size,
-            'model_dir': self.train_params['ckpt_dir'],
-            'sample_size': self.input_pipe.sample_size,
-            'steps_per_epoch': self.input_pipe.steps_per_epoch,
-            'num_train_steps': int(self.input_pipe.steps_per_epoch * self.train_params['epoch_size'])
-        })
+        self.train_params = self.input_pipe.update_params(self.train_params)
 
 
-trainer = Trainer(model_fn=build_model_fn(Fasttext()),
+trainer = Trainer(model_fn=build_model_fn(FasttextEncoder()),
                   dataset_cls=dataset)
 
 

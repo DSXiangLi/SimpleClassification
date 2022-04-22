@@ -33,7 +33,7 @@ class SeqDataset(GeneratorDataset):
         self.feature_names.extend(['input_ids', 'segment_ids', 'seq_len'])
 
     def build_single_feature(self, data):
-        tokens = self.tokenizer.tokenize(data['text'][:self.max_seq_len])
+        tokens = self.tokenizer.tokenize(data['text1'][:self.max_seq_len])
         tokens = tokens[:(self.max_seq_len-2)]
         tokens = ['[CLS]'] + tokens + ['[SEP]']
         seq_len = len(tokens)
@@ -46,6 +46,14 @@ class SeqDataset(GeneratorDataset):
             'idx': int(data['idx']),
             'label': int(data['label'])
         }
+
+    def update_params(self, train_params):
+        train_params.update({
+            'sample_size': self.sample_size,
+            'steps_per_epoch': self.steps_per_epoch,
+            'num_train_steps': int(self.steps_per_epoch * train_params['epoch_size'])
+        })
+        return train_params
 
 
 class WordDataset(GeneratorDataset):
@@ -75,7 +83,7 @@ class WordDataset(GeneratorDataset):
         self.feature_names = ['input_ids', 'seq_len']
 
     def build_single_feature(self, data):
-        tokens = self.tokenizer.tokenize(data['text'][:self.max_seq_len])
+        tokens = self.tokenizer.tokenize(data['text1'][:self.max_seq_len])
         input_ids = self.tokenizer.convert_tokens_to_ids(tokens)
         seq_len = len(input_ids) # do after ids due to oov removal
         return {
@@ -84,6 +92,17 @@ class WordDataset(GeneratorDataset):
             'label': int(data['label']),
             'idx': int(data['idx'])
         }
+
+    def update_params(self, train_params):
+        train_params.update({
+            'embedding': self.tokenizer.embedding,
+            'embedding_size': self.tokenizer.embedding_size,
+            'vocab_size': self.tokenizer.vocab_size,
+            'sample_size': self.sample_size,
+            'steps_per_epoch': self.steps_per_epoch,
+            'num_train_steps': int(self.steps_per_epoch * train_params['epoch_size'])
+        })
+        return train_params 
 
 
 if __name__ =='__main__':

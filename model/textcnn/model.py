@@ -54,9 +54,9 @@ def stack_cnn(embedding, filter_list, kernel_size_list, activation,):
     return output
 
 
-class Textcnn(BaseEncoder):
+class TextcnnEncoder(BaseEncoder):
     def __init__(self):
-        super(Textcnn, self).__init__()
+        super(TextcnnEncoder, self).__init__()
         self.params = None
         self.embedding = None
 
@@ -122,19 +122,10 @@ class Trainer(BaseTrainer):
                                            enable_cache=self.train_params['enable_cache'],
                                            clear_cache=self.train_params['clear_cache'])
         self.input_pipe.build_feature('train')
-
-        self.train_params.update({
-            'embedding': self.input_pipe.tokenizer.embedding,
-            'embedding_size': self.input_pipe.tokenizer.embedding_size,
-            'vocab_size': self.input_pipe.tokenizer.vocab_size,
-            'model_dir': self.train_params['ckpt_dir'],
-            'sample_size': self.input_pipe.sample_size,
-            'steps_per_epoch': self.input_pipe.steps_per_epoch,
-            'num_train_steps': int(self.input_pipe.steps_per_epoch * self.train_params['epoch_size'])
-        })
+        self.train_params = self.input_pipe.update_params(self.train_params)
 
 
-trainer = Trainer(model_fn=build_model_fn(Textcnn()),
+trainer = Trainer(model_fn=build_model_fn(TextcnnEncoder()),
                   dataset_cls=dataset)
 
 

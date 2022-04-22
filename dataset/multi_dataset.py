@@ -97,6 +97,18 @@ class MultiDataset(object):
             return dataset
         return helper
 
+    def update_params(self, train_params):
+        """
+        复用子dataset的train params并加入多领域相关的train params
+        """
+        train_params = self.datasets[self.data_dir_list[0]].update_params(train_params)
+        train_params.update({
+            'task_size': self.task_size,
+            'sample_size': self.sample_size,
+            'steps_per_epoch': self.steps_per_epoch,
+            'task2idx': self.task2idx,
+        })
+        return train_params
 
 if __name__ =='__main__':
     import os
@@ -107,6 +119,6 @@ if __name__ =='__main__':
     os.environ["CUDA_VISIBLE_DEVICES"] = '5'
     pipe.build_feature('train')
     sess = tf.Session()
-    it = tf.data.make_one_shot_iterator(pipe.build_input_fn())
+    it = tf.data.make_one_shot_iterator(pipe.build_input_fn()())
     f = sess.run(it.get_next())
 
