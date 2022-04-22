@@ -13,7 +13,7 @@ hp_list = [HpParser.hp('share_size', 200),
            HpParser.hp('task_weight', '0.5,0.5',
                        lambda x:dict([(i, float(j)) for i,j in enumerate(x.split(','))])),  # 各个任务的loss权重
            HpParser.hp('task_label_size', '2,2',
-                       lambda x:dict([(i, float(j)) for i,j in enumerate(x.split(','))])),  # 各个任务的label size
+                       lambda x:dict([(i, int(j)) for i,j in enumerate(x.split(','))])),  # 各个任务的label size
 ]
 hp_parser = HpParser(hp_list)
 
@@ -29,7 +29,7 @@ class MultitaskWrapper(BaseEncoder): # noqa
 
     def domain_layer(self, share_private, embedding, task_id):
         with tf.variable_scope('mlp_task_{}'.format(task_id)):
-            preds = tf.layers.dense(tf.concat([share_private, embedding]),
+            preds = tf.layers.dense(tf.concat([share_private, embedding], axis=-1),
                                     units=self.params['task_label_size'][task_id], activation=None, use_bias=True)
             add_layer_summary('prediction_{}'.format(task_id), preds)
         return preds
@@ -49,15 +49,16 @@ class MultitaskWrapper(BaseEncoder): # noqa
         predictions = []
         for id in range(self.params['task_size']):
             predictions.append(self.domain_layer(share_private, embedding, id))
-        predictions = tf.gather_nd(predictions, self.task_ids)
-        return predictions
+        task_index = tf.stack([self.task_ids, tf.range(tf.shape(labels)[0])], axis=1)
+        predictions = tf.gather_nd(predictions, task_index)
+        return predictions, labels
 
     def compute_loss(self, predictions, labels):
         """
-        各任务loss加权平均
+        各任务loss加权平均，这里暂不支持不同
         """
         loss_func = self.params['loss_func']
-        loss = loss_func(labels, predictions)
+        loss = loss_func(predictions, labels)
         total_loss = 0
         for id, weight in self.params['task_weight'].items():
             task_mask = tf.cast(tf.equal(self.task_ids, id), tf.float32)
@@ -87,14 +88,7 @@ class Trainer(BaseTrainer):
                                            enable_cache=self.train_params['enable_cache'],
                                            clear_cache=self.train_params['clear_cache'])
         self.input_pipe.build_feature('train')
-
-        self.train_params.update({
-            'task_size': self.input_pipe.task_size,
-            'model_dir': self.train_params['ckpt_dir'],
-            'sample_size': self.input_pipe.sample_size,
-            'steps_per_epoch': self.input_pipe.steps_per_epoch,
-            'num_train_steps': int(self.input_pipe.steps_per_epoch * self.train_params['epoch_size'])
-        })
+        self.train_params = self.input_pipe.update_params(self.train_params)
 
 
 def get_trainer(model):
