@@ -43,7 +43,7 @@ class BaseEncoder(object):
 
     def compute_loss(self, predictions, labels):
         loss_func = self.params['loss_func']
-        loss = loss_func(labels, predictions)
+        loss = loss_func(predictions, labels)
         total_loss = tf.reduce_mean(loss)
         return total_loss
 
@@ -78,14 +78,14 @@ def build_model_fn(encoder):
         else:
             if params.get('task_size',1)==1:
                 # 单任务metrics
-                metric_ops = get_metric_ops(probs, labels, params['idx2lable'])
+                metric_ops = get_metric_ops(probs, labels, params['idx2label'])
             else:
                 # 多任务metrics
                 metric_ops = {}
                 for task_id, (task_name, idx2label) in enumerate(params['idx2label'].items()):
                     task_idx = tf.where(tf.equal(features['task_ids'], task_id))
-                    task_probs = tf.gather_nd(probs, task_idx)
-                    task_labels = tf.gather_nd(labels, task_idx)
+                    task_probs = tf.gather(probs, task_idx) # task_sample_size * task_label_sizse
+                    task_labels = tf.gather(labels, task_idx) # task_sample_size
                     task_ops = get_metric_ops(task_probs, task_labels, idx2label)
                     metric_ops.update(dict([('task{}'.format(task_id) + i, j) for i,j in task_ops.items()]))
 

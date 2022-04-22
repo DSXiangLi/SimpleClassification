@@ -92,7 +92,7 @@ class TemporalWrapper(BaseEncoder):
     def compute_loss(self, predictions, labels):
         # supervised loss
         mask = tf.cast(tf.where(labels>=0, tf.ones_like(labels), tf.zeros_like(labels)), tf.float32) # select labeled sample
-        loss = self.params['loss_func'](labels, predictions)
+        loss = self.params['loss_func'](predictions, labels)
         supervised_loss = tf.reduce_mean(loss * mask)
         add_layer_summary('supervised_mask', mask)
         tf.summary.scalar('loss/supervised_loss', supervised_loss)
@@ -123,14 +123,8 @@ class Trainer(BaseTrainer):
                                            enable_cache=self.train_params['enable_cache'],
                                            clear_cache=self.train_params['clear_cache'])
         self.input_pipe.build_feature('train')
+        self.train_params = self.input_pipe.update_params(self.train_params)
 
-        self.train_params.update({
-            'model_dir': self.train_params['ckpt_dir'],
-            'sample_size': self.input_pipe.sample_size,
-            'labeled_size': sum([int(i['label']>=0) for i in self.input_pipe.samples]), # 有标注的样本数量
-            'steps_per_epoch': self.input_pipe.steps_per_epoch,
-            'num_train_steps': int(self.input_pipe.steps_per_epoch * self.train_params['epoch_size'])
-        })
 
 
 def get_trainer(model):
