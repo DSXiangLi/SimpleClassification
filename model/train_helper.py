@@ -76,9 +76,9 @@ def build_model_fn(encoder):
                                               training_hooks=[get_log_hook(total_loss, params['log_steps'])])
 
         else:
-            if params.get('task_size',1)==1:
+            if params.get('task_size', 1)==1:
                 # 单任务metrics
-                metric_ops = get_metric_ops(probs, labels, params['idx2label'])
+                metric_ops = get_metric_ops(probs, labels, params['idx2label'][params['data_dir']])
             else:
                 # 多任务metrics
                 metric_ops = {}
