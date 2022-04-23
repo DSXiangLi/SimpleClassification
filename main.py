@@ -180,4 +180,7 @@ def main():
 
 
 if __name__ == '__main__':
+    import os
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+    tf.logging.set_verbosity(tf.logging.WARN)
     main()
