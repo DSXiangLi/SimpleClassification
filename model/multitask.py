@@ -3,7 +3,7 @@ import tensorflow as tf
 from functools import partial
 import importlib
 from tools.train_utils import HpParser, add_layer_summary
-from model.train_helper import build_model_fn, BaseEncoder, BaseTrainer
+from model.train_helper import build_model_fn, BaseEncoder, Trainer
 from dataset.tokenizer import get_tokenizer
 from dataset.multi_dataset import MultiDataset
 
@@ -11,14 +11,14 @@ hp_list = [HpParser.hp('share_size', 200),
            HpParser.hp('share_dropout', 0.3),
            HpParser.hp('share_activation', 'relu'),
            HpParser.hp('task_weight', '0.5,0.5',
-                       lambda x:dict([(i, float(j)) for i,j in enumerate(x.split(','))])),  # 各个任务的loss权重
+                       lambda x: dict([(i, float(j)) for i, j in enumerate(x.split(','))])),  # 各个任务的loss权重
            HpParser.hp('task_label_size', '2,2',
-                       lambda x:dict([(i, int(j)) for i,j in enumerate(x.split(','))])),  # 各个任务的label size
-]
+                       lambda x: dict([(i, int(j)) for i, j in enumerate(x.split(','))])),  # 各个任务的label size
+           ]
 hp_parser = HpParser(hp_list)
 
 
-class MultitaskWrapper(BaseEncoder): # noqa
+class MultitaskWrapper(BaseEncoder):  # noqa
     def __init__(self, encoder):
         super(MultitaskWrapper, self).__init__()
         self.encoder = encoder
@@ -41,9 +41,11 @@ class MultitaskWrapper(BaseEncoder): # noqa
         embedding = self.encode(features, is_training)
 
         with tf.variable_scope('share_embedding'):
-            share_private = tf.layers.dense(embedding, units=params['share_size'], activation=params['share_activation'])
+            share_private = tf.layers.dense(embedding, units=params['share_size'],
+                                            activation=params['share_activation'])
 
-            share_private = tf.layers.dropout(share_private, rate=params['share_dropout'], seed=1234, training=is_training)
+            share_private = tf.layers.dropout(share_private, rate=params['share_dropout'], seed=1234,
+                                              training=is_training)
 
         # 一个domain一个head，预测结果只取task对应的head预测
         predictions = []
@@ -75,9 +77,9 @@ class MultitaskWrapper(BaseEncoder): # noqa
         return train_op
 
 
-class Trainer(BaseTrainer):
+class MultiTrainer(Trainer):
     def __init__(self, model_fn, dataset_cls):
-        super(Trainer, self).__init__(model_fn, dataset_cls)
+        super(MultiTrainer, self).__init__(model_fn, dataset_cls)
 
     def prepare(self):
         self.logger.info('Prepare dataset')
@@ -96,6 +98,6 @@ def get_trainer(model):
     encoder = getattr(module, '{}Encoder'.format(model.capitalize()))
     dataset = getattr(module, 'dataset')
 
-    trainer = Trainer(model_fn=build_model_fn(MultitaskWrapper(encoder())),
-                      dataset_cls=partial(MultiDataset, dataset_cls=dataset))
+    trainer = MultiTrainer(model_fn=build_model_fn(MultitaskWrapper(encoder())),
+                           dataset_cls=partial(MultiDataset, dataset_cls=dataset))
     return trainer

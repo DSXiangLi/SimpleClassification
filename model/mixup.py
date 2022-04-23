@@ -1,9 +1,9 @@
 # -*-coding:utf-8 -*-
-import os
+
 import tensorflow as tf
 import importlib
 from tools.train_utils import HpParser, add_layer_summary
-from model.train_helper import build_model_fn, BaseEncoder
+from model.train_helper import build_model_fn, BaseEncoder, Trainer
 
 hp_list = [HpParser.hp('mixup_alpha', 0.1)]
 hp_parser = HpParser(hp_list)
@@ -73,7 +73,6 @@ def get_trainer(model):
     module = importlib.import_module('model.{}.model'.format(model))
     encoder = getattr(module, '{}Encoder'.format(model.capitalize()))
     dataset = getattr(module, 'dataset')
-    Trainer = getattr(module, 'Trainer')
 
     trainer = Trainer(model_fn=build_model_fn(MixupWrapper(encoder())),
                       dataset_cls=dataset)

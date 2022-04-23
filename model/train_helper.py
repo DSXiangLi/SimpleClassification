@@ -5,6 +5,7 @@ import tensorflow as tf
 from tools.train_utils import build_estimator, get_log_hook
 from tools.logger import get_logger
 from tools.metrics import get_eval_report, get_metric_ops
+from dataset.tokenizer import get_tokenizer
 
 
 class BaseEncoder(object):
@@ -96,7 +97,7 @@ def build_model_fn(encoder):
     return model_fn
 
 
-class BaseTrainer(object):
+class Trainer(object):
     def __init__(self, model_fn, dataset_cls):
         self.model_fn = model_fn
         self.dataset_cls = dataset_cls
@@ -106,10 +107,15 @@ class BaseTrainer(object):
         self.train_params = None
 
     def prepare(self):
-        """
-        Init Input Pipe and update train_params with input specific parameters
-        """
-        raise NotImplementedError
+        self.logger.info('Prepare dataset')
+        self.input_pipe = self.dataset_cls(data_dir=self.train_params['data_dir'],
+                                           batch_size=self.train_params['batch_size'],
+                                           max_seq_len=self.train_params['max_seq_len'],
+                                           tokenizer=get_tokenizer(self.train_params['nlp_pretrain_model']),
+                                           enable_cache=self.train_params['enable_cache'],
+                                           clear_cache=self.train_params['clear_cache'])
+        self.input_pipe.build_feature('train')
+        self.train_params = self.input_pipe.update_params(self.train_params)
 
     def _train(self):
         self.logger.info('=' * 10 + 'Training {} '.format(self.train_params['model']) + '=' * 10)

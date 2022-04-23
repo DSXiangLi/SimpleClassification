@@ -5,8 +5,7 @@ import importlib
 import numpy as np
 import tensorflow as tf
 
-from dataset.tokenizer import get_tokenizer
-from model.train_helper import build_model_fn, BaseTrainer, BaseEncoder
+from model.train_helper import build_model_fn, Trainer, BaseEncoder
 from tools.train_utils import HpParser, add_layer_summary
 
 hp_list = [HpParser.hp('temporal_alpha', 0.6), #  ensemble alpha
@@ -108,23 +107,6 @@ class TemporalWrapper(BaseEncoder):
         tf.summary.scalar('loss_weight', weight)
         total_loss = supervised_loss + mse_loss * weight
         return total_loss
-
-
-class Trainer(BaseTrainer):
-    def __init__(self, model_fn, dataset_cls):
-        super(Trainer, self).__init__(model_fn, dataset_cls)
-
-    def prepare(self):
-        self.logger.info('Prepare dataset')
-        self.input_pipe = self.dataset_cls(data_dir=self.train_params['data_dir'],
-                                           batch_size=self.train_params['batch_size'],
-                                           max_seq_len=self.train_params['max_seq_len'],
-                                           tokenizer=get_tokenizer(self.train_params['nlp_pretrain_model']),
-                                           enable_cache=self.train_params['enable_cache'],
-                                           clear_cache=self.train_params['clear_cache'])
-        self.input_pipe.build_feature('train')
-        self.train_params = self.input_pipe.update_params(self.train_params)
-
 
 
 def get_trainer(model):

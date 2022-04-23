@@ -1,8 +1,7 @@
 # -*-coding:utf-8 -*-
 import tensorflow as tf
 from dataset.text_dataset import WordDataset as dataset
-from dataset.tokenizer import get_tokenizer
-from model.train_helper import BaseTrainer, build_model_fn, BaseEncoder
+from model.train_helper import Trainer, build_model_fn, BaseEncoder
 from tools.opt_utils import train_op_clip_decay
 from tools.train_utils import add_layer_summary, HpParser
 
@@ -61,23 +60,6 @@ class FasttextEncoder(BaseEncoder):
                                        self.params['lower_clip'], self.params['upper_clip']
                                        )
         return train_op
-
-
-class Trainer(BaseTrainer):
-    def __init__(self, model_fn, dataset_cls):
-        super(Trainer, self).__init__(model_fn, dataset_cls)
-
-    def prepare(self):
-        self.logger.info('Prepare dataset')
-        self.input_pipe = self.dataset_cls(data_dir=self.train_params['data_dir'],
-                                           batch_size=self.train_params['batch_size'],
-                                           max_seq_len=self.train_params['max_seq_len'],
-                                           tokenizer=get_tokenizer(self.train_params['nlp_pretrain_model'],
-                                                                   keep_oov=self.train_params['keep_oov']),
-                                           enable_cache=self.train_params['enable_cache'],
-                                           clear_cache=self.train_params['clear_cache'])
-        self.input_pipe.build_feature('train')
-        self.train_params = self.input_pipe.update_params(self.train_params)
 
 
 trainer = Trainer(model_fn=build_model_fn(FasttextEncoder()),
