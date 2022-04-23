@@ -2,9 +2,9 @@
 import jieba_fast as jieba
 import os
 import numpy as np
-from functools import partial
 from collections import namedtuple
 from tools.logger import logger
+from functools import partial
 from gensim.test.utils import datapath, get_tmpfile
 from gensim.models import KeyedVectors
 from gensim.scripts.glove2word2vec import glove2word2vec
@@ -176,35 +176,44 @@ def get_tokenizer(name, **kwargs):
     pkg_path = os.path.dirname(os.path.dirname(basepath))
     tokenizer_factory = {
         'bert_base': partial(get_bert_tokenizer,
-                             vocab_file=os.path.join(pkg_path, PRETRAIN_CONFIG['bert_base'].model_dir, 'vocab.txt')),
+                             vocab_file=os.path.join(pkg_path, PRETRAIN_CONFIG['bert_base'].model_dir, 'vocab.txt'),
+                             do_lower_case=kwargs.get('do_lower_case', True)),
         'bert_wwm_base': partial(get_bert_tokenizer,
                                  vocab_file=os.path.join(pkg_path, PRETRAIN_CONFIG['bert_wwm_base'].model_dir,
-                                                         'vocab.txt')),
+                                                         'vocab.txt'),
+                                 do_lower_case=kwargs.get('do_lower_case', True)),
         'roberta_base': partial(get_bert_tokenizer,
                                 vocab_file=os.path.join(pkg_path, PRETRAIN_CONFIG['roberta_base'].model_dir,
-                                                        'vocab.txt')),
+                                                        'vocab.txt'),
+                                do_lower_case=kwargs.get('do_lower_case', True)),
         'albert_base': partial(get_albert_tokenizer,
                                vocab_file=os.path.join(pkg_path, PRETRAIN_CONFIG['albert_base'].model_dir,
-                                                       'vocab_chinese.txt')),
+                                                       'vocab_chinese.txt'),
+                               do_lower_case=kwargs.get('do_lower_case', True)),
         'electra_base': partial(get_electra_tokenizer,
                                 vocab_file=os.path.join(pkg_path, PRETRAIN_CONFIG['electra_base'].model_dir,
-                                                        'vocab.txt')),
+                                                        'vocab.txt'), do_lower_case=kwargs.get('do_lower_case', True)),
         'xlnet_base': partial(get_xlnet_tokenizer,
                               vocab_file=os.path.join(pkg_path, PRETRAIN_CONFIG['xlnet_base'].model_dir,
-                                                      'spiece.model')),
+                                                      'spiece.model'), do_lower_case=kwargs.get('do_lower_case', True)),
         'fasttext': partial(get_fasttext_tokenizer,
-                            vocab_file=os.path.join(pkg_path, *PRETRAIN_CONFIG['fasttext'])),
+                            vocab_file=os.path.join(pkg_path, *PRETRAIN_CONFIG['fasttext']),
+                            keep_oov=kwargs.get('keep_oov', False)),
         'word2vec_news': partial(get_word2vec_tokenizer,
-                                 vocab_file=os.path.join(pkg_path, *PRETRAIN_CONFIG['word2vec_news'])),
+                                 vocab_file=os.path.join(pkg_path, *PRETRAIN_CONFIG['word2vec_news']),
+                                 keep_oov=kwargs.get('keep_oov', False)),
         'word2vec_baike': partial(get_word2vec_tokenizer,
-                                  vocab_file=os.path.join(pkg_path, *PRETRAIN_CONFIG['word2vec_baike'])),
+                                  vocab_file=os.path.join(pkg_path, *PRETRAIN_CONFIG['word2vec_baike']),
+                                  keep_oov=kwargs.get('keep_oov', False)),
         'giga': partial(get_glove_tokenizer,
-                        vocab_file=os.path.join(pkg_path, *PRETRAIN_CONFIG['giga'].model_dir)),
+                        vocab_file=os.path.join(pkg_path, *PRETRAIN_CONFIG['giga'].model_dir),
+                        keep_oov=kwargs.get('keep_oov', False)),
         'ctb50': partial(get_glove_tokenizer,
-                         vocab_file=os.path.join(pkg_path, *PRETRAIN_CONFIG['ctb50'].model_dir)),
+                         vocab_file=os.path.join(pkg_path, *PRETRAIN_CONFIG['ctb50'].model_dir),
+                         keep_oov=kwargs.get('keep_oov', False)),
     }
 
     if name not in tokenizer_factory:
         raise ValueError('Only {} are supported'.format(tokenizer_factory.keys()))
     else:
-        return tokenizer_factory[name](**kwargs)
+        return tokenizer_factory[name]()
