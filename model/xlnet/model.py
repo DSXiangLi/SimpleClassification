@@ -30,12 +30,13 @@ class XlnetEncoder(BaseEncoder):
         run_config = RunConfig(is_training=is_training,
                                use_tpu=False, use_bfloat16=False,
                                dropout=0.1, dropatt=0.1)
+        # Attention!!!! Xlnet input shape is different: [seq_len, batch_size]
         xlnet_model = XLNetModel(
             xlnet_config=xlnet_config,
             run_config=run_config,
-            input_ids=features['input_ids'],
-            input_mask=self.get_input_mask(features['seq_len']),
-            seg_ids=features['segment_ids']
+            input_ids=tf.transpose(features['input_ids'], perm=[1, 0]),
+            input_mask=tf.transpose(self.get_input_mask(features['seq_len']), perm=[1, 0]),
+            seg_ids=tf.transpose(features['segment_ids'], perm=[1, 0])
         )
 
         embedding = xlnet_model.get_pooled_out(summary_type='last', use_summ_proj=True)
@@ -49,8 +50,6 @@ class XlnetEncoder(BaseEncoder):
         with tf.variable_scope('transfer'):
             preds = tf.layers.dense(embedding, units=self.params['label_size'], activation=None, use_bias=True)
             add_layer_summary('preds', preds)
-            tf.print(preds)
-            tf.print(labels)
         return preds, labels
 
     def init_fn(self):
