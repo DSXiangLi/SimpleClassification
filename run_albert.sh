@@ -1,17 +1,16 @@
 python main.py \
   --model 'albert'\
   --loss 'ce'\
-  --data_dir 'weibo'\
+  --data_dir 'chinanews'\
   --nlp_pretrain_model 'albert_base' \
-  --ckpt_dir 'weibo_albert_v1' \
+  --ckpt_dir 'chinanews_albert_v1' \
   --epoch_size 5\
   --batch_size 32\
   --max_seq_len 150\
   --lr 1e-5\
-  --label_size 2\
+  --label_size 7\
   --use_gpu \
   --device 3\
-  --do_train\
   --clear_model\
+  --do_train\
   --do_eval\
-  --do_export

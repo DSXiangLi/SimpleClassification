@@ -1,0 +1,17 @@
+python main.py \
+  --model 'xlnet'\
+  --loss 'ce'\
+  --data_dir 'weibo'\
+  --nlp_pretrain_model 'xlnet_base' \
+  --ckpt_dir 'weibo_xlnet_v1' \
+  --epoch_size 5\
+  --batch_size 16\
+  --max_seq_len 150\
+  --lr 1e-5\
+  --label_size 2\
+  --use_gpu \
+  --device 5\
+  --do_train\
+  --clear_model\
+  --do_eval\
+  --do_export
