@@ -9,3 +9,5 @@ Clone from below repo, only keep the script for fine tune, and slightly refactor
 3. Xlnet: https://github.com/zihangdai/xlnet
 
 4. Electra: https://github.com/google-research/electra
+
+5. Slim-nets: https://github.com/tensorflow/models/tree/master/research/slim
