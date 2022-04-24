@@ -1,31 +1,37 @@
-# Simple Classification for Text 
+# Simple Classification for Text
 
 ## 支持任务
+### 输出
 - [x] 二分类任务
 - [x] 多分类任务
 - [ ] 有序多分类任务
 
+### 输入
+- [x] 单输入
+- [ ] 双输入
+
 ## 支持模型
+### 文本预训练微调
+- [x] Bert
+- [x] Bert-wwm
+- [x] Roberta
+- [x] Albert
+- [x] Xlnet
+- [x] Electra
+- [ ] Distill
+
 ### 词袋模型
 - [x] Fasttext
 - [x] TextCNN
 - [x] TextRCNN
 - [ ] DPCNN
 
-### 预训练微调
-- [x]  Bert
-- [x] Bert-wwm
-- [x] Roberta
-- [x] Albert
-- [ ] Xlnet
-- [ ] Electra
-- [ ] Distill Bert
 
-### 训练框架
-- [ ] Multitask 
+### 半监督 & 领域迁移框架
+- [ ] Multitask / Domain Transfer
 - [ ] Adversarial 
 - [x] Mixup
-- [x] Temporal 
+- [x] Temporal Ensemble
 - [ ] MixMatch
 
 ### 文本增强
@@ -40,4 +46,3 @@
 - [x] Symmetric Cross Entropy
 - [x] Peer cross Entropy
 - [x] Bootstrapping
-
