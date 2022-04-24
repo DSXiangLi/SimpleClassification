@@ -9,6 +9,7 @@ from dataset.tokenizer import PRETRAIN_CONFIG
 from model.mixup import hp_parser as mixup_hp_parser
 from model.temporal import hp_parser as temporal_hp_parser
 from model.multisource import hp_parser as multisource_hp_parser
+from model.adversarial import hp_parser as adversarial_hp_parser
 
 
 def main():
@@ -42,9 +43,12 @@ def main():
     if parser.parse_known_args()[0].use_temporal:
         parser = temporal_hp_parser.append(parser)
 
-    # 导入多任务相关HP
+    # 导入领域迁移相关HP
     if parser.parse_known_args()[0].use_multisource:
         parser = multisource_hp_parser.append(parser)
+
+    if parser.parse_known_args()[0].use_adversarial:
+        parser = adversarial_hp_parser.append(parser)
 
     # 所有模型通用HP
     parser.add_argument('--nlp_pretrain_model', default='chinese_L-12_H-768_A-12', type=str)
@@ -120,6 +124,9 @@ def main():
     if parser.parse_known_args()[0].use_multisource:
         TP = multisource_hp_parser.update(TP, args)
 
+    if parser.parse_known_args()[0].use_adversarial:
+        TP = adversarial_hp_parser.update(TP, args)
+
     # get loss function
     loss_hp = loss_hp_parser.parse(args)
     TP['loss_func'] = LossFunc[loss_name](**loss_hp)
@@ -181,6 +188,7 @@ def main():
 
 if __name__ == '__main__':
     import os
+    # set logging level to WARN
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
     tf.logging.set_verbosity(tf.logging.WARN)
     main()

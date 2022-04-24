@@ -25,7 +25,7 @@ def pr_summary_hook(probs, labels, num_threshold, output_dir, save_steps):
 
 
 def get_metric_ops(probs, labels, idx2label):
-    if probs.shape.as_list()[-1] == 2:
+    if len(idx2label) == 2:
         metric_ops = binary_cls_metrics(probs, labels)
     else:
         metric_ops = multi_cls_metrics(probs, labels, idx2label)
