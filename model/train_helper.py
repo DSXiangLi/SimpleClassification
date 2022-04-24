@@ -2,7 +2,7 @@
 import os
 import json
 import tensorflow as tf
-from tools.train_utils import build_estimator, get_log_hook
+from tools.train_utils import build_estimator, get_log_hook, add_layer_summary
 from tools.logger import get_logger
 from tools.metrics import get_eval_report, get_metric_ops
 from dataset.tokenizer import get_tokenizer
@@ -84,9 +84,11 @@ def build_model_fn(encoder):
                 # 多任务metrics
                 metric_ops = {}
                 for task_id, (task_name, idx2label) in enumerate(params['idx2label'].items()):
-                    task_idx = tf.where(tf.equal(features['task_ids'], task_id))
-                    task_probs = tf.gather(probs, task_idx) # task_sample_size * task_label_sizse
+                    task_idx = tf.squeeze(tf.where(tf.equal(features['task_ids'], task_id)))
+                    task_probs = tf.gather(probs, task_idx) # task_sample_size * task_label_size
                     task_labels = tf.gather(labels, task_idx) # task_sample_size
+                    tf.logging.warn(task_probs.get_shape())
+                    tf.logging.warn(task_labels.get_shape())
                     task_ops = get_metric_ops(task_probs, task_labels, idx2label)
                     metric_ops.update(dict([('task{}'.format(task_id) + i, j) for i,j in task_ops.items()]))
 
@@ -177,3 +179,19 @@ class Trainer(object):
             self._eval()
         if do_export:
             self._export()
+
+
+class MultiTrainer(Trainer):
+    def __init__(self, model_fn, dataset_cls):
+        super(MultiTrainer, self).__init__(model_fn, dataset_cls)
+
+    def prepare(self):
+        self.logger.info('Prepare dataset')
+        self.input_pipe = self.dataset_cls(data_dir_list=self.train_params['data_dir_list'],
+                                           batch_size=self.train_params['batch_size'],
+                                           max_seq_len=self.train_params['max_seq_len'],
+                                           tokenizer=get_tokenizer(self.train_params['nlp_pretrain_model']),
+                                           enable_cache=self.train_params['enable_cache'],
+                                           clear_cache=self.train_params['clear_cache'])
+        self.input_pipe.build_feature('train')
+        self.train_params = self.input_pipe.update_params(self.train_params)
