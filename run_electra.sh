@@ -10,8 +10,7 @@ python main.py \
   --lr 1e-4\
   --label_size 2\
   --use_gpu \
-  --device 3\
+  --device 5\
   --do_train\
   --clear_model\
-  --do_eval\
-  --do_export
+  --do_eval

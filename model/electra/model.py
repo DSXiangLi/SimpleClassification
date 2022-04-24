@@ -1,7 +1,7 @@
 # -*-coding:utf-8 -*-
 import os
 import tensorflow as tf
-from backbone.electra import optimization, modeling
+from backbone.bert import optimization, modeling
 from tools.train_utils import add_layer_summary, get_variables, get_assignment_from_ckpt, HpParser
 from dataset.text_dataset import SeqDataset as dataset
 from model.train_helper import Trainer, build_model_fn, BaseEncoder
@@ -21,7 +21,7 @@ class ElectraEncoder(BaseEncoder):
                                                                       'base_discriminator_config.json'))
 
         electra_model = modeling.BertModel(
-            bert_config=electra_config,
+            config=electra_config,
             is_training=is_training,
             input_ids=features['input_ids'],
             input_mask=self.get_input_mask(features['seq_len']),
