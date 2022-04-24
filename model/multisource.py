@@ -18,9 +18,9 @@ hp_list = [HpParser.hp('share_size', 200),
 hp_parser = HpParser(hp_list)
 
 
-class MultitaskWrapper(BaseEncoder):  # noqa
+class MultisourceWrapper(BaseEncoder):  # noqa
     def __init__(self, encoder):
-        super(MultitaskWrapper, self).__init__()
+        super(MultisourceWrapper, self).__init__()
         self.encoder = encoder
         self.task_ids = None
 
@@ -98,6 +98,6 @@ def get_trainer(model):
     encoder = getattr(module, '{}Encoder'.format(model.capitalize()))
     dataset = getattr(module, 'dataset')
 
-    trainer = MultiTrainer(model_fn=build_model_fn(MultitaskWrapper(encoder())),
+    trainer = MultiTrainer(model_fn=build_model_fn(MultisourceWrapper(encoder())),
                            dataset_cls=partial(MultiDataset, dataset_cls=dataset))
     return trainer

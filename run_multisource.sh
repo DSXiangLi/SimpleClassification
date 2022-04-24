@@ -1,7 +1,7 @@
 python main.py \
   --model 'bert'\
   --loss 'ce'\
-  --use_multitask\
+  --use_multisource\
   --data_dir 'weibo,waimai'\
   --nlp_pretrain_model 'bert_base' \
   --ckpt_dir 'weibo_waimai_bert_v1' \

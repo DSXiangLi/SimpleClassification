@@ -8,7 +8,7 @@ from tools.train_utils import clear_model, RUN_CONFIG
 from dataset.tokenizer import PRETRAIN_CONFIG
 from model.mixup import hp_parser as mixup_hp_parser
 from model.temporal import hp_parser as temporal_hp_parser
-from model.multitask import hp_parser as multitask_hp_parser
+from model.multisource import hp_parser as multisource_hp_parser
 
 
 def main():
@@ -21,8 +21,8 @@ def main():
     parser.add_argument('--use_mixup', action='store_true', default=False)  # 使用mixup
     parser.add_argument('--use_temporal', action='store_true', default=False)  # 使用Temporal
 
-    # 多任务和对抗训练相关
-    parser.add_argument('--use_multitask', action='store_true', default=False)  # 使用share private multitask
+    # 领域迁移和对抗训练相关
+    parser.add_argument('--use_multisource', action='store_true', default=False)  # 使用share private multisouce
     parser.add_argument('--use_adversarial', action='store_true', default=False)  # 使用share private adversarial
 
     # 导入模型特有HP
@@ -43,8 +43,8 @@ def main():
         parser = temporal_hp_parser.append(parser)
 
     # 导入多任务相关HP
-    if parser.parse_known_args()[0].use_multitask:
-        parser = multitask_hp_parser.append(parser)
+    if parser.parse_known_args()[0].use_multisource:
+        parser = multisource_hp_parser.append(parser)
 
     # 所有模型通用HP
     parser.add_argument('--nlp_pretrain_model', default='chinese_L-12_H-768_A-12', type=str)
@@ -117,15 +117,15 @@ def main():
     if parser.parse_known_args()[0].use_temporal:
         TP = temporal_hp_parser.update(TP, args)
 
-    if parser.parse_known_args()[0].use_multitask:
-        TP = multitask_hp_parser.update(TP, args)
+    if parser.parse_known_args()[0].use_multisource:
+        TP = multisource_hp_parser.update(TP, args)
 
     # get loss function
     loss_hp = loss_hp_parser.parse(args)
     TP['loss_func'] = LossFunc[loss_name](**loss_hp)
 
     # 多任务问题：得到任务列表和任务数以及label映射
-    if args.use_multitask or args.use_adversarial:
+    if args.use_multisource or args.use_adversarial:
         data_list = args.data_dir.split(',')
         TP['data_dir_list'] = [os.path.join(DATA_DIR, i) for i in data_list]
 
@@ -167,8 +167,8 @@ def main():
     elif args.use_temporal:
         from model.temporal import get_trainer
         trainer = get_trainer(args.model)
-    elif args.use_multitask:
-        from model.multitask import get_trainer
+    elif args.use_multisource:
+        from model.multisource import get_trainer
         trainer = get_trainer(args.model)
     elif args.use_adversarial:
         from model.adversarial import get_trainer
