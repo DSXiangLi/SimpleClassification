@@ -84,12 +84,8 @@ def build_model_fn(encoder):
                 # 多任务metrics
                 metric_ops = {}
                 for task_id, (task_name, idx2label) in enumerate(params['idx2label'].items()):
-                    task_idx = tf.squeeze(tf.where(tf.equal(features['task_ids'], task_id)))
-                    task_probs = tf.gather(probs, task_idx) # task_sample_size * task_label_size
-                    task_labels = tf.gather(labels, task_idx) # task_sample_size
-                    tf.logging.warn(task_probs.get_shape())
-                    tf.logging.warn(task_labels.get_shape())
-                    task_ops = get_metric_ops(task_probs, task_labels, idx2label)
+                    weights = tf.cast(tf.equal(features['task_ids'], task_id), tf.float32)
+                    task_ops = get_metric_ops(probs, labels, idx2label, weights)
                     metric_ops.update(dict([('task{}'.format(task_id) + i, j) for i,j in task_ops.items()]))
 
             spec = tf.estimator.EstimatorSpec(mode=mode, loss=total_loss,
