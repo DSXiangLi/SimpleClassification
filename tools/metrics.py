@@ -24,39 +24,39 @@ def pr_summary_hook(probs, labels, num_threshold, output_dir, save_steps):
     return summary_hook
 
 
-def get_metric_ops(probs, labels, idx2label):
+def get_metric_ops(probs, labels, idx2label, weights=None):
     if len(idx2label) == 2:
-        metric_ops = binary_cls_metrics(probs, labels)
+        metric_ops = binary_cls_metrics(probs, labels, weights)
     else:
-        metric_ops = multi_cls_metrics(probs, labels, idx2label)
+        metric_ops = multi_cls_metrics(probs, labels, idx2label, weights)
     return metric_ops
 
 
-def get_eval_report(probs, labels, idx2label, thresholds):
-    if len(probs[0]) == 2:
+def get_eval_report(probs, labels, idx2label , thresholds):
+    if len(idx2label) == 2:
         eval_report = binary_cls_report(probs, labels, thresholds)
     else:
         eval_report = multi_cls_report(probs, labels, idx2label)
     return eval_report
 
 
-def binary_cls_metrics(probs, labels):
+def binary_cls_metrics(probs, labels, weights):
     """
     二分类任务 TF Metrics
         probs: (n_samples, 2)
         labels: (n_samples,)
     """
     predictions = tf.argmax(probs, axis=-1)
-    precision, precision_op = tf.metrics.precision(labels, predictions=predictions)
-    recall, recall_op = tf.metrics.recall(labels, predictions=predictions)
+    precision, precision_op = tf.metrics.precision(labels, predictions=predictions, weights=weights)
+    recall, recall_op = tf.metrics.recall(labels, predictions=predictions, weights=weights)
     f1 = 2 * (precision * recall) / (precision + recall)
 
     eval_metric_ops = {
-        'metrics/accuracy': tf.metrics.accuracy(labels, predictions=predictions),
+        'metrics/accuracy': tf.metrics.accuracy(labels, predictions=predictions, weights=weights),
         'metrics/auc': tf.metrics.auc(labels, predictions=probs[:, 1], curve='ROC',
-                                      summation_method='careful_interpolation'),
+                                      summation_method='careful_interpolation', weights=weights),
         'metrics/pr': tf.metrics.auc(labels, predictions=probs[:, 1], curve='PR',
-                                     summation_method='careful_interpolation'),
+                                     summation_method='careful_interpolation', weights=weights),
         'metrics/precision': (precision, precision_op),
         'metrics/recall': (recall, recall_op),
         'metrics/f1': (f1, tf.identity(f1))
@@ -95,7 +95,7 @@ def binary_cls_report(probs, labels, thresholds):
     return df
 
 
-def multi_cls_metrics(probs, labels, idx2label):
+def multi_cls_metrics(probs, labels, idx2label, weights):
     """
     多分类任务 TF Metrics
         probs: (n_samples, 2)
@@ -112,11 +112,11 @@ def multi_cls_metrics(probs, labels, idx2label):
     label_o = tf.one_hot(labels, depth=num_labels)
     prediction_o = tf.one_hot(predictions, depth=num_labels)
     metric_ops = {
-        'metrics/overall_accuracy': tf.metrics.accuracy(label_o, prediction_o),
+        'metrics/overall_accuracy': tf.metrics.accuracy(label_o, prediction_o, weights=weights),
         'metrics/overall_auc': tf.metrics.auc(label_o, predictions=probs, curve='ROC',
-                                              summation_method='careful_interpolation'),
+                                              summation_method='careful_interpolation', weights=weights),
         'metrics/overall_pr': tf.metrics.auc(label_o, predictions=probs, curve='PR',
-                                             summation_method='careful_interpolation')
+                                             summation_method='careful_interpolation', weights=weights)
     }
     recalls = []
     precisions = []
@@ -127,11 +127,11 @@ def multi_cls_metrics(probs, labels, idx2label):
         prediction_l = tf.equal(predictions, idx)
         recall, recall_op = tf.metrics.recall(
             labels=label_l,
-            predictions=prediction_l
+            predictions=prediction_l, weights=weights
         )
         precision, precision_op = tf.metrics.precision(
             labels=label_l,
-            predictions=prediction_l
+            predictions=prediction_l, weights=weights
         )
         f1 = 2 * (precision * recall) / (precision + recall)
         metric_ops.update(
