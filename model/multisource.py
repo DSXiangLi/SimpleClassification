@@ -27,10 +27,10 @@ class MultisourceWrapper(BaseEncoder):  # noqa
         return self.encoder.encode(features, is_training)
 
     def domain_layer(self, share_private, embedding, task_id):
-        with tf.variable_scope('mlp_task_{}'.format(task_id)):
+        with tf.variable_scope('task'.format(task_id)):
             preds = tf.layers.dense(tf.concat([share_private, embedding], axis=-1),
                                     units=self.params['task_label_size'][task_id], activation=None, use_bias=True)
-            add_layer_summary('prediction_{}'.format(task_id), preds)
+            add_layer_summary('task_pred_{}'.format(task_id), preds)
         return preds
 
     def __call__(self, features, labels, params, is_training):
@@ -47,13 +47,12 @@ class MultisourceWrapper(BaseEncoder):  # noqa
                                               training=is_training)
 
         # 一个domain一个head，预测结果只取task对应的head预测'
-        with tf.variable_scope('domain_adaptation'):
-            predictions = []
-            for id in range(self.params['task_size']):
-                predictions.append(self.domain_layer(share_private, embedding, id))
-            task_index = tf.stack([self.task_ids, tf.range(tf.shape(labels)[0])], axis=1)
-            predictions = tf.gather_nd(predictions, task_index)  # batch_size * label_size
-            add_layer_summary('prediction', predictions)
+        predictions = []
+        for id in range(self.params['task_size']):
+            predictions.append(self.domain_layer(share_private, embedding, id))
+        task_index = tf.stack([self.task_ids, tf.range(tf.shape(labels)[0])], axis=1)
+        predictions = tf.gather_nd(predictions, task_index)  # batch_size * label_size
+
         return predictions, labels
 
     def compute_loss(self, predictions, labels):
