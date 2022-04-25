@@ -1,0 +1,26 @@
+python main.py \
+  --model 'albert'\
+  --loss 'ce'\
+  --use_adversarial\
+  --data_dir 'weibo,waimai'\
+  --nlp_pretrain_model 'albert_base' \
+  --ckpt_dir 'weibo_waimai_albert_v1' \
+  --epoch_size 5\
+  --batch_size 5\
+  --max_seq_len 150\
+  --lr 1e-5\
+  --task_label_size '2,2'\
+  --task_weight '0.5,0.5'\
+  --task_lambda 0.5\
+  --shrink_gradient_reverse 0.001\
+  --share_size 100\
+  --share_dropout 0.3\
+  --share_activation 'relu'\
+  --use_gpu \
+  --device 3\
+  --do_train\
+  --save_steps 2\
+  --log_steps 2\
+  --clear_model\
+  --do_eval\
+  --do_export

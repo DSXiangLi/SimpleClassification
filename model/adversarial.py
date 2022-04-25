@@ -10,7 +10,8 @@ from dataset.multi_dataset import MultiDataset
 hp_list = [HpParser.hp('share_size', 200),
            HpParser.hp('share_dropout', 0.3),
            HpParser.hp('share_activation', 'relu'),
-           HpParser.hp('lambda', 0.5),  # task discriminator weight
+           HpParser.hp('task_lambda', 0.5),  # task discriminator weight
+           HpParser.hp('shrink_gradient_reverse', 0.001),  # task discriminator weight
            HpParser.hp('task_weight', '0.5,0.5',
                        lambda x: dict([(i, float(j)) for i, j in enumerate(x.split(','))])),  # 各个任务的loss权重
            HpParser.hp('task_label_size', '2,2',
@@ -45,17 +46,17 @@ class AdversarialWrapper(BaseEncoder):  # noqa
     def __init__(self, encoder):
         super(AdversarialWrapper, self).__init__()
         self.encoder = encoder
-        self.task_ids = None
-        self.task_logits = None
+        self.task_ids = None  # batch_size
+        self.task_logits = None  # batch_size * task_size
 
     def encode(self, features, is_training):
         return self.encoder.encode(features, is_training)
 
     def domain_layer(self, share_private, embedding, task_id):
-        with tf.variable_scope('mlp_task_{}'.format(task_id)):
+        with tf.variable_scope('task'):
             preds = tf.layers.dense(tf.concat([share_private, embedding], axis=-1),
                                     units=self.params['task_label_size'][task_id], activation=None, use_bias=True)
-            add_layer_summary('prediction_{}'.format(task_id), preds)
+            add_layer_summary('task_pred_{}'.format(task_id), preds)
         return preds
 
     def __call__(self, features, labels, params, is_training):
@@ -71,7 +72,7 @@ class AdversarialWrapper(BaseEncoder):  # noqa
             share_private = tf.layers.dropout(share_private, rate=params['share_dropout'], seed=1234,
                                               training=is_training)
 
-        with tf.variable_scope('task_discriminator'):
+        with tf.variable_scope('task'):
             share_private = flip_gradient(share_private, params['shrink_gradient_reverse'])
 
             self.task_logits = tf.layers.dense(share_private, units=params['task_size'], activation=None,
@@ -79,13 +80,13 @@ class AdversarialWrapper(BaseEncoder):  # noqa
             add_layer_summary('task_logits', self.task_logits)
 
         # 一个domain一个head，预测结果只取task对应的head预测'
-        with tf.variable_scope('domain_adaptation'):
-            predictions = []
-            for id in range(self.params['task_size']):
-                predictions.append(self.domain_layer(share_private, embedding, id))
-            task_index = tf.stack([self.task_ids, tf.range(tf.shape(labels)[0])], axis=1)
-            predictions = tf.gather_nd(predictions, task_index)  # batch_size * label_size
-            add_layer_summary('prediction', predictions)
+        predictions = []
+        for id in range(self.params['task_size']):
+            predictions.append(self.domain_layer(share_private, embedding, id))
+
+        task_index = tf.stack([self.task_ids, tf.range(tf.shape(labels)[0])], axis=1)
+        predictions = tf.gather_nd(predictions, task_index)  # batch_size * label_size
+
         return predictions, labels
 
     def compute_loss(self, predictions, labels):
@@ -103,7 +104,7 @@ class AdversarialWrapper(BaseEncoder):  # noqa
 
         task_loss = loss_func(self.task_logits, self.task_ids)
         tf.summary.scalar('task_loss/loss_disc', task_loss)
-        total_loss += task_loss * self.params['lambda']
+        total_loss += task_loss * self.params['task_lambda']
         return total_loss
 
     def init_fn(self):
