@@ -112,7 +112,7 @@ class Trainer(object):
                                            tokenizer=get_tokenizer(self.train_params['nlp_pretrain_model']),
                                            enable_cache=self.train_params['enable_cache'],
                                            clear_cache=self.train_params['clear_cache'])
-        self.input_pipe.build_feature('train')
+        self.input_pipe.build_feature(self.train_params['train_file'])
         self.train_params = self.input_pipe.update_params(self.train_params)
 
     def _train(self):
@@ -124,7 +124,7 @@ class Trainer(object):
         train_spec = tf.estimator.TrainSpec(self.input_pipe.build_input_fn(),
                                             max_steps=self.train_params['num_train_steps'],
                                             hooks=[early_stopping_hook])
-        self.input_pipe.build_feature('valid')
+        self.input_pipe.build_feature(self.train_params['valid_file'])
         eval_spec = tf.estimator.EvalSpec(self.input_pipe.build_input_fn(is_predict=True),
                                           steps=self.train_params['steps_per_epoch'],
                                           throttle_secs=60)
@@ -137,7 +137,7 @@ class Trainer(object):
                                           lambda: self.input_pipe.build_serving_proto())
 
     def _eval(self):
-        self.input_pipe.build_feature('test')
+        self.input_pipe.build_feature(self.train_params['eval_file'])
         for data_dir, idx2label in self.train_params['idx2label'].items():
             self.logger.info('Dumping Prediction at {}'.format(os.path.join(data_dir, self.train_params['predict_file'])))
             if self.train_params.get('task_size', 1)>1:

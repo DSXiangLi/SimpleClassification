@@ -76,6 +76,10 @@ def main():
     parser.add_argument("--do_train", action='store_true', default=False)  # 训练
     parser.add_argument("--do_eval", action='store_true', default=False)  # 测试集预测 & 评估
     parser.add_argument("--do_export", action='store_true', default=False)  # 导出模型
+    # 以下文件名常规任务不需要改动，对于增强任务，蒸馏任务需要修改为对应的训练，评估文件
+    parser.add_argument('--train_file', default='train', type=str)  # 训练文件名
+    parser.add_argument('--valid_file', default='valid', type=str)  # 验证文件名用于early stop
+    parser.add_argument('--eval_file', default='eval', type=str)  # 评估文件名
 
     #其他
     parser.add_argument("--enable_cache", action='store_true', default=False)  # 使用之前tokenizer cache的特征
