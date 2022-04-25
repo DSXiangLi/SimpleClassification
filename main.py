@@ -98,6 +98,10 @@ def main():
         'export_dir': os.path.join(EXPORT_DIR, args.ckpt_dir),# 这里导出模型和checkpoint默认保持同名
         'predict_file': args.ckpt_dir + '.txt', # 默认预测文件名和ckpt相同
 
+        'train_file': args.train_file,
+        'valid_file': args.valid_file,
+        'eval_file': args.eval_file,
+
         'nlp_pretrain_model': args.nlp_pretrain_model,
         'nlp_pretrain_dir': PRETRAIN_CONFIG[args.nlp_pretrain_model].model_dir,
         'nlp_pretrain_ckpt': os.path.join(*PRETRAIN_CONFIG[args.nlp_pretrain_model]),
