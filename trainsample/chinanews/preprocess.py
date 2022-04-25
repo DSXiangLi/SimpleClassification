@@ -18,7 +18,7 @@ Label2Idx = {
 def main():
     data_dir = './trainsample/chinanews'
 
-    train = pd.read_csv(os.path.join(data_dir, 'train.csv'), header=None, )
+    train = pd.read_csv(os.path.join(data_dir, 'train.csv'), header=None)
     test = pd.read_csv(os.path.join(data_dir, 'test.csv'), header=None)
 
     train.columns = ['label', 'title', 'content']
@@ -33,6 +33,8 @@ def main():
     single_text(train['title'], train['label'], os.path.join(data_dir, 'train.txt'))
     single_text(valid['title'], valid['label'], os.path.join(data_dir, 'valid.txt'))
     single_text(test['title'], test['label'], os.path.join(data_dir, 'test.txt'))
+    single_text(pd.concat([train,valid,test])['title'],
+                pd.concat([train,valid,test])['label'], os.path.join(data_dir, 'all.txt'))  # 全部样本
 
 
 if __name__ == '__main__':

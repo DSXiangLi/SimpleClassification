@@ -23,6 +23,8 @@ def main():
     single_text(train['comment'], train['rating'], os.path.join(data_dir, 'train.txt'))
     single_text(valid['comment'], valid['rating'], os.path.join(data_dir, 'valid.txt'))
     single_text(test['comment'], test['rating'], os.path.join(data_dir, 'test.txt'))
+    single_text(pd.concat([train,valid,test])['comment'],
+                pd.concat([train,valid,test])['rating'], os.path.join(data_dir, 'all.txt'))
 
 
 if __name__ == '__main__':

@@ -39,7 +39,8 @@ def main():
     single_text(train['title'], train['label'], os.path.join(data_dir, 'train.txt'))
     single_text(valid['title'], valid['label'], os.path.join(data_dir, 'valid.txt'))
     single_text(test['title'], test['label'], os.path.join(data_dir, 'test.txt'))
-
+    single_text(pd.concat([train,valid,test])['title'],
+                pd.concat([train,valid,test])['label'], os.path.join(data_dir, 'all.txt'))
 
 if __name__ == '__main__':
     main()
