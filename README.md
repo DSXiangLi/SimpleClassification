@@ -11,14 +11,13 @@
 - [ ] 双输入
 
 ## 支持模型
-### 文本预训练微调
+### 文本预训练模型
 - [x] Bert
 - [x] Bert-wwm
 - [x] Roberta
 - [x] Albert
 - [x] Xlnet
 - [x] Electra
-- [ ] Distill
 
 ### 词袋模型
 - [x] Fasttext
@@ -34,6 +33,11 @@
 - [x] Temporal Ensemble
 - [ ] MixMatch
 
+### 模型蒸馏
+- [ ] Knowledge distill
+- [ ] distill bert 
+- [ ] tiny bert 
+
 ### 文本增强
 - [ ] EDA: SR, RS, RD
 - [ ] Entity Replacement 
@@ -46,3 +50,6 @@
 - [x] Symmetric Cross Entropy
 - [x] Peer cross Entropy
 - [x] Bootstrapping
+
+### 训练优化
+- [ ] Diff Lr per layer
