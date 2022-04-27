@@ -34,7 +34,7 @@ class SeqDataset(GeneratorDataset):
 
     def build_single_feature(self, data):
         tokens = self.tokenizer.tokenize(data['text1'][:self.max_seq_len])
-        tokens = tokens[:(self.max_seq_len-2)]
+        tokens = tokens[:(self.max_seq_len - 2)]
         tokens = ['[CLS]'] + tokens + ['[SEP]']
         seq_len = len(tokens)
         input_ids = self.tokenizer.convert_tokens_to_ids(tokens)
@@ -85,7 +85,7 @@ class WordDataset(GeneratorDataset):
     def build_single_feature(self, data):
         tokens = self.tokenizer.tokenize(data['text1'][:self.max_seq_len])
         input_ids = self.tokenizer.convert_tokens_to_ids(tokens)
-        seq_len = len(input_ids) # do after ids due to oov removal
+        seq_len = len(input_ids)  # do after ids due to oov removal
         return {
             'input_ids': input_ids,
             'seq_len': seq_len,
@@ -102,13 +102,51 @@ class WordDataset(GeneratorDataset):
             'steps_per_epoch': self.steps_per_epoch,
             'num_train_steps': int(self.steps_per_epoch * train_params['epoch_size'])
         })
-        return train_params 
+        return train_params
 
 
-if __name__ =='__main__':
+class DistillSeqDataset(SeqDataset):
+    def __init__(self, data_dir, batch_size, max_seq_len, tokenizer, enable_cache, clear_cache):
+        super(DistillSeqDataset, self).__init__(data_dir, batch_size, max_seq_len, tokenizer, enable_cache, clear_cache)
+
+    def build_proto(self):
+        super().build_proto()
+        self.dtypes.update({
+            'logits': tf.float32
+        })
+        self.shapes.update({
+            'logits': [None]
+        })
+        self.pads.update({
+            'logits': 0.0
+        })
+        self.label_names += ['logits']
+
+
+class DistillWordDataset(WordDataset):
+    def __init__(self, data_dir, batch_size, max_seq_len, tokenizer, enable_cache, clear_cache):
+        super(DistillWordDataset, self).__init__(data_dir, batch_size, max_seq_len, tokenizer, enable_cache,
+                                                 clear_cache)
+
+    def build_proto(self):
+        super().build_proto()
+        self.dtypes.update({
+            'logits': tf.float32
+        })
+        self.shapes.update({
+            'logits': [None]
+        })
+        self.pads.update({
+            'logits': 0.0
+        })
+        self.label_names += ['logits']
+
+
+if __name__ == '__main__':
     from dataset.tokenizer import get_tokenizer
-    pipe = SeqDataset('./trainsample/weibo',5, 50, get_tokenizer('bert'), True)
+
+    pipe = SeqDataset('./trainsample/weibo', 5, 50, get_tokenizer('bert'), True)
     pipe.build_feature('train')
 
-    pipe = WordDataset('./trainsample/weibo',5, 50, get_tokenizer('word2vec_baike'), False)
+    pipe = WordDataset('./trainsample/weibo', 5, 50, get_tokenizer('word2vec_baike'), False)
     pipe.build_feature('test')
