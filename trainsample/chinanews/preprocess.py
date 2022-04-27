@@ -27,8 +27,8 @@ def main():
     train['label'] = train['label'] - 1
     test['label'] = test['label'] - 1
 
-    single_text(pd.concat([train, test])['title'], pd.concat([train, test])['label'], data_dir, 'all.txt')
-    split_train_test(data_dir, 'all.txt')
+    single_text(pd.concat([train, test])['title'], pd.concat([train, test])['label'], data_dir, output_file='all')
+    split_train_test(data_dir, org_file='all')
 
 
 if __name__ == '__main__':

@@ -32,8 +32,8 @@ def main():
     df = pd.DataFrame(df, columns=['gid', 'cat_id', 'cat', 'title', 'keywords'])
     df['label'] = df['cat'].map(lambda x: Label2Idx[x])
 
-    single_text(df['title'], df['label'], data_dir, 'all.txt')
-    split_train_test(data_dir, 'all.txt')
+    single_text(df['title'], df['label'], data_dir, output_file='all')
+    split_train_test(data_dir, org_file='all')
 
 
 if __name__ == '__main__':

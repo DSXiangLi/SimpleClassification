@@ -13,8 +13,8 @@ def main():
     data_dir = './trainsample/waimai'
     df = pd.read_csv(os.path.join(data_dir, 'waimai_10k.csv'))
 
-    single_text(df['review'], df['label'], data_dir, 'all.txt')
-    split_train_test(data_dir, 'all.txt')
+    single_text(df['review'], df['label'], data_dir, output_file='all')
+    split_train_test(data_dir, org_file='all')
 
 
 if __name__ == '__main__':

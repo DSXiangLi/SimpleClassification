@@ -13,8 +13,8 @@ def main():
     data_dir = './trainsample/weibo'
     df = pd.read_csv(os.path.join(data_dir, 'weibo_senti_100k.csv'))
 
-    single_text(df['review'], df['label'], data_dir, 'all.txt')
-    split_train_test(data_dir, 'all.txt')
+    single_text(df['review'], df['label'], data_dir, output_file='all')
+    split_train_test(data_dir, org_file='all')
 
 
 if __name__ == '__main__':

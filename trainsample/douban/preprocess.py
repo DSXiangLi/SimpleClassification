@@ -16,8 +16,8 @@ def main():
     data_dir = './trainsample/douban'
     df = pd.read_csv(os.path.join(data_dir, 'ratings.csv'))
 
-    single_text(df['comment'], df['rating'], data_dir, 'all.txt')
-    split_train_test(data_dir, 'all.txt')
+    single_text(df['comment'], df['rating'], data_dir, output_file='all')
+    split_train_test(data_dir, org_file='all')
 
 
 if __name__ == '__main__':
