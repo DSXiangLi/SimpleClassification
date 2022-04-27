@@ -1,8 +1,7 @@
 # -*-coding:utf-8 -*-
 import pandas as pd
 import os
-from trainsample.converter import single_text
-from sklearn.model_selection import train_test_split
+from trainsample.converter import single_text, split_train_test
 
 Label2Idx = {
     'news_story': 0,
@@ -33,14 +32,9 @@ def main():
     df = pd.DataFrame(df, columns=['gid', 'cat_id', 'cat', 'title', 'keywords'])
     df['label'] = df['cat'].map(lambda x: Label2Idx[x])
 
-    train, test = train_test_split(df, test_size=0.2)
-    train, valid = train_test_split(train, test_size=0.2)
+    single_text(df['title'], df['label'], data_dir, 'all.txt')
+    split_train_test(data_dir, 'all.txt')
 
-    single_text(train['title'], train['label'], os.path.join(data_dir, 'train.txt'))
-    single_text(valid['title'], valid['label'], os.path.join(data_dir, 'valid.txt'))
-    single_text(test['title'], test['label'], os.path.join(data_dir, 'test.txt'))
-    single_text(pd.concat([train,valid,test])['title'],
-                pd.concat([train,valid,test])['label'], os.path.join(data_dir, 'all.txt'))
 
 if __name__ == '__main__':
     main()

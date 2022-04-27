@@ -1,8 +1,7 @@
 # -*-coding:utf-8 -*-
 import pandas as pd
 import os
-from trainsample.converter import single_text
-from sklearn.model_selection import train_test_split
+from trainsample.converter import single_text, split_train_test
 
 Label2Idx = {
     'mainland China politics': 0,
@@ -28,13 +27,8 @@ def main():
     train['label'] = train['label'] - 1
     test['label'] = test['label'] - 1
 
-    train, valid = train_test_split(train, test_size=0.2)
-
-    single_text(train['title'], train['label'], os.path.join(data_dir, 'train.txt'))
-    single_text(valid['title'], valid['label'], os.path.join(data_dir, 'valid.txt'))
-    single_text(test['title'], test['label'], os.path.join(data_dir, 'test.txt'))
-    single_text(pd.concat([train,valid,test])['title'],
-                pd.concat([train,valid,test])['label'], os.path.join(data_dir, 'all.txt'))  # 全部样本
+    single_text(pd.concat([train, test])['title'], pd.concat([train, test])['label'], data_dir, 'all.txt')
+    split_train_test(data_dir, 'all.txt')
 
 
 if __name__ == '__main__':

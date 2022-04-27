@@ -1,8 +1,7 @@
 # -*-coding:utf-8 -*-
 import pandas as pd
 import os
-from trainsample.converter import single_text
-from sklearn.model_selection import train_test_split
+from trainsample.converter import single_text, split_train_test
 
 Label2Idx = {
     '负面': 0,
@@ -15,13 +14,8 @@ def main():
     train = pd.read_csv(os.path.join(data_dir, 'train.csv'), header=None)
     test = pd.read_csv(os.path.join(data_dir, 'test.csv'), header=None)
 
-    train, valid = train_test_split(train, test_size=0.2)
-
-    single_text(train[1], train[0], os.path.join(data_dir, 'train.txt'))
-    single_text(valid[1], valid[0], os.path.join(data_dir, 'valid.txt'))
-    single_text(test[1], test[0], os.path.join(data_dir, 'test.txt'))
-    single_text(pd.concat([train, valid, test])[1],
-                pd.concat([train, valid, test])[0], os.path.join(data_dir, 'all.txt'))
+    single_text(pd.concat([train, test])[1], pd.concat([train, test])[0], data_dir, 'all.txt')
+    split_train_test(data_dir, 'all.txt')
 
 
 if __name__ == '__main__':
