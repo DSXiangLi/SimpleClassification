@@ -51,16 +51,18 @@ class BaseEncoder(object):
 
 def build_model_fn(encoder):
     def model_fn(features, labels, params, mode):
-        if labels is not None:
-            labels = labels['label']
         is_training = (mode == tf.estimator.ModeKeys.TRAIN)
+
+        if labels and not 'logit' in labels:
+            # Distill 模型需要保留完整labels
+            labels = labels['label']
 
         predictions, labels = encoder(features, labels, params, is_training)
         probs = tf.nn.softmax(predictions, axis=-1)
 
         # For prediction label is not used
         if mode == tf.estimator.ModeKeys.PREDICT:
-            spec = tf.estimator.EstimatorSpec(mode, predictions={'prob': probs})
+            spec = tf.estimator.EstimatorSpec(mode, predictions={'prob': probs, 'logit': predictions})
             return spec
 
         # Custom Loss function
@@ -145,16 +147,17 @@ class Trainer(object):
             else:
                 predictions = self.estimator.predict(self.input_pipe.build_input_fn(is_predict=True))
 
-            probs = [i['prob'] for i in predictions]
+            preds = [{'prob': i['prob'].tolist(), 'logit': i['logit'].tolist()} for i in predictions]
             labels = [i['label'] for i in self.input_pipe.samples]
 
             with open(os.path.join(data_dir, self.train_params['predict_file']), 'w') as f:
-                for prob, label in zip(probs, labels):
-                    f.write(json.dumps({'prob': prob.tolist(), 'label': label}, ensure_ascii=False) + '\n')
+                for pred, data in zip(preds, self.input_pipe.raw_data):
+                    # combine raw input and model prediction
+                    f.write(json.dumps({**data, **pred}, ensure_ascii=False) + '\n')
 
-            self.logger.info('='*10 + 'Evaluation Report' + '='*10)
-
-            eval_report = get_eval_report(probs, labels, idx2label, self.train_params['thresholds'])
+            self.logger.info('='*10 + 'Evaluation Report of {} '.format(self.train_params['eval_file']) + '='*10)
+            eval_report = get_eval_report([i['prob'] for i in preds],
+                                          labels, idx2label, self.train_params['thresholds'])
             self.logger.info('\n' + eval_report + '\n')
 
     def train(self, train_params, run_config, do_train, do_eval, do_export):

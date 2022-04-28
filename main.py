@@ -54,7 +54,7 @@ def main():
     parser.add_argument('--nlp_pretrain_model', default='chinese_L-12_H-768_A-12', type=str)
 
     parser.add_argument("--ckpt_dir", type=str)
-    parser.add_argument("--data_dir", type=str) # 数据目录默认包含train/test/valid.txt,如果多输入用，分割
+    parser.add_argument("--data_dir", type=str)  # 数据目录默认包含train/test/valid.txt,如果多输入用，分割
 
     parser.add_argument("--max_seq_len", default=150, type=int)  # 文本最大长度
     parser.add_argument("--label_size", default=2, type=int)  # 文本最大长度
@@ -80,8 +80,9 @@ def main():
     parser.add_argument('--train_file', default='train', type=str)  # 训练文件名
     parser.add_argument('--valid_file', default='valid', type=str)  # 验证文件名用于early stop
     parser.add_argument('--eval_file', default='eval', type=str)  # 评估文件名
+    parser.add_argument('--predict_file', default='', type=str)  # 评估文件名
 
-    #其他
+    # 其他
     parser.add_argument("--enable_cache", action='store_true', default=False)  # 使用之前tokenizer cache的特征
     parser.add_argument("--clear_cache", action='store_true', default=False)  # 清楚之前tokenizer cache的特征
     parser.add_argument("--thresholds", default='0.6,0.7,0.8,0.9')  # 评估F1的阈值
@@ -95,8 +96,9 @@ def main():
     TP = {
         'model': args.model,
         'ckpt_dir': os.path.join(CKPT_DIR, args.ckpt_dir),
-        'export_dir': os.path.join(EXPORT_DIR, args.ckpt_dir),# 这里导出模型和checkpoint默认保持同名
-        'predict_file': args.ckpt_dir + '.txt', # 默认预测文件名和ckpt相同
+        'export_dir': os.path.join(EXPORT_DIR, args.ckpt_dir),  # 这里导出模型和checkpoint默认保持同名
+        'predict_file': args.ckpt_dir + '.txt' if not args.predict_file else args.predict_file + '.txt',
+        # 默认预测文件为eval文件，生成文件名和ckpt相同，在distill中需要制定预测文件
 
         'train_file': args.train_file,
         'valid_file': args.valid_file,
@@ -118,7 +120,7 @@ def main():
 
         'log_steps': args.log_steps,
         'save_steps': args.save_steps,
-        'thresholds': [float(i) for i in args.thresholds.split(',')] # threshold list to evaluate F1/precision/recall
+        'thresholds': [float(i) for i in args.thresholds.split(',')]  # threshold list to evaluate F1/precision/recall
     }
 
     # Update TP
@@ -146,7 +148,7 @@ def main():
 
         idx2label = {}
         for data_dir in TP['data_dir_list']:
-            label2idx = getattr(importlib.import_module('{}.preprocess'.format(data_dir[2:].replace('/','.'))),
+            label2idx = getattr(importlib.import_module('{}.preprocess'.format(data_dir[2:].replace('/', '.'))),
                                 'Label2Idx')
             idx2label[data_dir] = dict([(j, i) for i, j in label2idx.items()])
         TP['idx2label'] = idx2label
@@ -154,9 +156,9 @@ def main():
         data_dir = os.path.join(DATA_DIR, args.data_dir)
         TP['data_dir'] = data_dir
         TP['data_dir_list'] = [data_dir]  # 兼容多任务TP
-        label2idx = getattr(importlib.import_module('{}.preprocess'.format(data_dir[2:].replace('/','.'))),
-                                'Label2Idx')
-        TP['idx2label'] = {data_dir: dict([(j,i) for i,j in label2idx.items()])}  # 兼容多任务
+        label2idx = getattr(importlib.import_module('{}.preprocess'.format(data_dir[2:].replace('/', '.'))),
+                            'Label2Idx')
+        TP['idx2label'] = {data_dir: dict([(j, i) for i, j in label2idx.items()])}  # 兼容多任务
 
     # 删除checkpoint，summary cache
     if args.clear_model:
@@ -196,6 +198,7 @@ def main():
 
 if __name__ == '__main__':
     import os
+
     # set logging level to WARN
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
     tf.logging.set_verbosity(tf.logging.WARN)

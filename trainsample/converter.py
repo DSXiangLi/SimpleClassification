@@ -15,6 +15,7 @@ def split_train_test(data_dir, org_file, surfix=None):
     """
     with open(os.path.join(data_dir, org_file + '.txt'), 'r') as f:
         lines = f.readlines()
+
     train, test = train_test_split(lines, test_size=0.2)
     train, valid = train_test_split(train, test_size=0.25)
 
@@ -51,8 +52,8 @@ if __name__ == '__main__':
     from argparse import ArgumentParser
 
     parser = ArgumentParser()
-    parser.add_argument('data_dir', type='str')
-    parser.add_argument('org_file', type='str')
-    parser.add_argument('surfix', type='str')
+    parser.add_argument('--data_dir', type=str)
+    parser.add_argument('--input_file', type=str)
+    parser.add_argument('--output_surfix', type=str)
     args = parser.parse_args()
-    split_train_test(args.data_dir, args.org_file, args.surfix)
+    split_train_test(args.data_dir, args.input_file, args.output_surfix)
