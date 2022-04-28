@@ -105,43 +105,6 @@ class WordDataset(GeneratorDataset):
         return train_params
 
 
-class DistillSeqDataset(SeqDataset):
-    def __init__(self, data_dir, batch_size, max_seq_len, tokenizer, enable_cache, clear_cache):
-        super(DistillSeqDataset, self).__init__(data_dir, batch_size, max_seq_len, tokenizer, enable_cache, clear_cache)
-
-    def build_proto(self):
-        super().build_proto()
-        self.dtypes.update({
-            'logits': tf.float32
-        })
-        self.shapes.update({
-            'logits': [None]
-        })
-        self.pads.update({
-            'logits': 0.0
-        })
-        self.label_names += ['logits']
-
-
-class DistillWordDataset(WordDataset):
-    def __init__(self, data_dir, batch_size, max_seq_len, tokenizer, enable_cache, clear_cache):
-        super(DistillWordDataset, self).__init__(data_dir, batch_size, max_seq_len, tokenizer, enable_cache,
-                                                 clear_cache)
-
-    def build_proto(self):
-        super().build_proto()
-        self.dtypes.update({
-            'logits': tf.float32
-        })
-        self.shapes.update({
-            'logits': [None]
-        })
-        self.pads.update({
-            'logits': 0.0
-        })
-        self.label_names += ['logits']
-
-
 if __name__ == '__main__':
     from dataset.tokenizer import get_tokenizer
 
