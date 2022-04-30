@@ -1,5 +1,8 @@
 # -*-coding:utf-8 -*-
-
+"""
+    Ref1. Distilling Task-Specific Knowledge from BERT into Simple Neural Networks
+    Ref2. Distilling the Knowledge in a Neural Network
+"""
 import importlib
 import tensorflow as tf
 from model.train_helper import build_model_fn, Trainer, BaseEncoder

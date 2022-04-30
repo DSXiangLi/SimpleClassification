@@ -1,4 +1,9 @@
 # -*-coding:utf-8 -*-
+"""
+    Ref1. Adversarial Transfer Learning for Chinese Named Entity Recognition with Self-Attention Mechanism
+    Ref2. Adversarial Multi-task Learning for Text Classification
+    Ref3. Dual Adversarial Neural Transfer for Low-Resource Named Entity Recognition
+"""
 import tensorflow as tf
 from functools import partial
 import importlib

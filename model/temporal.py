@@ -1,5 +1,7 @@
 # -*-coding:utf-8 -*-
-
+"""
+    Ref. TEMPORAL ENSEMBLING FOR SEMI-SUPERVISED LEARNING, Samuli Laine
+"""
 import importlib
 
 import numpy as np

@@ -1,5 +1,7 @@
 # -*-coding:utf-8 -*-
-
+"""
+    Ref. mixup: beyond empirical risk minization
+"""
 import tensorflow as tf
 import importlib
 from tools.train_utils import HpParser, add_layer_summary
