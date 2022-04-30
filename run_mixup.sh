@@ -1,18 +1,18 @@
 python main.py \
-  --model 'bert'\
-  --loss 'sce'\
+  --model 'fasttext'\
+  --loss 'ce'\
   --use_mixup\
   --mixup_alpha 0.1\
-  --data_dir 'weibo'\
-  --nlp_pretrain_model 'bert_base' \
-  --ckpt_dir 'weibo_bert_mixup' \
+  --data_dir 'toutiao'\
+  --nlp_pretrain_model 'word2vec_baike' \
+  --ckpt_dir 'toutiao_fasttext_mixup' \
   --epoch_size 5\
   --batch_size 32\
   --max_seq_len 150\
-  --lr 1e-5\
-  --label_size 2\
+  --lr 1e-3\
+  --label_size 15\
   --use_gpu \
   --device 5\
+  --clear_model\
   --do_train\
-  --do_eval\
-  --do_export
+  --do_eval

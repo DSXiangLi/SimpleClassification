@@ -1,21 +1,20 @@
 python main.py \
-  --model 'bert'\
+  --model 'fasttext'\
   --loss 'ce'\
   --use_temporal\
   --temporal_alpha 0.1\
   --max_unsupervised 1.0\
   --ramp_up_method 'sigmoid'\
   --data_dir 'toutiao'\
-  --nlp_pretrain_model 'bert_base' \
+  --nlp_pretrain_model 'word2vec_baike' \
   --ckpt_dir 'toutiao_bert_temporal' \
   --epoch_size 5\
   --batch_size 32\
   --max_seq_len 150\
-  --lr 1e-5\
+  --lr 1e-3\
   --label_size 15\
   --use_gpu \
   --device 5\
   --clear_model\
   --do_train\
-  --do_eval\
-  --do_export
+  --do_eval
