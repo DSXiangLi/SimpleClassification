@@ -44,11 +44,13 @@ class KnowledgeDistillWrapper(BaseEncoder):
         return self.encoder.encode(features, is_training)
 
     def __call__(self, features, labels, params, is_training):
+        if labels:
+            # 分离teacher soft label和任务true label
+            self.teacher_logit = labels['logit']
+            labels = labels['label']
         self.params = params
         self.encoder.params = params
         self.weight = params['distill_weight']
-        self.teacher_logit = labels['logit'] # 从label中分离出softlabel
-        labels = labels['label']
         self.distill_loss = self.get_loss()
 
         embedding = self.encode(features, is_training)
