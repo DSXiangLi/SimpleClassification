@@ -27,14 +27,14 @@
 
 
 ### 半监督 & 领域迁移框架
-- [ ] Multitask / Domain Transfer
-- [ ] Adversarial 
+- [x] Multitask / Domain Transfer
+- [x] Adversarial 
 - [x] Mixup
 - [x] Temporal Ensemble
 - [ ] MixMatch
 
 ### 模型蒸馏
-- [ ] Knowledge distill
+- [x] Knowledge distill
 - [ ] distill bert 
 - [ ] tiny bert 
 
@@ -51,5 +51,6 @@
 - [x] Peer cross Entropy
 - [x] Bootstrapping
 
-### 训练优化
-- [ ] Diff Lr per layer
+### Others
+- [ ] 分层learning rate
+- [ ] 模型推理
