@@ -31,6 +31,8 @@ def mixup(input_x, input_y, label_size, alpha):
 
     # get mixed input
     xmix = input_x * mix + random_x * (1 - mix)
+    add_layer_summary('org_input', input_x)
+    add_layer_summary('mix_input', xmix)
     ymix = tf.cast(input_y, tf.float32) * mix + tf.cast(random_y, tf.float32) * (1 - mix)
     return xmix, ymix
 
