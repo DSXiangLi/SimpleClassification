@@ -2,7 +2,7 @@
 import os
 import json
 import tensorflow as tf
-from tools.train_utils import build_estimator, get_log_hook, add_layer_summary
+from tools.train_utils import build_estimator, get_log_hook
 from tools.logger import get_logger
 from tools.metrics import get_eval_report, get_metric_ops
 from dataset.tokenizer import get_tokenizer
@@ -138,10 +138,15 @@ class Trainer(object):
         self.estimator.export_saved_model(self.train_params['export_dir'],
                                           lambda: self.input_pipe.build_serving_proto())
 
-    def _eval(self):
-        self.input_pipe.build_feature(self.train_params['eval_file'])
+    def _infer(self, predict_only=False):
+        # predict only: 只输出预测文件不做评估, 用于对全样本进行预估多用于模型蒸馏
+        file = 'predict_file' if predict_only else 'eval_file'
+        self.input_pipe.build_feature(self.train_params[file])
+
         for data_dir, idx2label in self.train_params['idx2label'].items():
-            self.logger.info('Dumping Prediction at {}'.format(os.path.join(data_dir, self.train_params['predict_file'])))
+            # 拼接ckpt & 输入文件名 得到预测输出文件名
+            output_file = os.path.join(data_dir, '_'.join([self.train_params['ckpt_name'], self.train_params[file]]) + '.txt')
+            self.logger.info('Dumping Prediction at {}'.format(output_file))
             if self.train_params.get('task_size', 1)>1:
                 predictions = self.estimator.predict(self.input_pipe.build_input_fn(is_predict=True, task_name=data_dir))
             else:
@@ -150,17 +155,18 @@ class Trainer(object):
             preds = [{'prob': i['prob'].tolist(), 'logit': i['logit'].tolist()} for i in predictions]
             labels = [i['label'] for i in self.input_pipe.samples]
 
-            with open(os.path.join(data_dir, self.train_params['predict_file']), 'w') as f:
+            with open(output_file, 'w') as f:
                 for pred, data in zip(preds, self.input_pipe.raw_data):
                     # combine raw input and model prediction
                     f.write(json.dumps({**data, **pred}, ensure_ascii=False) + '\n')
 
-            self.logger.info('='*10 + 'Evaluation Report of {} '.format(self.train_params['eval_file']) + '='*10)
-            eval_report = get_eval_report([i['prob'] for i in preds],
-                                          labels, idx2label, self.train_params['thresholds'])
-            self.logger.info('\n' + eval_report + '\n')
+            if not predict_only:
+                self.logger.info('='*10 + 'Evaluation Report of {} '.format(self.train_params[file]) + '='*10)
+                eval_report = get_eval_report([i['prob'] for i in preds],
+                                              labels, idx2label, self.train_params['thresholds'])
+                self.logger.info('\n' + eval_report + '\n')
 
-    def train(self, train_params, run_config, do_train, do_eval, do_export):
+    def train(self, train_params, run_config, do_train, do_eval, do_predict, do_export):
         self.train_params = train_params
         self.logger = get_logger(name=train_params['model'], log_dir=train_params['ckpt_dir'])
 
@@ -175,7 +181,9 @@ class Trainer(object):
         if do_train:
             self._train()
         if do_eval:
-            self._eval()
+            self._infer()
+        if do_predict:
+            self._infer(predict_only=True)
         if do_export:
             self._export()
 
