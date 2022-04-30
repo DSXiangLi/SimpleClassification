@@ -15,9 +15,9 @@ def split_train_test(data_dir, org_file, surfix=None):
     """
     with open(os.path.join(data_dir, org_file + '.txt'), 'r') as f:
         lines = f.readlines()
-
-    train, test = train_test_split(lines, test_size=0.2)
-    train, valid = train_test_split(train, test_size=0.25)
+    # 因为设置了种子，所以train/test/valid不会改变
+    train, test = train_test_split(lines, test_size=0.2, random_state=1234)
+    train, valid = train_test_split(train, test_size=0.25, random_state=1234)
 
     with open(os.path.join(data_dir, '_'.join(filter(None, ['train', surfix])) + '.txt'), 'w') as f1, \
             open(os.path.join(data_dir, '_'.join(filter(None, ['test', surfix])) + '.txt'), 'w') as f2, \
