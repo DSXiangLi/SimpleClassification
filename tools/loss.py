@@ -12,7 +12,7 @@
 import inspect
 import tensorflow as tf
 from tools.train_utils import HpParser, add_layer_summary
-
+from functools import wraps
 LossHP = {}
 LossFunc = {}
 
@@ -31,6 +31,7 @@ def add_loss_hp(func):
 
 
 def pre_loss(loss_func):
+    @wraps(loss_func)
     def helper(logits, labels, num_labels=None):
         probs = tf.nn.softmax(logits, axis=-1)
 
