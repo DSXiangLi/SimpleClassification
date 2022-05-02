@@ -1,0 +1,44 @@
+Prepare dataset
+==========Train Params==========
+{'model': 'fasttext', 'ckpt_name': 'toutiao_fasttext', 'ckpt_dir': './checkpoint/toutiao_fasttext', 'export_dir': './serving/toutiao_fasttext', 'train_file': 'train', 'valid_file': 'valid', 'eval_file': 'test', 'predict_file': 'all', 'nlp_pretrain_model': 'word2vec_baike', 'nlp_pretrain_dir': 'pretrain/word2vec_baike', 'nlp_pretrain_ckpt': 'pretrain/word2vec_baike/sgns.merge.word', 'max_seq_len': 150, 'label_size': 15, 'lr': 0.001, 'enable_cache': True, 'clear_cache': False, 'epoch_size': 10, 'batch_size': 32, 'early_stop_ratio': 1, 'log_steps': 100, 'save_steps': 1000, 'thresholds': [0.6, 0.7, 0.8, 0.9], 'embedding_dropout': 0.3, 'keep_oov': 0, 'lower_clip': -5, 'upper_clip': 5, 'decay_rate': 0.95, 'loss_func': <function pre_loss.<locals>.helper at 0x7ff62c1ad6a8>, 'data_dir': './trainsample/toutiao', 'data_dir_list': ['./trainsample/toutiao'], 'idx2label': {'./trainsample/toutiao': {0: 'news_story', 1: 'news_culture', 2: 'news_entertainment', 3: 'news_sports', 4: 'news_finance', 5: 'news_house', 6: 'news_car', 7: 'news_edu', 8: 'news_tech', 9: 'news_military', 10: 'news_travel', 11: 'news_world', 12: 'stock', 13: 'news_agriculture', 14: 'news_game'}}, 'embedding': array([[ 1.0238700e-01,  1.1114600e-01,  2.6331899e-01, ...,
+        -7.6571003e-02,  1.4428701e-01, -5.6035001e-02],
+       [ 8.1348002e-02,  7.3545001e-02,  2.0183100e-01, ...,
+        -8.0890004e-03,  1.9217600e-01, -4.8473999e-02],
+       [ 9.6598998e-02,  8.9405000e-02,  2.6543599e-01, ...,
+        -1.4453600e-01,  1.3566500e-01, -1.9680999e-02],
+       ...,
+       [ 1.1238000e-02, -1.6406000e-02,  5.3800002e-04, ...,
+         2.8450000e-03,  6.0480000e-03, -2.2475000e-02],
+       [-1.0783117e+00, -1.2880025e+00, -1.4469324e+00, ...,
+        -5.2927160e-01,  1.0305047e+00, -1.1562042e+00],
+       [ 2.4249296e-01,  4.7884288e-01,  2.5303817e+00, ...,
+        -7.2847158e-01,  1.1212907e+00,  7.9375826e-02]], dtype=float32), 'embedding_size': 300, 'vocab_size': 1292483, 'sample_size': 229612, 'steps_per_epoch': 7175, 'num_train_steps': 71750}
+==========Run Config==========
+{'keep_checkpoint_max': 3, 'allow_growth': True, 'pre_process_gpu_fraction': 0.8, 'log_device_placement': True, 'allow_soft_placement': True, 'inter_op_parallel': 2, 'intra_op_parallel': 2, 'use_gpu': True, 'log_steps': 100, 'save_steps': 1000, 'summary_steps': 1000}
+==========Training fasttext ==========
+Dumping Prediction at ./trainsample/toutiao/toutiao_fasttext_test.txt
+==========Evaluation Report of test ==========
+
+                    precision    recall  f1-score   support
+
+        news_story       0.80      0.74      0.77      1265
+      news_culture       0.84      0.81      0.83      5652
+news_entertainment       0.83      0.87      0.85      7856
+       news_sports       0.92      0.91      0.92      7533
+      news_finance       0.72      0.74      0.73      5375
+        news_house       0.88      0.86      0.87      3458
+          news_car       0.87      0.88      0.88      7129
+          news_edu       0.85      0.85      0.85      5380
+         news_tech       0.80      0.83      0.81      8354
+     news_military       0.82      0.79      0.81      4959
+       news_travel       0.78      0.78      0.78      4239
+        news_world       0.75      0.77      0.76      5427
+             stock       0.00      0.00      0.00        66
+  news_agriculture       0.82      0.79      0.81      3888
+         news_game       0.89      0.87      0.88      5957
+
+          accuracy                           0.83     76538
+         macro avg       0.77      0.77      0.77     76538
+      weighted avg       0.83      0.83      0.83     76538
+
+

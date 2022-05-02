@@ -1,0 +1,29 @@
+Prepare dataset
+==========Train Params==========
+{'model': 'textrcnn', 'ckpt_dir': './checkpoint/weibo_textrcnn_v1', 'export_dir': './serving/weibo_textrcnn_v1', 'data_dir': './trainsample/weibo', 'predict_file': 'weibo_textrcnn_v1.txt', 'nlp_pretrain_model': 'word2vec_baike', 'nlp_pretrain_dir': 'pretrain/word2vec_baike', 'nlp_pretrain_ckpt': 'pretrain/word2vec_baike/sgns.merge.word', 'max_seq_len': 1000, 'label_size': 2, 'lr': 0.001, 'enable_cache': True, 'clear_cache': False, 'epoch_size': 10, 'batch_size': 64, 'early_stop_ratio': 1, 'log_steps': 100, 'save_steps': 1000, 'thresholds': [0.6, 0.7, 0.8, 0.9], 'embedding_dropout': 0.3, 'keep_oov': 0, 'lower_clip': -5, 'upper_clip': 5, 'decay_rate': 0.95, 'cell_type': 'lstm', 'cell_size': 1, 'cell_hidden_list': [128], 'keep_prob_list': [0.8], 'rnn_activation': 'tanh', 'loss_func': <function ce.<locals>.helper at 0x7f44f6dd5f28>, 'embedding': array([[ 1.0238700e-01,  1.1114600e-01,  2.6331899e-01, ...,
+        -7.6571003e-02,  1.4428701e-01, -5.6035001e-02],
+       [ 8.1348002e-02,  7.3545001e-02,  2.0183100e-01, ...,
+        -8.0890004e-03,  1.9217600e-01, -4.8473999e-02],
+       [ 9.6598998e-02,  8.9405000e-02,  2.6543599e-01, ...,
+        -1.4453600e-01,  1.3566500e-01, -1.9680999e-02],
+       ...,
+       [ 1.1238000e-02, -1.6406000e-02,  5.3800002e-04, ...,
+         2.8450000e-03,  6.0480000e-03, -2.2475000e-02],
+       [-1.8758081e+00, -1.6819371e-02, -7.1887124e-01, ...,
+        -2.9036894e-01, -3.1221110e-01,  4.4201851e-01],
+       [ 1.1072249e+00,  3.7626070e-01, -1.6413832e+00, ...,
+         1.1175296e+00, -7.3073767e-02,  4.6806596e-02]], dtype=float32), 'embedding_size': 300, 'vocab_size': 1292483, 'model_dir': './checkpoint/weibo_textrcnn_v1', 'sample_size': 76792, 'steps_per_epoch': 1199, 'num_train_steps': 11990}
+==========Run Config==========
+{'keep_checkpoint_max': 3, 'allow_growth': True, 'pre_process_gpu_fraction': 0.8, 'log_device_placement': True, 'allow_soft_placement': True, 'inter_op_parallel': 2, 'intra_op_parallel': 2, 'use_gpu': True, 'log_steps': 100, 'save_steps': 1000, 'summary_steps': 1000}
+==========Training textrcnn ==========
+Running Prediction for test.text
+Dumping Prediction at ./trainsample/weibo/weibo_textrcnn_v1.txt
+==========Evaluation Report==========
+
+   threshold     n precision recall accuracy   auc    ap total total_pos
+0        0.6 12134     96.6%  97.5%    97.0% 99.7% 99.7% 23998     12025
+1        0.7 12041     97.1%  97.2%    97.2% 99.7% 99.7% 23998     12025
+2        0.8 11938     97.8%  97.1%    97.4% 99.7% 99.7% 23998     12025
+3        0.9 11824     98.5%  96.8%    97.6% 99.7% 99.7% 23998     12025
+
+Exporting Model for serving_model at ./serving/weibo_textrcnn_v1

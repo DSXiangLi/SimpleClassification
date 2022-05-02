@@ -1,0 +1,27 @@
+Prepare dataset
+==========Train Params==========
+{'model': 'textcnn', 'ckpt_name': 'chnsenticorp_textcnn', 'ckpt_dir': './checkpoint/chnsenticorp_textcnn', 'export_dir': './serving/chnsenticorp_textcnn', 'train_file': 'train_teacher', 'valid_file': 'valid_teacher', 'eval_file': 'test_teacher', 'predict_file': 'all', 'nlp_pretrain_model': 'word2vec_baike', 'nlp_pretrain_dir': 'pretrain/word2vec_baike', 'nlp_pretrain_ckpt': 'pretrain/word2vec_baike/sgns.merge.word', 'max_seq_len': 300, 'label_size': 2, 'lr': 0.001, 'enable_cache': False, 'clear_cache': False, 'epoch_size': 10, 'batch_size': 64, 'early_stop_ratio': 1, 'log_steps': 100, 'save_steps': 1000, 'thresholds': [0.6, 0.7, 0.8, 0.9], 'embedding_dropout': 0.3, 'keep_oov': 0, 'lower_clip': -5, 'upper_clip': 5, 'decay_rate': 0.95, 'filter_list': [100, 100, 100], 'kernel_size_list': [3, 4, 5], 'cnn_activation': 'relu', 'concat_cnn': True, 'loss_func': <function pre_loss.<locals>.helper at 0x7fb8e4455840>, 'data_dir': './trainsample/chnsenticorp', 'data_dir_list': ['./trainsample/chnsenticorp'], 'idx2label': {'./trainsample/chnsenticorp': {0: '负面', 1: '正面'}}, 'embedding': array([[ 1.0238700e-01,  1.1114600e-01,  2.6331899e-01, ...,
+        -7.6571003e-02,  1.4428701e-01, -5.6035001e-02],
+       [ 8.1348002e-02,  7.3545001e-02,  2.0183100e-01, ...,
+        -8.0890004e-03,  1.9217600e-01, -4.8473999e-02],
+       [ 9.6598998e-02,  8.9405000e-02,  2.6543599e-01, ...,
+        -1.4453600e-01,  1.3566500e-01, -1.9680999e-02],
+       ...,
+       [ 1.1238000e-02, -1.6406000e-02,  5.3800002e-04, ...,
+         2.8450000e-03,  6.0480000e-03, -2.2475000e-02],
+       [-6.0399890e-02,  7.2546713e-02, -1.5813642e+00, ...,
+         1.2764218e+00, -1.5006663e+00, -8.6548871e-01],
+       [ 8.0738723e-01,  1.2454547e+00,  5.5161864e-02, ...,
+         2.8781512e-01, -5.8454305e-02, -5.4272741e-01]], dtype=float32), 'embedding_size': 300, 'vocab_size': 1292483, 'sample_size': 6927, 'steps_per_epoch': 108, 'num_train_steps': 1080}
+==========Run Config==========
+{'keep_checkpoint_max': 3, 'allow_growth': True, 'pre_process_gpu_fraction': 0.8, 'log_device_placement': True, 'allow_soft_placement': True, 'inter_op_parallel': 2, 'intra_op_parallel': 2, 'use_gpu': True, 'log_steps': 100, 'save_steps': 1000, 'summary_steps': 1000}
+==========Training textcnn ==========
+Dumping Prediction at ./trainsample/chnsenticorp/chnsenticorp_textcnn_test_teacher.txt
+==========Evaluation Report of test_teacher ==========
+
+   threshold    n precision recall accuracy   auc    ap total total_pos
+0        0.6 1241     86.0%  90.3%    87.5% 93.7% 93.5%  2310      1181
+1        0.7 1196     87.2%  88.3%    87.4% 93.7% 93.5%  2310      1181
+2        0.8 1152     88.8%  86.6%    87.6% 93.7% 93.5%  2310      1181
+3        0.9 1077     90.6%  82.6%    86.8% 93.7% 93.5%  2310      1181
+

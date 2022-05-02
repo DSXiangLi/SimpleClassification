@@ -1,0 +1,49 @@
+Prepare dataset
+==========Train Params==========
+{'model': 'bert', 'ckpt_dir': './checkpoint/weibo_bert_v1', 'export_dir': './serving/weibo_bert_v1', 'data_dir': './trainsample/weibo', 'predict_file': 'weibo_bert_v1.txt', 'nlp_pretrain_model': 'bert_base', 'nlp_pretrain_dir': 'pretrain/chinese_L-12_H-768_A-12', 'nlp_pretrain_ckpt': 'pretrain/chinese_L-12_H-768_A-12/bert_model.ckpt', 'max_seq_len': 150, 'label_size': 2, 'lr': 1e-05, 'enable_cache': True, 'epoch_size': 5, 'batch_size': 32, 'early_stop_ratio': 1, 'log_steps': 100, 'save_steps': 1000, 'thresholds': [0.6, 0.7, 0.8, 0.9], 'warmup_ratio': 0.1, 'embedding_dropout': 0.3, 'loss_func': <function ce.<locals>.helper at 0x7fd27ad31ea0>, 'model_dir': './checkpoint/weibo_bert_v1', 'sample_size': 76792, 'steps_per_epoch': 2399, 'num_train_steps': 11995}
+==========Run Config==========
+{'keep_checkpoint_max': 3, 'allow_growth': True, 'pre_process_gpu_fraction': 0.8, 'log_device_placement': True, 'allow_soft_placement': True, 'inter_op_parallel': 2, 'intra_op_parallel': 2, 'use_gpu': True, 'log_steps': 100, 'save_steps': 1000, 'summary_steps': 1000}
+==========Training bert ==========
+Running Prediction for test.text
+Dumping Prediction at ./trainsample/weibo/weibo_bert_v1.txt
+Prepare dataset
+==========Train Params==========
+{'model': 'bert', 'ckpt_dir': './checkpoint/weibo_bert_v1', 'export_dir': './serving/weibo_bert_v1', 'data_dir': './trainsample/weibo', 'predict_file': 'weibo_bert_v1.txt', 'nlp_pretrain_model': 'bert_base', 'nlp_pretrain_dir': 'pretrain/chinese_L-12_H-768_A-12', 'nlp_pretrain_ckpt': 'pretrain/chinese_L-12_H-768_A-12/bert_model.ckpt', 'max_seq_len': 150, 'label_size': 2, 'lr': 1e-05, 'enable_cache': True, 'epoch_size': 5, 'batch_size': 32, 'early_stop_ratio': 1, 'log_steps': 100, 'save_steps': 1000, 'thresholds': [0.6, 0.7, 0.8, 0.9], 'warmup_ratio': 0.1, 'embedding_dropout': 0.3, 'loss_func': <function ce.<locals>.helper at 0x7fbb75995ea0>, 'model_dir': './checkpoint/weibo_bert_v1', 'sample_size': 76792, 'steps_per_epoch': 2399, 'num_train_steps': 11995}
+==========Run Config==========
+{'keep_checkpoint_max': 3, 'allow_growth': True, 'pre_process_gpu_fraction': 0.8, 'log_device_placement': True, 'allow_soft_placement': True, 'inter_op_parallel': 2, 'intra_op_parallel': 2, 'use_gpu': True, 'log_steps': 100, 'save_steps': 1000, 'summary_steps': 1000}
+Running Prediction for test.text
+Dumping Prediction at ./trainsample/weibo/weibo_bert_v1.txt
+==========Evaluation Report==========
+Prepare dataset
+==========Train Params==========
+{'model': 'bert', 'ckpt_dir': './checkpoint/weibo_bert_v1', 'export_dir': './serving/weibo_bert_v1', 'data_dir': './trainsample/weibo', 'predict_file': 'weibo_bert_v1.txt', 'nlp_pretrain_model': 'bert_base', 'nlp_pretrain_dir': 'pretrain/chinese_L-12_H-768_A-12', 'nlp_pretrain_ckpt': 'pretrain/chinese_L-12_H-768_A-12/bert_model.ckpt', 'max_seq_len': 150, 'label_size': 2, 'lr': 1e-05, 'enable_cache': True, 'epoch_size': 5, 'batch_size': 32, 'early_stop_ratio': 1, 'log_steps': 100, 'save_steps': 1000, 'thresholds': [0.6, 0.7, 0.8, 0.9], 'warmup_ratio': 0.1, 'embedding_dropout': 0.3, 'loss_func': <function ce.<locals>.helper at 0x7fc8144b6ea0>, 'model_dir': './checkpoint/weibo_bert_v1', 'sample_size': 76792, 'steps_per_epoch': 2399, 'num_train_steps': 11995}
+==========Run Config==========
+{'keep_checkpoint_max': 3, 'allow_growth': True, 'pre_process_gpu_fraction': 0.8, 'log_device_placement': True, 'allow_soft_placement': True, 'inter_op_parallel': 2, 'intra_op_parallel': 2, 'use_gpu': True, 'log_steps': 100, 'save_steps': 1000, 'summary_steps': 1000}
+Running Prediction for test.text
+Dumping Prediction at ./trainsample/weibo/weibo_bert_v1.txt
+==========Evaluation Report==========
+Prepare dataset
+Prepare dataset
+==========Train Params==========
+{'model': 'bert', 'ckpt_dir': './checkpoint/weibo_bert_v1', 'export_dir': './serving/weibo_bert_v1', 'data_dir': './trainsample/weibo', 'predict_file': 'weibo_bert_v1.txt', 'nlp_pretrain_model': 'bert_base', 'nlp_pretrain_dir': 'pretrain/chinese_L-12_H-768_A-12', 'nlp_pretrain_ckpt': 'pretrain/chinese_L-12_H-768_A-12/bert_model.ckpt', 'max_seq_len': 150, 'label_size': 2, 'lr': 1e-05, 'enable_cache': True, 'clear_cache': False, 'epoch_size': 5, 'batch_size': 32, 'early_stop_ratio': 1, 'log_steps': 100, 'save_steps': 1000, 'thresholds': [0.6, 0.7, 0.8, 0.9], 'warmup_ratio': 0.1, 'embedding_dropout': 0.3, 'loss_func': <function ce.<locals>.helper at 0x7f07c7b35ea0>, 'model_dir': './checkpoint/weibo_bert_v1', 'sample_size': 76792, 'steps_per_epoch': 2399, 'num_train_steps': 11995}
+==========Run Config==========
+{'keep_checkpoint_max': 3, 'allow_growth': True, 'pre_process_gpu_fraction': 0.8, 'log_device_placement': True, 'allow_soft_placement': True, 'inter_op_parallel': 2, 'intra_op_parallel': 2, 'use_gpu': True, 'log_steps': 100, 'save_steps': 1000, 'summary_steps': 1000}
+Running Prediction for test.text
+Dumping Prediction at ./trainsample/weibo/weibo_bert_v1.txt
+==========Evaluation Report==========
+Prepare dataset
+==========Train Params==========
+{'model': 'bert', 'ckpt_dir': './checkpoint/weibo_bert_v1', 'export_dir': './serving/weibo_bert_v1', 'data_dir': './trainsample/weibo', 'predict_file': 'weibo_bert_v1.txt', 'nlp_pretrain_model': 'bert_base', 'nlp_pretrain_dir': 'pretrain/chinese_L-12_H-768_A-12', 'nlp_pretrain_ckpt': 'pretrain/chinese_L-12_H-768_A-12/bert_model.ckpt', 'max_seq_len': 150, 'label_size': 2, 'lr': 1e-05, 'enable_cache': True, 'clear_cache': False, 'epoch_size': 5, 'batch_size': 32, 'early_stop_ratio': 1, 'log_steps': 100, 'save_steps': 1000, 'thresholds': [0.6, 0.7, 0.8, 0.9], 'warmup_ratio': 0.1, 'embedding_dropout': 0.3, 'loss_func': <function ce.<locals>.helper at 0x7f9d54629f28>, 'model_dir': './checkpoint/weibo_bert_v1', 'sample_size': 76792, 'steps_per_epoch': 2399, 'num_train_steps': 11995}
+==========Run Config==========
+{'keep_checkpoint_max': 3, 'allow_growth': True, 'pre_process_gpu_fraction': 0.8, 'log_device_placement': True, 'allow_soft_placement': True, 'inter_op_parallel': 2, 'intra_op_parallel': 2, 'use_gpu': True, 'log_steps': 100, 'save_steps': 1000, 'summary_steps': 1000}
+Running Prediction for test.text
+Dumping Prediction at ./trainsample/weibo/weibo_bert_v1.txt
+==========Evaluation Report==========
+
+   threshold     n precision recall accuracy   auc    ap total total_pos
+0        0.6 11887     98.1%  97.0%    97.6% 99.7% 99.7% 23998     12025
+1        0.7 11880     98.2%  97.0%    97.6% 99.7% 99.7% 23998     12025
+2        0.8 11867     98.2%  97.0%    97.6% 99.7% 99.7% 23998     12025
+3        0.9 11853     98.3%  96.9%    97.6% 99.7% 99.7% 23998     12025
+
+Exporting Model for serving_model at ./serving/weibo_bert_v1

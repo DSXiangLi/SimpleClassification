@@ -1,0 +1,27 @@
+Prepare dataset
+==========Train Params==========
+{'model': 'textcnn', 'ckpt_name': 'chnsenticorp_distill_bert2textcnn', 'ckpt_dir': './checkpoint/chnsenticorp_distill_bert2textcnn', 'export_dir': './serving/chnsenticorp_distill_bert2textcnn', 'train_file': 'train_teacher', 'valid_file': 'valid_teacher', 'eval_file': 'test_teacher', 'predict_file': 'all', 'nlp_pretrain_model': 'word2vec_baike', 'nlp_pretrain_dir': 'pretrain/word2vec_baike', 'nlp_pretrain_ckpt': 'pretrain/word2vec_baike/sgns.merge.word', 'max_seq_len': 300, 'label_size': 2, 'lr': 0.0001, 'enable_cache': False, 'clear_cache': False, 'epoch_size': 30, 'batch_size': 64, 'early_stop_ratio': 1, 'log_steps': 100, 'save_steps': 50.0, 'thresholds': [0.6, 0.7, 0.8, 0.9], 'embedding_dropout': 0.3, 'keep_oov': 0, 'lower_clip': -5, 'upper_clip': 5, 'decay_rate': 0.95, 'filter_list': [100, 100, 100], 'kernel_size_list': [3, 4, 5], 'cnn_activation': 'relu', 'concat_cnn': True, 'distill_weight': 5.0, 'distill_loss': 'ce', 'temperature': 5, 'loss_func': <function pre_loss.<locals>.helper at 0x7faa3f983950>, 'data_dir': './trainsample/chnsenticorp', 'data_dir_list': ['./trainsample/chnsenticorp'], 'idx2label': {'./trainsample/chnsenticorp': {0: '负面', 1: '正面'}}, 'embedding': array([[ 1.0238700e-01,  1.1114600e-01,  2.6331899e-01, ...,
+        -7.6571003e-02,  1.4428701e-01, -5.6035001e-02],
+       [ 8.1348002e-02,  7.3545001e-02,  2.0183100e-01, ...,
+        -8.0890004e-03,  1.9217600e-01, -4.8473999e-02],
+       [ 9.6598998e-02,  8.9405000e-02,  2.6543599e-01, ...,
+        -1.4453600e-01,  1.3566500e-01, -1.9680999e-02],
+       ...,
+       [ 1.1238000e-02, -1.6406000e-02,  5.3800002e-04, ...,
+         2.8450000e-03,  6.0480000e-03, -2.2475000e-02],
+       [-3.4348479e-01, -9.2556036e-01, -9.9828243e-02, ...,
+        -1.0956616e+00, -2.3553602e-02, -4.3505540e-01],
+       [-1.5680785e-01,  3.9878625e-01,  3.6039164e+00, ...,
+         4.9827215e-01,  1.4020064e-01,  2.9034466e-01]], dtype=float32), 'embedding_size': 300, 'vocab_size': 1292483, 'sample_size': 6927, 'steps_per_epoch': 108, 'num_train_steps': 3240}
+==========Run Config==========
+{'keep_checkpoint_max': 3, 'allow_growth': True, 'pre_process_gpu_fraction': 0.8, 'log_device_placement': True, 'allow_soft_placement': True, 'inter_op_parallel': 2, 'intra_op_parallel': 2, 'use_gpu': True, 'log_steps': 100, 'save_steps': 50.0, 'summary_steps': 50.0}
+==========Training textcnn ==========
+Dumping Prediction at ./trainsample/chnsenticorp/chnsenticorp_distill_bert2textcnn_test_teacher.txt
+==========Evaluation Report of test_teacher ==========
+
+   threshold    n precision recall accuracy   auc    ap total total_pos
+0        0.6 1186     87.7%  88.1%    87.6% 94.0% 93.7%  2310      1181
+1        0.7 1154     88.3%  86.3%    87.1% 94.0% 93.7%  2310      1181
+2        0.8 1128     89.1%  85.1%    87.1% 94.0% 93.7%  2310      1181
+3        0.9 1082     90.5%  82.9%    86.8% 94.0% 93.7%  2310      1181
+

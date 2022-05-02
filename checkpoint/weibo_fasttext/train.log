@@ -1,0 +1,29 @@
+Prepare dataset
+==========Train Params==========
+{'model': 'fasttext', 'ckpt_dir': './checkpoint/weibo_fasttext_v1', 'export_dir': './serving/weibo_fasttext_v1', 'data_dir': './trainsample/weibo', 'predict_file': 'weibo_fasttext_v1.txt', 'nlp_pretrain_model': 'word2vec_baike', 'nlp_pretrain_dir': 'pretrain/word2vec_baike', 'nlp_pretrain_ckpt': 'pretrain/word2vec_baike/sgns.merge.word', 'max_seq_len': 1000, 'label_size': 2, 'lr': 0.001, 'enable_cache': True, 'clear_cache': False, 'epoch_size': 10, 'batch_size': 64, 'early_stop_ratio': 1, 'log_steps': 100, 'save_steps': 1000, 'thresholds': [0.6, 0.7, 0.8, 0.9], 'embedding_dropout': 0.3, 'keep_oov': 0, 'lower_clip': -5, 'upper_clip': 5, 'decay_rate': 0.95, 'loss_func': <function ce.<locals>.helper at 0x7f9575b780d0>, 'embedding': array([[ 1.02387004e-01,  1.11146003e-01,  2.63318986e-01, ...,
+        -7.65710026e-02,  1.44287005e-01, -5.60350008e-02],
+       [ 8.13480020e-02,  7.35450014e-02,  2.01830998e-01, ...,
+        -8.08900036e-03,  1.92175999e-01, -4.84739989e-02],
+       [ 9.65989977e-02,  8.94050002e-02,  2.65435994e-01, ...,
+        -1.44536003e-01,  1.35664999e-01, -1.96809992e-02],
+       ...,
+       [ 1.12380004e-02, -1.64059997e-02,  5.38000022e-04, ...,
+         2.84500001e-03,  6.04799995e-03, -2.24750005e-02],
+       [-1.82612109e+00, -5.99322505e-02, -9.92518485e-01, ...,
+        -1.66294467e+00, -6.36039078e-01,  2.34059525e+00],
+       [ 1.45320654e-01, -1.00013435e-01, -1.77928954e-02, ...,
+         4.37486142e-01,  7.75846064e-01,  1.95918560e+00]], dtype=float32), 'embedding_size': 300, 'vocab_size': 1292483, 'model_dir': './checkpoint/weibo_fasttext_v1', 'sample_size': 76792, 'steps_per_epoch': 1199, 'num_train_steps': 11990}
+==========Run Config==========
+{'keep_checkpoint_max': 3, 'allow_growth': True, 'pre_process_gpu_fraction': 0.8, 'log_device_placement': True, 'allow_soft_placement': True, 'inter_op_parallel': 2, 'intra_op_parallel': 2, 'use_gpu': True, 'log_steps': 100, 'save_steps': 1000, 'summary_steps': 1000}
+==========Training fasttext ==========
+Running Prediction for test.text
+Dumping Prediction at ./trainsample/weibo/weibo_fasttext_v1.txt
+==========Evaluation Report==========
+
+   threshold     n precision recall accuracy   auc    ap total total_pos
+0        0.6 11785     95.6%  93.7%    94.7% 97.6% 97.1% 23998     12025
+1        0.7 11564     96.3%  92.6%    94.5% 97.6% 97.1% 23998     12025
+2        0.8 11215     97.0%  90.4%    93.8% 97.6% 97.1% 23998     12025
+3        0.9 10483     97.6%  85.1%    91.4% 97.6% 97.1% 23998     12025
+
+Exporting Model for serving_model at ./serving/weibo_fasttext_v1

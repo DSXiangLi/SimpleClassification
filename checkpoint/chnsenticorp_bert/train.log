@@ -1,0 +1,21 @@
+Prepare dataset
+==========Train Params==========
+{'model': 'bert', 'ckpt_name': 'chnsenticorp_bert', 'ckpt_dir': './checkpoint/chnsenticorp_bert', 'export_dir': './serving/chnsenticorp_bert', 'train_file': 'train', 'valid_file': 'valid', 'eval_file': 'test', 'predict_file': 'all', 'nlp_pretrain_model': 'bert_base', 'nlp_pretrain_dir': 'pretrain/chinese_L-12_H-768_A-12', 'nlp_pretrain_ckpt': 'pretrain/chinese_L-12_H-768_A-12/bert_model.ckpt', 'max_seq_len': 300, 'label_size': 2, 'lr': 1e-05, 'enable_cache': False, 'clear_cache': False, 'epoch_size': 5, 'batch_size': 16, 'early_stop_ratio': 1, 'log_steps': 100, 'save_steps': 1000, 'thresholds': [0.6, 0.7, 0.8, 0.9], 'warmup_ratio': 0.1, 'embedding_dropout': 0.3, 'loss_func': <function pre_loss.<locals>.helper at 0x7efc06d51c80>, 'data_dir': './trainsample/chnsenticorp', 'data_dir_list': ['./trainsample/chnsenticorp'], 'idx2label': {'./trainsample/chnsenticorp': {0: '负面', 1: '正面'}}, 'sample_size': 9146, 'steps_per_epoch': 571, 'num_train_steps': 2855}
+==========Run Config==========
+{'keep_checkpoint_max': 3, 'allow_growth': True, 'pre_process_gpu_fraction': 0.8, 'log_device_placement': True, 'allow_soft_placement': True, 'inter_op_parallel': 2, 'intra_op_parallel': 2, 'use_gpu': True, 'log_steps': 100, 'save_steps': 1000, 'summary_steps': 1000}
+==========Training bert ==========
+Dumping Prediction at ./trainsample/chnsenticorp/chnsenticorp_bert_test.txt
+==========Evaluation Report of test ==========
+
+   threshold   n precision recall accuracy   auc    ap total total_pos
+0        0.6 602     92.7%  91.8%    92.2% 96.6% 96.0%  1200       608
+1        0.7 599     93.0%  91.6%    92.2% 96.6% 96.0%  1200       608
+2        0.8 596     93.1%  91.3%    92.2% 96.6% 96.0%  1200       608
+3        0.9 594     93.3%  91.1%    92.2% 96.6% 96.0%  1200       608
+
+Prepare dataset
+==========Train Params==========
+{'model': 'bert', 'ckpt_name': 'chnsenticorp_bert', 'ckpt_dir': './checkpoint/chnsenticorp_bert', 'export_dir': './serving/chnsenticorp_bert', 'train_file': 'train', 'valid_file': 'valid', 'eval_file': 'test', 'predict_file': 'all', 'nlp_pretrain_model': 'bert_base', 'nlp_pretrain_dir': 'pretrain/chinese_L-12_H-768_A-12', 'nlp_pretrain_ckpt': 'pretrain/chinese_L-12_H-768_A-12/bert_model.ckpt', 'max_seq_len': 300, 'label_size': 2, 'lr': 1e-05, 'enable_cache': False, 'clear_cache': False, 'epoch_size': 5, 'batch_size': 32, 'early_stop_ratio': 1, 'log_steps': 100, 'save_steps': 1000, 'thresholds': [0.6, 0.7, 0.8, 0.9], 'warmup_ratio': 0.1, 'embedding_dropout': 0.3, 'loss_func': <function pre_loss.<locals>.helper at 0x7f15c5f21c80>, 'data_dir': './trainsample/chnsenticorp', 'data_dir_list': ['./trainsample/chnsenticorp'], 'idx2label': {'./trainsample/chnsenticorp': {0: '负面', 1: '正面'}}, 'sample_size': 9146, 'steps_per_epoch': 285, 'num_train_steps': 1425}
+==========Run Config==========
+{'keep_checkpoint_max': 3, 'allow_growth': True, 'pre_process_gpu_fraction': 0.8, 'log_device_placement': True, 'allow_soft_placement': True, 'inter_op_parallel': 2, 'intra_op_parallel': 2, 'use_gpu': True, 'log_steps': 100, 'save_steps': 1000, 'summary_steps': 1000}
+Dumping Prediction at ./trainsample/chnsenticorp/chnsenticorp_bert_all.txt
