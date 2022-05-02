@@ -1,4 +1,8 @@
 # -*-coding:utf-8 -*-
+"""
+    Ref1. Multi-task Domain Adaptation for Sequence Tagging
+    Ref2. A survey of multi-source domain adaptation
+"""
 import tensorflow as tf
 from functools import partial
 import importlib
