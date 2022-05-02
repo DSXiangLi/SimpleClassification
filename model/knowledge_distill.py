@@ -76,7 +76,7 @@ class KnowledgeDistillWrapper(BaseEncoder):
 
         # distill loss: mse between prediction and
         distill_loss = tf.reduce_mean(self.distill_loss(self.teacher_logit, predictions))
-        tf.summary.scalar('loss/mse_loss', distill_loss)
+        tf.summary.scalar('loss/distill_loss', distill_loss)
 
         # loss 加权
         total_loss = self.weight * distill_loss + supervised_loss
