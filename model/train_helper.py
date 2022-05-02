@@ -79,7 +79,7 @@ def build_model_fn(encoder):
                                               training_hooks=[get_log_hook(total_loss, params['log_steps'])])
 
         else:
-            if params.get('task_size', 1)==1:
+            if params.get('task_size', 1) == 1:
                 # 单任务metrics
                 metric_ops = get_metric_ops(probs, labels, params['idx2label'][params['data_dir']])
             else:
@@ -88,12 +88,13 @@ def build_model_fn(encoder):
                 for task_id, (task_name, idx2label) in enumerate(params['idx2label'].items()):
                     weights = tf.cast(tf.equal(features['task_ids'], task_id), tf.float32)
                     task_ops = get_metric_ops(probs, labels, idx2label, weights)
-                    metric_ops.update(dict([('task{}'.format(task_id) + i, j) for i,j in task_ops.items()]))
+                    metric_ops.update(dict([('task{}'.format(task_id) + i, j) for i, j in task_ops.items()]))
 
             spec = tf.estimator.EstimatorSpec(mode=mode, loss=total_loss,
                                               scaffold=scaffold,
                                               eval_metric_ops=metric_ops)
         return spec
+
     return model_fn
 
 
@@ -145,10 +146,12 @@ class Trainer(object):
 
         for data_dir, idx2label in self.train_params['idx2label'].items():
             # 拼接ckpt & 输入文件名 得到预测输出文件名
-            output_file = os.path.join(data_dir, '_'.join([self.train_params['ckpt_name'], self.train_params[file]]) + '.txt')
+            output_file = os.path.join(data_dir,
+                                       '_'.join([self.train_params['ckpt_name'], self.train_params[file]]) + '.txt')
             self.logger.info('Dumping Prediction at {}'.format(output_file))
-            if self.train_params.get('task_size', 1)>1:
-                predictions = self.estimator.predict(self.input_pipe.build_input_fn(is_predict=True, task_name=data_dir))
+            if self.train_params.get('task_size', 1) > 1:
+                predictions = self.estimator.predict(
+                    self.input_pipe.build_input_fn(is_predict=True, task_name=data_dir))
             else:
                 predictions = self.estimator.predict(self.input_pipe.build_input_fn(is_predict=True))
 
@@ -161,7 +164,7 @@ class Trainer(object):
                     f.write(json.dumps({**data, **pred}, ensure_ascii=False) + '\n')
 
             if not predict_only:
-                self.logger.info('='*10 + 'Evaluation Report of {} '.format(self.train_params[file]) + '='*10)
+                self.logger.info('=' * 10 + 'Evaluation Report of {} '.format(self.train_params[file]) + '=' * 10)
                 eval_report = get_eval_report([i['prob'] for i in preds],
                                               labels, idx2label, self.train_params['thresholds'])
                 self.logger.info('\n' + eval_report + '\n')
