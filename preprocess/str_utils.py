@@ -6,6 +6,8 @@
 import re
 import string
 
+__all__ = ['stop_word_handler', 'emoji_handler', 'punctuation_handler']
+
 
 class StrHandler(object):
     def __init__(self, file_path):
@@ -93,19 +95,12 @@ class StopWordHandler(StrHandler):
         return re_stop_words
 
 
-def str_preprocess_pipeline(func_list):
-    def helper(text):
-        for func in func_list:
-            text = func(text)
-        return text.strip()
-
-    return helper
+stop_word_handler = StopWordHandler()
+emoji_handler = EmojiHandler()
+punctuation_handler = PunctuationHandler()
 
 
 if __name__ == '__main__':
-    stop_word_handler = StopWordHandler()
-    emoji_handler = EmojiHandler()
-    punctuation_handler = PunctuationHandler()
     print(emoji_handler.remove('记者都怒了[惊呆]'))
     print(punctuation_handler.remove('今天天气特别好！我们出去浪吧'))
     print(stop_word_handler.remove('具体说来，今天的事情'))
@@ -115,3 +110,6 @@ if __name__ == '__main__':
     print(stop_word_handler.check('天气'))
     print(punctuation_handler.check('\n'))
     print(punctuation_handler.check('a'))
+
+
+
