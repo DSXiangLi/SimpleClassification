@@ -1,9 +1,9 @@
-# Simple Classification for Text
+# Text lassification: Support serveral PTMS, Semi-Supervised & Domain Transfer & Noisy Robst Loss & Disllation
 
 ## 支持任务
 ### 输出
 - [x] 二分类任务
-- [x] 多分类任务
+- [x] 多分类任务 
 - [ ] 有序多分类任务
 
 ### 输入
