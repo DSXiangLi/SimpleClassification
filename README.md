@@ -1,4 +1,4 @@
-# Text lassification: Support serveral PTMS, Semi-Supervised & Domain Transfer & Noisy Robst Loss & Disllation
+# Text lassification: Support serveral PTMS, Semi-Supervised & Domain Transfer & Noisy Robst Loss & Distillation
 
 ## 支持任务
 ### 输出
