@@ -137,7 +137,7 @@ def get_albert_tokenizer(vocab_file, **kwargs):
 
 def get_electra_tokenizer(vocab_file, **kwargs):
     logger.info('Loading vocab_file {} '.format(vocab_file))
-    from backbone.electra.tokenization import FullTokenizer  # same as bert
+    from backbone.bert.tokenization import FullTokenizer  # same as bert
     tokenizer = FullTokenizer(vocab_file, **kwargs)
     return tokenizer
 
