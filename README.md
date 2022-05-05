@@ -39,9 +39,9 @@
 - [ ] tiny bert 
 
 ### 文本增强
-- [ ] EDA: SR, RS, RD
+- [ ] EDA: Random Delete, Random Swap, Random Insert, Random Substitute
 - [ ] Entity Replacement 
-- [ ] Mask LM
+- [ ] Mask MLM 
 - [ ] Vote
 
 ### Loss
@@ -52,5 +52,5 @@
 - [x] Bootstrapping
 
 ### Others
-- [ ] 分层learning rate
-- [ ] 模型推理
+- [x] 分层learning rate
+- [x] 模型推理
