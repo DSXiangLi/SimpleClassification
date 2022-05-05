@@ -23,5 +23,29 @@ def test_chinanews():
         print('text={}, label={}, pred={}'.format(i['text1'], i['label'], seq_client.infer(i['text1'])))
 
 
+def test_toutiao():
+    seq_client = WordClassifyInfer(server_list=['localhost:8500'],
+                                   max_seq_len=1000,
+                                   nlp_pretrain_model='word2vec_baike',
+                                   model_name='toutiao_fasttext_temporal',
+                                   model_version=1,
+                                   timeout=10)
+
+    samples = [{"text1": "沃尔沃推出新款电动垃圾车，居然是为了避免噪音悄悄搬走垃圾", "label": 6},
+                {"text1": "以色列警告称如果战机被击落将会轰炸俄军事基地，你怎么看？", "label": 9},
+                {"text1": "“以木筑梦”黄杨木雕在浙博展出", "label": 1},
+                {"text1": "女孩子如何在网约车环境里更好地保护自己？", "label": 6},
+                {"text1": "黄金有什么价值？", "label": 4},
+                {"text1": "Faker大魔王22岁生日，曾经统治世界的大魔王还会回来吗？", "label": 14},
+                {"text1": "破净股数量超80只：市场见底信号？", "label": 12},
+                {"text1": "三名美国人获释 特朗普感谢金正恩：美朝关系处于新起点", "label": 11},
+                {"text1": "《复仇者联盟3》预售破亿，最终能超越《速度与激情8》吗？", "label": 2},
+                {"text1": "中国光棍越来越多，国家对这方面有没有什么新政策？", "label": 13}]
+
+    for i in samples:
+        print('text={}, label={}, pred={}'.format(i['text1'], i['label'], seq_client.infer(i['text1'])))
+
+
 if __name__ == '__main__':
     test_chinanews()
+    #test_toutiao()

@@ -70,6 +70,14 @@ class WordClassifyInfer(ClassifyInfer):
     """
     Infer Class for word emebdding model like Fasttext, TextCNN, Fasttext
     """
+    def __init__(self, server_list, max_seq_len, timeout, nlp_pretrain_model, model_name, model_version):
+        super(WordClassifyInfer, self).__init__(server_list, max_seq_len, timeout, nlp_pretrain_model, model_name,
+                                               model_version)
+        self.proto = {
+            'idx': tf.int32,
+            'input_ids': tf.int32,
+            'seq_len': tf.int32,
+        }
 
     def make_feature(self, input):
         """
@@ -95,6 +103,7 @@ class WordClassifyInfer(ClassifyInfer):
         for i in tokens2:
             tokens.append(i)
 
+        input_ids = self.tokenizer.convert_tokens_to_ids(tokens)
         return {'idx': [0],
-                'input_ids': [self.tokenizer.convert_tokens_to_ids(tokens)],
-                'seq_len': [len(tokens)]}
+                'input_ids': [input_ids],
+                'seq_len': [len(input_ids)]}
