@@ -1,0 +1,30 @@
+Prepare dataset
+==========Train Params==========
+{'model': 'albert', 'ckpt_name': 'chinanews_albert', 'ckpt_dir': './checkpoint/chinanews_albert', 'export_dir': './serving/chinanews_albert', 'train_file': 'train', 'valid_file': 'valid', 'eval_file': 'test', 'predict_file': 'all', 'nlp_pretrain_model': 'albert_base', 'nlp_pretrain_dir': 'pretrain/albert_base', 'nlp_pretrain_ckpt': 'pretrain/albert_base/model.ckpt-best', 'max_seq_len': 150, 'label_size': 7, 'lr': 1e-05, 'enable_cache': False, 'clear_cache': False, 'epoch_size': 10, 'batch_size': 32, 'early_stop_ratio': 1, 'log_steps': 100, 'save_steps': 1000, 'thresholds': [0.6, 0.7, 0.8, 0.9], 'warmup_ratio': 0.1, 'embedding_dropout': 0.3, 'albert_optimizer': 'adamw', 'loss_func': <function pre_loss.<locals>.helper at 0x7ff7722dd9d8>, 'data_dir': './trainsample/chinanews', 'data_dir_list': ['./trainsample/chinanews'], 'idx2label': {'./trainsample/chinanews': {0: 'mainland China politics', 1: 'Hong Kong & Taiwan politics', 2: 'International news', 3: 'financial news', 4: 'culture', 5: 'entertainment', 6: 'sports'}}, 'sample_size': 955418, 'steps_per_epoch': 29856, 'num_train_steps': 298560}
+==========Run Config==========
+{'keep_checkpoint_max': 3, 'allow_growth': True, 'pre_process_gpu_fraction': 0.8, 'log_device_placement': True, 'allow_soft_placement': True, 'inter_op_parallel': 2, 'intra_op_parallel': 2, 'use_gpu': True, 'log_steps': 100, 'save_steps': 1000, 'summary_steps': 1000}
+==========Training albert ==========
+Dumping Prediction at ./trainsample/chinanews/chinanews_albert_test.txt
+==========Evaluation Report of test ==========
+
+                             precision    recall  f1-score   support
+
+    mainland China politics       0.82      0.80      0.81     42449
+Hong Kong & Taiwan politics       0.93      0.92      0.92     42576
+         International news       0.89      0.89      0.89     42181
+             financial news       0.80      0.81      0.81     42824
+                    culture       0.83      0.83      0.83     42886
+              entertainment       0.88      0.91      0.90     42664
+                     sports       0.94      0.94      0.94     42989
+
+                   accuracy                           0.87    298569
+                  macro avg       0.87      0.87      0.87    298569
+               weighted avg       0.87      0.87      0.87    298569
+
+
+Prepare dataset
+==========Train Params==========
+{'model': 'albert', 'ckpt_name': 'chinanews_albert', 'ckpt_dir': './checkpoint/chinanews_albert', 'export_dir': './serving/chinanews_albert', 'train_file': 'train', 'valid_file': 'valid', 'eval_file': 'test', 'predict_file': 'all', 'nlp_pretrain_model': 'albert_base', 'nlp_pretrain_dir': 'pretrain/albert_base', 'nlp_pretrain_ckpt': 'pretrain/albert_base/model.ckpt-best', 'max_seq_len': 150, 'label_size': 7, 'lr': 1e-05, 'enable_cache': False, 'clear_cache': False, 'epoch_size': 10, 'batch_size': 32, 'early_stop_ratio': 1, 'log_steps': 100, 'save_steps': 1000, 'thresholds': [0.6, 0.7, 0.8, 0.9], 'warmup_ratio': 0.1, 'embedding_dropout': 0.3, 'albert_optimizer': 'adamw', 'loss_func': <function pre_loss.<locals>.helper at 0x7f65a4c489d8>, 'data_dir': './trainsample/chinanews', 'data_dir_list': ['./trainsample/chinanews'], 'idx2label': {'./trainsample/chinanews': {0: 'mainland China politics', 1: 'Hong Kong & Taiwan politics', 2: 'International news', 3: 'financial news', 4: 'culture', 5: 'entertainment', 6: 'sports'}}, 'sample_size': 955418, 'steps_per_epoch': 29856, 'num_train_steps': 298560}
+==========Run Config==========
+{'keep_checkpoint_max': 3, 'allow_growth': True, 'pre_process_gpu_fraction': 0.8, 'log_device_placement': True, 'allow_soft_placement': True, 'inter_op_parallel': 2, 'intra_op_parallel': 2, 'use_gpu': True, 'log_steps': 100, 'save_steps': 1000, 'summary_steps': 1000}
+Exporting Model for serving_model at ./serving/chinanews_albert

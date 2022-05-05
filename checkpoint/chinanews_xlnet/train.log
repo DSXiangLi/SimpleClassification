@@ -1,0 +1,30 @@
+Prepare dataset
+==========Train Params==========
+{'model': 'xlnet', 'ckpt_name': 'chinanews_xlnet', 'ckpt_dir': './checkpoint/chinanews_xlnet', 'export_dir': './serving/chinanews_xlnet', 'train_file': 'train', 'valid_file': 'valid', 'eval_file': 'test', 'predict_file': 'all', 'nlp_pretrain_model': 'xlnet_base', 'nlp_pretrain_dir': 'pretrain/chinese_xlnet_base_L-12_H-768_A-12', 'nlp_pretrain_ckpt': 'pretrain/chinese_xlnet_base_L-12_H-768_A-12/xlnet_model.ckpt', 'max_seq_len': 150, 'label_size': 7, 'lr': 1e-05, 'enable_cache': False, 'clear_cache': False, 'epoch_size': 5, 'batch_size': 16, 'early_stop_ratio': 1, 'log_steps': 100, 'save_steps': 1000, 'thresholds': [0.6, 0.7, 0.8, 0.9], 'warmup_ratio': 0.1, 'embedding_dropout': 0.3, 'loss_func': <function pre_loss.<locals>.helper at 0x7f40647d0e18>, 'data_dir': './trainsample/chinanews', 'data_dir_list': ['./trainsample/chinanews'], 'idx2label': {'./trainsample/chinanews': {0: 'mainland China politics', 1: 'Hong Kong & Taiwan politics', 2: 'International news', 3: 'financial news', 4: 'culture', 5: 'entertainment', 6: 'sports'}}, 'sample_size': 955418, 'steps_per_epoch': 59713, 'num_train_steps': 298565}
+==========Run Config==========
+{'keep_checkpoint_max': 3, 'allow_growth': True, 'pre_process_gpu_fraction': 0.8, 'log_device_placement': True, 'allow_soft_placement': True, 'inter_op_parallel': 2, 'intra_op_parallel': 2, 'use_gpu': True, 'log_steps': 100, 'save_steps': 1000, 'summary_steps': 1000}
+==========Training xlnet ==========
+Dumping Prediction at ./trainsample/chinanews/chinanews_xlnet_test.txt
+==========Evaluation Report of test ==========
+
+                             precision    recall  f1-score   support
+
+    mainland China politics       0.83      0.83      0.83     42449
+Hong Kong & Taiwan politics       0.94      0.93      0.94     42576
+         International news       0.90      0.91      0.90     42181
+             financial news       0.83      0.81      0.82     42824
+                    culture       0.86      0.85      0.85     42886
+              entertainment       0.90      0.93      0.91     42664
+                     sports       0.96      0.96      0.96     42989
+
+                   accuracy                           0.89    298569
+                  macro avg       0.89      0.89      0.89    298569
+               weighted avg       0.89      0.89      0.89    298569
+
+
+Prepare dataset
+==========Train Params==========
+{'model': 'xlnet', 'ckpt_name': 'chinanews_xlnet', 'ckpt_dir': './checkpoint/chinanews_xlnet', 'export_dir': './serving/chinanews_xlnet', 'train_file': 'train', 'valid_file': 'valid', 'eval_file': 'test', 'predict_file': 'all', 'nlp_pretrain_model': 'xlnet_base', 'nlp_pretrain_dir': 'pretrain/chinese_xlnet_base_L-12_H-768_A-12', 'nlp_pretrain_ckpt': 'pretrain/chinese_xlnet_base_L-12_H-768_A-12/xlnet_model.ckpt', 'max_seq_len': 150, 'label_size': 7, 'lr': 1e-05, 'enable_cache': False, 'clear_cache': False, 'epoch_size': 5, 'batch_size': 16, 'early_stop_ratio': 1, 'log_steps': 100, 'save_steps': 1000, 'thresholds': [0.6, 0.7, 0.8, 0.9], 'warmup_ratio': 0.1, 'embedding_dropout': 0.3, 'loss_func': <function pre_loss.<locals>.helper at 0x7fda9a7726a8>, 'data_dir': './trainsample/chinanews', 'data_dir_list': ['./trainsample/chinanews'], 'idx2label': {'./trainsample/chinanews': {0: 'mainland China politics', 1: 'Hong Kong & Taiwan politics', 2: 'International news', 3: 'financial news', 4: 'culture', 5: 'entertainment', 6: 'sports'}}, 'sample_size': 955418, 'steps_per_epoch': 59713, 'num_train_steps': 298565}
+==========Run Config==========
+{'keep_checkpoint_max': 3, 'allow_growth': True, 'pre_process_gpu_fraction': 0.8, 'log_device_placement': True, 'allow_soft_placement': True, 'inter_op_parallel': 2, 'intra_op_parallel': 2, 'use_gpu': True, 'log_steps': 100, 'save_steps': 1000, 'summary_steps': 1000}
+Exporting Model for serving_model at ./serving/chinanews_xlnet
