@@ -162,6 +162,7 @@ PRETRAIN_CONFIG = {
     'fasttext': PTM('pretrain_model/fasttext', 'cc.zh.300.bin'),
     'word2vec_news': PTM('pretrain/word2vec_news', 'sgns.renmin.bigram-char.bz2'),
     'word2vec_baike': PTM('pretrain/word2vec_baike', 'sgns.merge.word'),
+    'word2vec_weibo': PTM('pretrain/word2vec_weibo', 'sgns.weibo.word.bz2'),
 
     'ctb50': PTM('pretrain/ctb50', 'ctb.50d.vec'),
     'giga': PTM('pretrain/giga', 'gigaword_chn.all.a2b.uni.ite50.vec')
@@ -204,6 +205,9 @@ def get_tokenizer(name, **kwargs):
                                  keep_oov=kwargs.get('keep_oov', False)),
         'word2vec_baike': partial(get_word2vec_tokenizer,
                                   vocab_file=os.path.join(pkg_path, *PRETRAIN_CONFIG['word2vec_baike']),
+                                  keep_oov=kwargs.get('keep_oov', False)),
+        'word2vec_weibo': partial(get_word2vec_tokenizer,
+                                  vocab_file=os.path.join(pkg_path, *PRETRAIN_CONFIG['word2vec_weibo']),
                                   keep_oov=kwargs.get('keep_oov', False)),
         'giga': partial(get_glove_tokenizer,
                         vocab_file=os.path.join(pkg_path, *PRETRAIN_CONFIG['giga'].model_dir),

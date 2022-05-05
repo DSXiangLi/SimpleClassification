@@ -27,7 +27,7 @@
 
 
 ### 词向量
-1. word2vec_news/word2vec_baike: People's Daily News/百度百科 300d word+Ngram 预训练词向量
+1. word2vec_news/word2vec_baike/word2vec_weibo: People's Daily News/百度百科/微博 300d word+Ngram 预训练词向量
 - 项目链接：https://github.com/Embedding/Chinese-Word-Vectors
 - 模型链接：https://pan.baidu.com/s/1upPkA8KJnxTZBfjuNDtaeQ
 
