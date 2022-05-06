@@ -6,7 +6,7 @@ from serving.base_infer import BaseInfer
 from collections import namedtuple
 
 
-class ClassifyInfer(BaseInfer):
+class ClassifyInfer(object):
     prediction = namedtuple('ClassificationPredcition', ['prob', 'pred_class'])
 
     def decode_prediction(self, resp):
@@ -18,14 +18,10 @@ class ClassifyInfer(BaseInfer):
         return self.prediction(prob, np.argmax(prob))
 
 
-class SeqClassifyInfer(ClassifyInfer):
-    """
-    Infer Class for sequence model like Bert, Xlnet, Albert, Electra
-    """
-
+class SeqInfer(BaseInfer):
     def __init__(self, server_list, max_seq_len, timeout, nlp_pretrain_model, model_name, model_version):
-        super(SeqClassifyInfer, self).__init__(server_list, max_seq_len, timeout, nlp_pretrain_model, model_name,
-                                               model_version)
+        super(SeqInfer, self).__init__(server_list, max_seq_len, timeout, nlp_pretrain_model, model_name,
+                                       model_version)
         self.proto = {
             'idx': tf.int32,
             'input_ids': tf.int32,
@@ -66,13 +62,10 @@ class SeqClassifyInfer(ClassifyInfer):
                 'seq_len': [len(tokens)]}
 
 
-class WordClassifyInfer(ClassifyInfer):
-    """
-    Infer Class for word emebdding model like Fasttext, TextCNN, Fasttext
-    """
+class WordInfer(BaseInfer):
     def __init__(self, server_list, max_seq_len, timeout, nlp_pretrain_model, model_name, model_version):
-        super(WordClassifyInfer, self).__init__(server_list, max_seq_len, timeout, nlp_pretrain_model, model_name,
-                                               model_version)
+        super(WordInfer, self).__init__(server_list, max_seq_len, timeout, nlp_pretrain_model, model_name,
+                                                model_version)
         self.proto = {
             'idx': tf.int32,
             'input_ids': tf.int32,
@@ -107,3 +100,16 @@ class WordClassifyInfer(ClassifyInfer):
         return {'idx': [0],
                 'input_ids': [input_ids],
                 'seq_len': [len(input_ids)]}
+
+
+class SeqClassifyInfer(ClassifyInfer, SeqInfer):
+    """
+    Infer Class for sequence Classification model
+    """
+
+
+class WordClassifyInfer(ClassifyInfer, WordInfer):
+    """
+    Infer Class for word emebedding Classification model
+    """
+
