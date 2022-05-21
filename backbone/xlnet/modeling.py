@@ -3,7 +3,8 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+from tools.tf2_converter import layer_norm
 
 
 def gelu(x):
@@ -72,8 +73,7 @@ def positionwise_ffn(inp, d_model, d_inner, dropout, kernel_initializer,
                                  name='layer_2')
         output = tf.layers.dropout(output, dropout, training=is_training,
                                    name='drop_2')
-        output = tf.contrib.layers.layer_norm(output + inp, begin_norm_axis=-1,
-                                              scope='LayerNorm')
+        output = layer_norm(output + inp, name='LayerNorm')
     return output
 
 
@@ -97,11 +97,9 @@ def post_attention(h, attn_vec, d_model, n_head, d_head, dropout, is_training,
 
     attn_out = tf.layers.dropout(attn_out, dropout, training=is_training)
     if residual:
-        output = tf.contrib.layers.layer_norm(attn_out + h, begin_norm_axis=-1,
-                                              scope='LayerNorm')
+        output = layer_norm(attn_out + h, name='LayerNorm')
     else:
-        output = tf.contrib.layers.layer_norm(attn_out, begin_norm_axis=-1,
-                                              scope='LayerNorm')
+        output = layer_norm(attn_out, name='LayerNorm')
 
     return output
 

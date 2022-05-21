@@ -2,7 +2,7 @@
 """
     Ref. mixup: beyond empirical risk minization
 """
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import importlib
 from tools.train_utils import HpParser, add_layer_summary
 from model.train_helper import build_model_fn, BaseEncoder, Trainer

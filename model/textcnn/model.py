@@ -1,5 +1,5 @@
 # -*-coding:utf-8 -*-
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 from dataset.text_dataset import WordDataset as dataset
 from model.train_helper import Trainer, build_model_fn, BaseEncoder
 from tools.opt_utils import train_op_clip_decay

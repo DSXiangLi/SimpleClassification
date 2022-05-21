@@ -3,7 +3,7 @@
     Ref1. Multi-task Domain Adaptation for Sequence Tagging
     Ref2. A survey of multi-source domain adaptation
 """
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 from functools import partial
 import importlib
 from tools.train_utils import HpParser, add_layer_summary

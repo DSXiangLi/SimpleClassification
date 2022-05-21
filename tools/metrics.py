@@ -2,7 +2,7 @@
 """
     二分类/多分类 TF Metrics & Evaluation Report
 """
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import numpy as np
 import pandas as pd
 from tensorboard import summary

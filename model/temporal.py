@@ -5,7 +5,7 @@
 import importlib
 
 import numpy as np
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 
 from model.train_helper import build_model_fn, Trainer, BaseEncoder
 from tools.train_utils import HpParser, add_layer_summary

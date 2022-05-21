@@ -2,7 +2,7 @@
 import os
 import pickle
 import json
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 from tools.logger import logger
 from dataset.tfrecord_tools import TFRecordDump
 

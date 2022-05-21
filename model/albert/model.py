@@ -1,8 +1,8 @@
 # -*-coding:utf-8 -*-
 import os
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 from backbone.albert import optimization, modeling
-from tools.train_utils import add_layer_summary, get_variables, get_assignment_from_ckpt, HpParser
+from tools.train_utils import add_layer_summary, get_variables, HpParser
 from dataset.text_dataset import SeqDataset as dataset
 from model.train_helper import Trainer, build_model_fn, BaseEncoder
 
@@ -49,7 +49,7 @@ class AlbertEncoder(BaseEncoder):
         # load vars from ckpt: Default for finetune all bert variables
         """
         tvars = get_variables(trainable_only=True)
-        assignment_map = get_assignment_from_ckpt(self.params['nlp_pretrain_ckpt'], tvars)
+        assignment_map,_ = modeling.get_assignment_map_from_checkpoint(tvars, self.params['nlp_pretrain_ckpt'])
         tf.train.init_from_checkpoint(self.params['nlp_pretrain_ckpt'], assignment_map)
         return None
 

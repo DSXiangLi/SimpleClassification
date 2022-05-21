@@ -1,6 +1,6 @@
 # -*-coding:utf-8 -*-
 import os
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 from backbone.xlnet.xlnet import XLNetModel, XLNetConfig, RunConfig
 from backbone.bert import optimization
 from tools.train_utils import add_layer_summary, get_variables, get_assignment_from_ckpt, HpParser

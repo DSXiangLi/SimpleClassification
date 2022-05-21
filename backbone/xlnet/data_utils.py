@@ -13,7 +13,7 @@ import random
 
 import numpy as np
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 
 from backbone.xlnet.prepro_utils import preprocess_text, encode_ids
 import sentencepiece as spm

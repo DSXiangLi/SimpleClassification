@@ -2,7 +2,7 @@
 """
     常用Train OP 组合
 """
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 from itertools import chain
 
 def lr_decay(init_lr, step_per_epoch, decay_rate):

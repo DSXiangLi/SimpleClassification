@@ -4,7 +4,7 @@
     Ref2. Adversarial Multi-task Learning for Text Classification
     Ref3. Dual Adversarial Neural Transfer for Low-Resource Named Entity Recognition
 """
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 from functools import partial
 import importlib
 from tensorflow.python.framework import ops

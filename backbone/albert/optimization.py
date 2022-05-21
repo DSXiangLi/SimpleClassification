@@ -23,7 +23,10 @@ from backbone.albert import lamb_optimizer
 import six
 from six.moves import zip
 import tensorflow.compat.v1 as tf
-from tensorflow.contrib import tpu as contrib_tpu
+try:
+    from tensorflow.contrib import tpu
+except:
+    from tensorflow.compat.v1.estimator import tpu
 
 
 def create_optimizer(loss, init_lr, num_train_steps, num_warmup_steps, use_tpu,
@@ -93,7 +96,7 @@ def create_optimizer(loss, init_lr, num_train_steps, num_warmup_steps, use_tpu,
         raise ValueError("Not supported optimizer: ", optimizer)
 
     if use_tpu:
-        optimizer = contrib_tpu.CrossShardOptimizer(optimizer)
+        optimizer = tpu.CrossShardOptimizer(optimizer)
 
     tvars = tf.trainable_variables()
     for tvar in tvars:

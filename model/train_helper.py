@@ -1,7 +1,7 @@
 # -*-coding:utf-8 -*-
 import os
 import json
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 from tools.train_utils import build_estimator, get_log_hook
 from tools.logger import get_logger
 from tools.metrics import get_eval_report, get_metric_ops

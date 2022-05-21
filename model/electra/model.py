@@ -1,6 +1,6 @@
 # -*-coding:utf-8 -*-
 import os
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 from backbone.bert import optimization, modeling
 from tools.train_utils import add_layer_summary, get_variables, get_assignment_from_ckpt, HpParser
 from dataset.text_dataset import SeqDataset as dataset

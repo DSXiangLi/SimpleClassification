@@ -2,7 +2,7 @@
 """
     Dataset for multiple source input
 """
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 
 
 class MultiDataset(object):

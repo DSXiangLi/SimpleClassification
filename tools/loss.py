@@ -10,7 +10,7 @@
 """
 
 import inspect
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 from tools.train_utils import HpParser, add_layer_summary
 from functools import wraps
 LossHP = {}

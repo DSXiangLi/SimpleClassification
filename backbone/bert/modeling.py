@@ -25,8 +25,8 @@ import math
 import re
 import numpy as np
 import six
-import tensorflow as tf
-
+import tensorflow.compat.v1 as tf
+from tools.tf2_converter import layer_norm
 
 class BertConfig(object):
     """Configuration for `BertModel`."""
@@ -357,12 +357,6 @@ def dropout(input_tensor, dropout_prob):
 
     output = tf.nn.dropout(input_tensor, 1.0 - dropout_prob)
     return output
-
-
-def layer_norm(input_tensor, name=None):
-    """Run layer normalization on the last dimension of the tensor."""
-    return tf.contrib.layers.layer_norm(
-        inputs=input_tensor, begin_norm_axis=-1, begin_params_axis=-1, scope=name)
 
 
 def layer_norm_and_dropout(input_tensor, dropout_prob, name=None):

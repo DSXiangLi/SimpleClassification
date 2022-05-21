@@ -2,7 +2,7 @@
 
 import json
 import importlib
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import tf_slim as slim
 
 from tools.train_utils import add_layer_summary, get_variables, get_assignment_from_ckpt, HpParser

@@ -2,7 +2,7 @@
 import os
 import re
 import shutil
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 from tensorflow.python.framework import ops
 from collections import namedtuple, OrderedDict
 from tools.logger import logger
@@ -58,20 +58,25 @@ def get_assignment_from_ckpt(ckpt, load_vars, verbose=False):
     assignment_map = OrderedDict()
 
     # 移除 surfix
-    current_name = set()
+    name_to_variable = OrderedDict()
+    variables = set()
     for var in load_vars:
-        m = re.match('^(.*):\\d+$', var.name)
+        name = var.name
+        m = re.match('^(.*):\\d+$', name)
         if m is not None:
-            current_name.add(m.group(1))
+            name = m.group(1)
+        name_to_variable[name] = var
+        variables.add(name)
 
     for name, var in init_vars:
-        if name in current_name:
-            assignment_map[name] = name
+        if name in name_to_variable:
+            assignment_map[name] = name # like Bert
         else:
             logger.info('Variable {} not in vars to restore'.format(name))
     if verbose:
         logger.info('Vars in ckpt: {}'.format(init_vars))
-        logger.info('Vars to load: {}'.format(current_name))
+        logger.info('Vars to load: {}'.format(name_to_variable))
+
     return assignment_map
 
 

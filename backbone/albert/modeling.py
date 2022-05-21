@@ -31,8 +31,8 @@ import numpy as np
 import six
 from six.moves import range
 import tensorflow.compat.v1 as tf
-from tensorflow.contrib import layers as contrib_layers
-
+from tools.tf2_converter import layer_norm
+from tools.logger import logger
 
 class AlbertConfig(object):
     """Configuration for `AlbertModel`.
@@ -350,9 +350,8 @@ def get_activation(activation_string):
         raise ValueError("Unsupported activation: %s" % act)
 
 
-def get_assignment_map_from_checkpoint(tvars, init_checkpoint, num_of_group=0):
+def get_assignment_map_from_checkpoint(tvars, init_checkpoint, num_of_group=0, verbose=False):
     """Compute the union of the current variables and checkpoint variables."""
-    assignment_map = {}
     initialized_variable_names = {}
 
     name_to_variable = collections.OrderedDict()
@@ -387,9 +386,11 @@ def get_assignment_map_from_checkpoint(tvars, init_checkpoint, num_of_group=0):
             tvar_name = re.sub(r"/attention_\d+/", "/attention_1/",
                                six.ensure_str(name))
         else:
-            tf.logging.info("name %s does not get matched", name)
+            #tf.logging.info("name %s does not get matched", name)
+            logger.info('Variable {} not in vars to restore'.format(name))
             continue
-        tf.logging.info("name %s match to %s", name, tvar_name)
+        logger.info("name %s match to %s", name, tvar_name)
+        #tf.logging.info("name %s match to %s", name, tvar_name)
         if num_of_group > 0:
             group_matched = False
             for gid in range(1, num_of_group):
@@ -403,9 +404,13 @@ def get_assignment_map_from_checkpoint(tvars, init_checkpoint, num_of_group=0):
                 assignment_map[0][tvar_name] = name
         else:
             assignment_map[tvar_name] = name
+
         initialized_variable_names[name] = 1
         initialized_variable_names[six.ensure_str(name) + ":0"] = 1
-
+    if verbose:
+        logger.info('Vars in ckpt: {}'.format(init_vars))
+        logger.info('Vars to load: {}'.format(name_to_variable))
+        logger.info('Assignment Map {}'.format(assignment_map))
     return (assignment_map, initialized_variable_names)
 
 
@@ -425,12 +430,6 @@ def dropout(input_tensor, dropout_prob):
 
     output = tf.nn.dropout(input_tensor, rate=dropout_prob)
     return output
-
-
-def layer_norm(input_tensor, name=None):
-    """Run layer normalization on the last dimension of the tensor."""
-    return contrib_layers.layer_norm(
-        inputs=input_tensor, begin_norm_axis=-1, begin_params_axis=-1, scope=name)
 
 
 def layer_norm_and_dropout(input_tensor, dropout_prob, name=None):

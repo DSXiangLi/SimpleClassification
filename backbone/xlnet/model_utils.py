@@ -9,12 +9,20 @@ import numpy as np
 import six
 from os.path import join
 from six.moves import zip
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+try:
+    from tensorflow.contrib import tpu
+    from tensorflow.contrib import cluster_resolver
+except:
+    from tensorflow.compat.v1.estimator import tpu
+    from tensorflow.compat.v1.distribute import cluster_resolver
+
+
 
 
 def configure_tpu(FLAGS):
     if FLAGS.use_tpu:
-        tpu_cluster = tf.contrib.cluster_resolver.TPUClusterResolver(
+        tpu_cluster = cluster_resolver.TPUClusterResolver(
             FLAGS.tpu, zone=FLAGS.tpu_zone, project=FLAGS.gcp_project)
         master = tpu_cluster.get_master()
     else:
@@ -32,17 +40,17 @@ def configure_tpu(FLAGS):
         strategy = None
         tf.logging.info('Single device mode.')
     else:
-        strategy = tf.contrib.distribute.MirroredStrategy(
+        strategy = tf.distribute.MirroredStrategy(
             num_gpus=FLAGS.num_core_per_host)
         tf.logging.info('Use MirroredStrategy with %d devices.',
                         strategy.num_replicas_in_sync)
 
-    per_host_input = tf.contrib.tpu.InputPipelineConfig.PER_HOST_V2
-    run_config = tf.contrib.tpu.RunConfig(
+    per_host_input = tpu.InputPipelineConfig.PER_HOST_V2
+    run_config = tpu.RunConfig(
         master=master,
         model_dir=FLAGS.model_dir,
         session_config=session_config,
-        tpu_config=tf.contrib.tpu.TPUConfig(
+        tpu_config=tpu.TPUConfig(
             iterations_per_loop=FLAGS.iterations,
             num_shards=FLAGS.num_hosts * FLAGS.num_core_per_host,
             per_host_input_for_training=per_host_input),
@@ -136,7 +144,7 @@ def get_train_op(FLAGS, total_loss, grads_and_vars=None):
             weight_decay_rate=FLAGS.weight_decay)
 
     if FLAGS.use_tpu:
-        optimizer = tf.contrib.tpu.CrossShardOptimizer(optimizer)
+        optimizer = tpu.CrossShardOptimizer(optimizer)
 
     if grads_and_vars is None:
         grads_and_vars = optimizer.compute_gradients(total_loss)
@@ -176,7 +184,7 @@ def clean_ckpt(_):
 
     tf.reset_default_graph()
 
-    var_list = tf.contrib.framework.list_variables(input_ckpt)
+    var_list = tf.train.list_variables(input_ckpt)
     var_values, var_dtypes = {}, {}
     for (name, shape) in var_list:
         if not name.startswith("global_step") and "adam" not in name.lower():
@@ -186,7 +194,7 @@ def clean_ckpt(_):
             tf.logging.info("Exclude {}".format(name))
 
     tf.logging.info("Loading from {}".format(input_ckpt))
-    reader = tf.contrib.framework.load_checkpoint(input_ckpt)
+    reader = tf.train.load_checkpoint(input_ckpt)
     for name in var_values:
         tensor = reader.get_tensor(name)
         var_dtypes[name] = tensor.dtype
@@ -223,13 +231,13 @@ def avg_checkpoints(model_dir, output_model_dir, last_k):
 
     checkpoint_state = tf.train.get_checkpoint_state(model_dir)
     checkpoints = checkpoint_state.all_model_checkpoint_paths[- last_k:]
-    var_list = tf.contrib.framework.list_variables(checkpoints[0])
+    var_list = tf.train.list_variables(checkpoints[0])
     var_values, var_dtypes = {}, {}
     for (name, shape) in var_list:
         if not name.startswith("global_step"):
             var_values[name] = np.zeros(shape)
     for checkpoint in checkpoints:
-        reader = tf.contrib.framework.load_checkpoint(checkpoint)
+        reader = tf.train.load_checkpoint(checkpoint)
         for name in var_values:
             tensor = reader.get_tensor(name)
             var_dtypes[name] = tensor.dtype
