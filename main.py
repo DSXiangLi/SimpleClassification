@@ -1,7 +1,7 @@
 # -*-coding:utf-8 -*-
 
 import importlib
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 from argparse import ArgumentParser
 from tools.loss import LossHP, LossFunc
 from tools.train_utils import clear_model, RUN_CONFIG

@@ -1,6 +1,9 @@
 # Text lassification: Support serveral PTMS, Semi-Supervised & Domain Transfer & Noisy Robst Loss & Distillation
 
 ## 支持任务
+
+- [x] 兼容TF1 & TF2
+
 ### 输出
 - [x] 二分类任务
 - [x] 多分类任务 

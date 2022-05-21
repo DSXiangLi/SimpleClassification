@@ -1,5 +1,5 @@
 # -*-coding:utf-8 -*-
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import numpy as np
 from dataset.text_dataset import truncate_seq_pair
 from serving.base_infer import BaseInfer
