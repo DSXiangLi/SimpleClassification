@@ -3,14 +3,13 @@ import os
 import re
 import shutil
 import tensorflow.compat.v1 as tf
-from tensorflow.python.framework import ops
 from collections import namedtuple, OrderedDict
 from tools.logger import logger
 from typing import List
 from glob import glob
 
 RUN_CONFIG = {
-    'keep_checkpoint_max': 3,
+    'keep_checkpoint_max': 2,
     'allow_growth': True,
     'pre_process_gpu_fraction': 0.8,
     'log_device_placement': True,
