@@ -1,0 +1,32 @@
+2022-06-02 12:44:58,217 - bert - INFO - Prepare dataset
+2022-06-02 12:45:54,079 - bert - INFO - ==========Train Params==========
+2022-06-02 12:45:54,079 - bert - INFO - {'model': 'bert', 'ckpt_name': 'toutaio_temporal_v2', 'ckpt_dir': './checkpoint/toutaio_temporal_v2', 'export_dir': './serving/toutaio_temporal_v2', 'train_file': 'train_unlabel', 'valid_file': 'valid', 'eval_file': 'test', 'predict_file': 'all', 'nlp_pretrain_model': 'bert_base', 'nlp_pretrain_dir': 'pretrain/chinese_L-12_H-768_A-12', 'nlp_pretrain_ckpt': 'pretrain/chinese_L-12_H-768_A-12/bert_model.ckpt', 'max_seq_len': 150, 'label_size': 15, 'lr': 5e-06, 'enable_cache': False, 'clear_cache': False, 'epoch_size': 5, 'batch_size': 32, 'early_stop_ratio': 0.5, 'log_steps': 100, 'save_steps': 1000, 'thresholds': [0.6, 0.7, 0.8, 0.9], 'warmup_ratio': 0.1, 'embedding_dropout': 0.3, 'temporal_alpha': 0.6, 'max_unsupervised': 50.0, 'ramp_up_method': 'sigmoid', 'loss_func': <function ce.<locals>.helper at 0x7fe1396a0158>, 'data_dir': './trainsample/toutiao', 'data_dir_list': ['./trainsample/toutiao'], 'idx2label': {'./trainsample/toutiao': {0: 'news_story', 1: 'news_culture', 2: 'news_entertainment', 3: 'news_sports', 4: 'news_finance', 5: 'news_house', 6: 'news_car', 7: 'news_edu', 8: 'news_tech', 9: 'news_military', 10: 'news_travel', 11: 'news_world', 12: 'stock', 13: 'news_agriculture', 14: 'news_game'}}, 'sample_size': 459224, 'steps_per_epoch': 14350, 'num_train_steps': 71750, 'labeled_size': 229612}
+2022-06-02 12:45:54,079 - bert - INFO - ==========Run Config==========
+2022-06-02 12:45:54,080 - bert - INFO - {'keep_checkpoint_max': 2, 'allow_growth': True, 'pre_process_gpu_fraction': 0.8, 'log_device_placement': True, 'allow_soft_placement': True, 'inter_op_parallel': 2, 'intra_op_parallel': 2, 'use_gpu': True, 'log_steps': 100, 'save_steps': 1000, 'summary_steps': 1000}
+2022-06-02 12:45:54,080 - bert - INFO - ==========Training bert ==========
+2022-06-02 22:30:59,825 - bert - INFO - Dumping Prediction at ./trainsample/toutiao/toutaio_temporal_v2_test.txt
+2022-06-02 22:34:18,497 - bert - INFO - ==========Evaluation Report of test ==========
+2022-06-02 22:34:18,755 - bert - INFO - 
+                    precision    recall  f1-score   support
+
+        news_story       0.82      0.83      0.82      1265
+      news_culture       0.88      0.87      0.87      5652
+news_entertainment       0.90      0.90      0.90      7856
+       news_sports       0.94      0.94      0.94      7533
+      news_finance       0.82      0.79      0.81      5375
+        news_house       0.91      0.91      0.91      3458
+          news_car       0.92      0.92      0.92      7129
+          news_edu       0.89      0.89      0.89      5380
+         news_tech       0.85      0.88      0.87      8354
+     news_military       0.85      0.86      0.86      4959
+       news_travel       0.82      0.83      0.83      4239
+        news_world       0.82      0.81      0.82      5427
+             stock       0.30      0.11      0.16        66
+  news_agriculture       0.86      0.87      0.86      3888
+         news_game       0.93      0.91      0.92      5957
+
+          accuracy                           0.88     76538
+         macro avg       0.83      0.82      0.82     76538
+      weighted avg       0.88      0.88      0.88     76538
+
+

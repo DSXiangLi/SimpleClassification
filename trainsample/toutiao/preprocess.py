@@ -1,6 +1,7 @@
 # -*-coding:utf-8 -*-
 import pandas as pd
 import os
+import json
 from trainsample.converter import single_text, split_train_test
 
 Label2Idx = {
@@ -22,7 +23,7 @@ Label2Idx = {
 }
 
 
-def main():
+def main(add_unlabel):
     data_dir = './trainsample/toutiao'
 
     df = []
@@ -35,6 +36,23 @@ def main():
     single_text(df['title'], df['label'], data_dir, output_file='all')
     split_train_test(data_dir, org_file='all')
 
+    if add_unlabel:
+        # 是否加入ChinaNews的未标注数据做半监督
+        train = []
+        with open(os.path.join(data_dir, 'train.txt'), 'r') as f:
+            for line in f.readlines():
+                train.append(json.loads(line.strip()))
+        # for unlabel dataset: label <0
+        chinanews = pd.read_csv('./trainsample/chinanews/train.csv')
+        chinanews = chinanews.loc[~chinanews.iloc[:,1].isnull(),:]
+        chinanews = chinanews.sample(len(train)) # 需要控制下未标注样本的数据量, 这里和标注样本保持1比1
+
+        for text in chinanews.iloc[:, 1]:
+            train.append({'text1': text, 'label': -1})
+
+        with open(os.path.join(data_dir, 'train_unlabel.txt'), 'w') as f:
+            for i in train:
+                f.writelines(json.dumps(i, ensure_ascii=False) + '\n')
 
 if __name__ == '__main__':
-    main()
+    main(add_unlabel=False)
