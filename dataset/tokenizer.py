@@ -159,7 +159,7 @@ PRETRAIN_CONFIG = {
     'electra_base': PTM('pretrain/electra_180g_base', 'electra_180g_base.ckpt'),
     'xlnet_base': PTM('pretrain/chinese_xlnet_base_L-12_H-768_A-12', 'xlnet_model.ckpt'),
 
-    'fasttext': PTM('pretrain_model/fasttext', 'cc.zh.300.bin'),
+    'fasttext': PTM('pretrain/fasttext', 'cc.zh.300.bin'),
     'word2vec_news': PTM('pretrain/word2vec_news', 'sgns.renmin.bigram-char.bz2'),
     'word2vec_baike': PTM('pretrain/word2vec_baike', 'sgns.merge.word'),
     'word2vec_weibo': PTM('pretrain/word2vec_weibo', 'sgns.weibo.word.bz2'),
