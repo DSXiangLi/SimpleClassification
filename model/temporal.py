@@ -11,7 +11,7 @@ from model.train_helper import build_model_fn, Trainer, BaseEncoder
 from tools.train_utils import HpParser, add_layer_summary
 
 hp_list = [HpParser.hp('temporal_alpha', 0.6),  # ensemble alpha
-           HpParser.hp('max_unsupervised', 1.0),  # w_max, when there is no unlabled data set it to 1
+           HpParser.hp('max_unsupervised', 50.0),  # w_max, rescale rmse to align with cross entropy
            HpParser.hp('ramp_up_method', 'sigmoid')  # ramp up decay type
            ]
 hp_parser = HpParser(hp_list)
