@@ -4,6 +4,8 @@
     Convert Trainsample into Default format
 """
 import os
+import numpy as np
+import pandas as pd
 import json
 from collections import namedtuple
 from sklearn.model_selection import train_test_split
@@ -45,6 +47,34 @@ def double_text(text_list1, text_list2, label_list, data_dir, output_file):
     with open(os.path.join(data_dir, output_file + '.txt'), 'w') as f:
         for t1, t2, l in zip(text_list1, text_list2, label_list):
             f.write(json.dumps(Fmt(t1, t2, l)._asdict(), ensure_ascii=False) + '\n')
+
+
+def json2df(file):
+    lines = []
+    with open(file, 'r') as f:
+        for i in f.readlines():
+            lines.append(json.loads(i))
+    df = pd.DataFrame(lines)
+    return df
+
+
+def clue_submit(data_dir, input, output, Idx2Label, Mapping=None):
+    """
+    convert test.csv to predict.json for CLUE submision
+    {"id": 2, "label": "107", "label_desc": "news_car"}
+    """
+    df = json2df(os.path.join(data_dir, input))
+    df['label'] = df['prob'].map(lambda x: np.argmax(x))
+    df['label_desc'] = df['label'].map(lambda x: Idx2Label[x])
+
+    if Mapping:
+        #Remapping label id to original CLUE id
+        df['label'] = df['label'].map(lambda x: Mapping[x])
+    # return df
+
+    with open(os.path.join(data_dir, output), 'w') as f:
+        for idx, l, desc in zip(df['idx'], df['label'], df['label_desc']):
+            f.write(json.dumps({'id': idx, 'label':l, 'label_desc': desc}, ensure_ascii=False) + '\n')
 
 
 if __name__ == '__main__':
