@@ -112,10 +112,10 @@ def multi_cls_metrics(probs, labels, idx2label, weights):
     label_o = tf.one_hot(labels, depth=num_labels)
     prediction_o = tf.one_hot(predictions, depth=num_labels)
     metric_ops = {
-        'metrics/overall_accuracy': tf.metrics.accuracy(label_o, prediction_o, weights=weights),
-        'metrics/overall_auc': tf.metrics.auc(label_o, predictions=probs, curve='ROC',
+        'metrics/accuracy': tf.metrics.accuracy(label_o, prediction_o, weights=weights),
+        'metrics/auc': tf.metrics.auc(label_o, predictions=probs, curve='ROC',
                                               summation_method='careful_interpolation', weights=weights),
-        'metrics/overall_pr': tf.metrics.auc(label_o, predictions=probs, curve='PR',
+        'metrics/pr': tf.metrics.auc(label_o, predictions=probs, curve='PR',
                                              summation_method='careful_interpolation', weights=weights)
     }
     recalls = []
