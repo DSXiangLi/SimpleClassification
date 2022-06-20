@@ -132,7 +132,7 @@ class GeneratorDataset(BaseDataset):
                 output_types=dtypes
             )
             if not is_predict:
-                dataset = dataset.shuffle(int(self.batch_size * 5)).repeat()
+                dataset = dataset.shuffle(int(self.batch_size * 20)).repeat()
 
             if not unbatch:
                 dataset = dataset.padded_batch(self.batch_size, shapes, pads). \
