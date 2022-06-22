@@ -30,7 +30,8 @@ class BertEncoder(BaseEncoder):
         )
 
         embedding = bert_model.get_pooled_output()
-        embedding = tf.layers.dropout(embedding, rate=self.params['embedding_dropout'], seed=1234, training=is_training)
+        #Remove Dropout in output layer
+        #embedding = tf.layers.dropout(embedding, rate=self.params['embedding_dropout'], seed=1234, training=is_training)
         add_layer_summary('ouput_emb', embedding)
         return embedding
 
