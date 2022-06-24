@@ -108,7 +108,7 @@ def get_fasttext_tokenizer(vocab_file, **kwargs):
 def get_word2vec_tokenizer(vocab_file, **kwargs):
     from gensim.models import KeyedVectors
     logger.info('Loading vocab_file {} '.format(vocab_file))
-    model = KeyedVectors.load_word2vec_format(vocab_file)
+    model = KeyedVectors.load_word2vec_format(vocab_file, binary=False,unicode_errors='ignore')
     tokenizer = GensimJiebaTokenizer(model, **kwargs)
     tokenizer.init_vocab()
     return tokenizer
@@ -155,6 +155,7 @@ PRETRAIN_CONFIG = {
     'bert_base': PTM('pretrain/chinese_L-12_H-768_A-12', 'bert_model.ckpt'),
     'roberta_base': PTM('pretrain/roberta_zh_l12', 'bert_model.ckpt'),
     'bert_wwm_base': PTM('pretrain/chinese_wwm_L-12_H-768_A-12', 'bert_model.ckpt'),
+    'mc_bert_base': PTM('pretrain/mc_bert_base', 'bert_model.ckpt'),
     'albert_base': PTM('pretrain/albert_base', 'model.ckpt-best'),
     'electra_base': PTM('pretrain/electra_180g_base', 'electra_180g_base.ckpt'),
     'xlnet_base': PTM('pretrain/chinese_xlnet_base_L-12_H-768_A-12', 'xlnet_model.ckpt'),
@@ -178,6 +179,9 @@ def get_tokenizer(name, **kwargs):
     tokenizer_factory = {
         'bert_base': partial(get_bert_tokenizer,
                              vocab_file=os.path.join(pkg_path, PRETRAIN_CONFIG['bert_base'].model_dir, 'vocab.txt'),
+                             do_lower_case=kwargs.get('do_lower_case', True)),
+        'mc_bert_base': partial(get_bert_tokenizer,
+                             vocab_file=os.path.join(pkg_path, PRETRAIN_CONFIG['mc_bert_base'].model_dir, 'vocab.txt'),
                              do_lower_case=kwargs.get('do_lower_case', True)),
         'bert_wwm_base': partial(get_bert_tokenizer,
                                  vocab_file=os.path.join(pkg_path, PRETRAIN_CONFIG['bert_wwm_base'].model_dir,

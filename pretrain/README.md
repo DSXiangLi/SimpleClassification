@@ -25,11 +25,15 @@
 - 项目链接：https://github.com/ymcui/Chinese-ELECTRA
 - 模型链接：https://drive.google.com/file/d/1RlmfBgyEwKVBFagafYvJgyCGuj7cTHfh/view
 
+7. mc_bert_base：中文医疗预训练模型
+- 项目链接：https://drive.google.com/file/d/1ccXRvaeox5XCNP_aSk_ttLBY695Erlok/view
+- 模型链接：https://drive.google.com/file/d/1ccXRvaeox5XCNP_aSk_ttLBY695Erlok/view?usp=drive_open
 
 ### 词向量
 1. word2vec_news/word2vec_baike/word2vec_weibo: People's Daily News/百度百科/微博 300d word+Ngram 预训练词向量
 - 项目链接：https://github.com/Embedding/Chinese-Word-Vectors
 - 模型链接：https://pan.baidu.com/s/1upPkA8KJnxTZBfjuNDtaeQ
+- 下载文件如果是bz2，需要先进行解压b：zip2 -d sgns.merge.word.bz2
 
 2. fasttext: 中文fasttext
 - 模型链接：https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.zh.300.bin.gz
