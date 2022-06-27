@@ -26,7 +26,7 @@
 - 模型链接：https://drive.google.com/file/d/1RlmfBgyEwKVBFagafYvJgyCGuj7cTHfh/view
 
 7. mc_bert_base：中文医疗预训练模型
-- 项目链接：https://drive.google.com/file/d/1ccXRvaeox5XCNP_aSk_ttLBY695Erlok/view
+- 项目链接：https://github.com/alibaba-research/ChineseBLUE
 - 模型链接：https://drive.google.com/file/d/1ccXRvaeox5XCNP_aSk_ttLBY695Erlok/view?usp=drive_open
 
 ### 词向量
