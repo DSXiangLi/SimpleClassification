@@ -11,6 +11,7 @@ from model.temporal import hp_parser as temporal_hp_parser
 from model.multisource import hp_parser as multisource_hp_parser
 from model.adversarial import hp_parser as adversarial_hp_parser
 from model.knowledge_distill import hp_parser as knowledge_distill_hp_parser
+from model.fgm import hp_parser as fgm_hp_parser
 
 
 def main():
@@ -23,9 +24,12 @@ def main():
     parser.add_argument('--use_mixup', action='store_true', default=False)  # 使用mixup
     parser.add_argument('--use_temporal', action='store_true', default=False)  # 使用Temporal
 
-    # 领域迁移和对抗训练相关
+    # 领域迁移，领域对抗训练相关
     parser.add_argument('--use_multisource', action='store_true', default=False)  # 使用share private multisouce
     parser.add_argument('--use_adversarial', action='store_true', default=False)  # 使用share private adversarial
+
+    # 对抗训练
+    parser.add_argument('--use_fgm', action='store_true', default=False)  # 使用FGM
 
     # 模型蒸馏
     parser.add_argument('--knowledge_distill', action='store_true', default=False)  # 使用Knowledge Distill进行模型蒸馏
@@ -47,7 +51,11 @@ def main():
     if parser.parse_known_args()[0].use_temporal:
         parser = temporal_hp_parser.append(parser)
 
-    # 导入领域迁移相关HP
+    # 倒入对抗训练
+    if parser.parse_known_args()[0].use_fgm:
+        parser = fgm_hp_parser.append(parser)
+
+    # 导入领域迁移/对抗相关HP
     if parser.parse_known_args()[0].use_multisource:
         parser = multisource_hp_parser.append(parser)
 
@@ -151,6 +159,9 @@ def main():
     if parser.parse_known_args()[0].knowledge_distill:
         TP = knowledge_distill_hp_parser.update(TP, args)
 
+    if parser.parse_known_args()[0].use_fgm:
+        TP = fgm_hp_parser.update(TP, args)
+
     # get loss function
     loss_hp = loss_hp_parser.parse(args)
     TP['loss_func'] = LossFunc[loss_name](**loss_hp)
@@ -203,6 +214,9 @@ def main():
         trainer = get_trainer(args.model)
     elif args.use_adversarial:
         from model.adversarial import get_trainer
+        trainer = get_trainer(args.model)
+    elif args.use_fgm:
+        from model.fgm import get_trainer
         trainer = get_trainer(args.model)
     elif args.knowledge_distill:
         from model.knowledge_distill import get_trainer

@@ -1,0 +1,15 @@
+2022-06-21 08:15:40,625 - bert - INFO - Prepare dataset
+2022-06-21 08:15:45,780 - bert - INFO - ==========Train Params==========
+2022-06-21 08:15:45,780 - bert - INFO - {'model': 'bert', 'ckpt_name': 'chnsenticorp_fgm', 'ckpt_dir': './checkpoint/chnsenticorp_fgm', 'export_dir': './serving/chnsenticorp_fgm', 'train_file': 'train', 'valid_file': 'valid', 'eval_file': 'test', 'predict_file': 'all', 'nlp_pretrain_model': 'bert_base', 'nlp_pretrain_dir': 'pretrain/chinese_L-12_H-768_A-12', 'nlp_pretrain_ckpt': 'pretrain/chinese_L-12_H-768_A-12/bert_model.ckpt', 'max_seq_len': 150, 'label_size': 2, 'lr': 2e-05, 'enable_cache': False, 'clear_cache': False, 'epoch_size': 5, 'batch_size': 16, 'early_stop_ratio': 1.0, 'log_steps': 100, 'save_steps': 100.0, 'thresholds': [0.6, 0.7, 0.8, 0.9], 'warmup_ratio': 0.1, 'embedding_dropout': 0.3, 'use_virtual': True, 'epsilon': 0.5, 'num_iter': 1, 'xi': 1e-05, 'embedding_name': 'word_embeddings', 'loss_func': <function ce.<locals>.helper at 0x7f47ccc8cea0>, 'data_dir': './trainsample/chnsenticorp', 'data_dir_list': ['./trainsample/chnsenticorp'], 'idx2label': {'./trainsample/chnsenticorp': {0: '负面', 1: '正面'}}, 'sample_size': 9146, 'steps_per_epoch': 571, 'num_train_steps': 2855}
+2022-06-21 08:15:45,780 - bert - INFO - ==========Run Config==========
+2022-06-21 08:15:45,780 - bert - INFO - {'keep_checkpoint_max': 2, 'allow_growth': True, 'pre_process_gpu_fraction': 0.8, 'log_device_placement': True, 'allow_soft_placement': True, 'inter_op_parallel': 2, 'intra_op_parallel': 2, 'use_gpu': True, 'log_steps': 100, 'save_steps': 100.0, 'summary_steps': 100.0}
+2022-06-21 08:15:45,780 - bert - INFO - ==========Training bert ==========
+2022-06-21 08:40:38,306 - bert - INFO - Dumping Prediction at ./trainsample/chnsenticorp/chnsenticorp_fgm_test.txt
+2022-06-21 08:40:53,732 - bert - INFO - ==========Evaluation Report of test ==========
+2022-06-21 08:40:53,758 - bert - INFO - 
+   threshold   n precision recall accuracy   auc    ap total total_pos
+0        0.6 605     91.9%  91.4%    91.6% 96.4% 96.3%  1200       608
+1        0.7 604     92.1%  91.4%    91.7% 96.4% 96.3%  1200       608
+2        0.8 602     92.4%  91.4%    91.8% 96.4% 96.3%  1200       608
+3        0.9 598     92.5%  91.0%    91.7% 96.4% 96.3%  1200       608
+
