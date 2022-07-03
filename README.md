@@ -1,4 +1,4 @@
-# Text lassification: Multiple PTMS, Semi-Supervised & Domain Transfer & Noisy Loss & Distillation
+# 文本分类：支持多种预训练，半监督，领域迁移，降噪，对抗，蒸馏
 
 ## 支持任务
 
