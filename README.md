@@ -1,4 +1,4 @@
-# Text lassification: Support serveral PTMS, Semi-Supervised & Domain Transfer & Noisy Robst Loss & Distillation
+# Text lassification: Multiple PTMS, Semi-Supervised & Domain Transfer & Noisy Loss & Distillation
 
 ## 支持任务
 
@@ -60,10 +60,10 @@
 
 
 ## 相关Blogs
-[小样本利器1.半监督一致性正则 Temporal Ensemble & Mean Teacher代码实现 ](https://www.cnblogs.com/gogoSandy/p/16340973.html)
-[小样本利器2.文本对抗+半监督 FGSM & VAT & FGM代码实现 ](https://www.cnblogs.com/gogoSandy/p/16419026.html)
-[Bert不完全手册1. Bert推理太慢？模型蒸馏 ](https://www.cnblogs.com/gogoSandy/p/15978982.html)
-[Bert不完全手册2. Bert不能做NLG？MASS/UNILM/BART ](https://www.cnblogs.com/gogoSandy/p/15996974.html)
-[Bert不完全手册3. Bert训练策略优化！RoBERTa & SpanBERT](https://www.cnblogs.com/gogoSandy/p/16038057.html)
-[Bert不完全手册4. 绕开BERT的MASK策略？XLNET & ELECTRA](https://www.cnblogs.com/gogoSandy/p/16065757.html)
-[Bert不完全手册5. BERT推理提速？训练提速!内存压缩！Albert ](https://www.cnblogs.com/gogoSandy/p/16265469.html)
+- [小样本利器1.半监督一致性正则 Temporal Ensemble & Mean Teacher代码实现 ](https://www.cnblogs.com/gogoSandy/p/16340973.html)
+- [小样本利器2.文本对抗+半监督 FGSM & VAT & FGM代码实现 ](https://www.cnblogs.com/gogoSandy/p/16419026.html)
+- [Bert不完全手册1. Bert推理太慢？模型蒸馏 ](https://www.cnblogs.com/gogoSandy/p/15978982.html)
+- [Bert不完全手册2. Bert不能做NLG？MASS/UNILM/BART ](https://www.cnblogs.com/gogoSandy/p/15996974.html)
+- [Bert不完全手册3. Bert训练策略优化！RoBERTa & SpanBERT](https://www.cnblogs.com/gogoSandy/p/16038057.html)
+- [Bert不完全手册4. 绕开BERT的MASK策略？XLNET & ELECTRA](https://www.cnblogs.com/gogoSandy/p/16065757.html)
+- [Bert不完全手册5. BERT推理提速？训练提速!内存压缩！Albert ](https://www.cnblogs.com/gogoSandy/p/16265469.html)
