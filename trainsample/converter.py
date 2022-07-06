@@ -49,6 +49,14 @@ def double_text(text_list1, text_list2, label_list, data_dir, output_file):
             f.write(json.dumps(Fmt(t1, t2, l)._asdict(), ensure_ascii=False) + '\n')
 
 
+def single_text_double_label(text_list, label1_list, label2_list, data_dir, output_file):
+    Fmt = namedtuple('SingleText', ['text1', 'label','label2'])
+
+    with open(os.path.join(data_dir, output_file + '.txt'), 'w') as f:
+        for t, l1, l2 in zip(text_list, label1_list, label2_list):
+            f.write(json.dumps(Fmt(t, l1, l2)._asdict(), ensure_ascii=False) + '\n')
+
+
 def json2df(file):
     lines = []
     with open(file, 'r') as f:
@@ -58,7 +66,9 @@ def json2df(file):
     return df
 
 
+
 def clue_submit(data_dir, input, output, Idx2Label, Mapping=None):
+
     """
     convert test.csv to predict.json for CLUE submision
     {"id": 2, "label": "107", "label_desc": "news_car"}
@@ -70,7 +80,7 @@ def clue_submit(data_dir, input, output, Idx2Label, Mapping=None):
     if Mapping:
         #Remapping label id to original CLUE id
         df['label'] = df['label'].map(lambda x: Mapping[x])
-    # return df
+    return df
 
     with open(os.path.join(data_dir, output), 'w') as f:
         for idx, l, desc in zip(df['idx'], df['label'], df['label_desc']):
