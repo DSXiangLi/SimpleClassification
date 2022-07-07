@@ -6,15 +6,15 @@
 import re
 import string
 
-__all__ = ['stop_word_handler', 'emoji_handler', 'punctuation_handler']
+__all__ = ['stop_word_handler', 'emoji_handler', 'punctuation_handler', 'text_emoji_handler','mention_handler']
 
 
 class StrHandler(object):
-    def __init__(self, file_path):
+    def __init__(self, file_path=None, **kwargs):
         self.file_path = file_path
-        self.re_pattern = self.init()
+        self.re_pattern = self.init(**kwargs)
 
-    def init(self):
+    def init(self, **kwargs):
         raise NotImplementedError
 
     def preprocess(self, text):
@@ -60,14 +60,17 @@ class StrHandler(object):
         return s
 
 
-class EmojiHandler(StrHandler):
-    def __init__(self, file_path='preprocess/data/emojis.txt'):
-        super(EmojiHandler, self).__init__(file_path)
+class TextEmojiHandler(StrHandler):
+    def __init__(self, file_path='preprocess/data/emojis.txt', strict=False):
+        super(TextEmojiHandler, self).__init__(file_path, strict=strict)
 
-    def init(self):
-        emoji = self.readline()
-        emoji = [i.replace('[', '\[').replace(']', '\]') for i in emoji]
-        re_emoji = re.compile(r'%s' % '|'.join(emoji))
+    def init(self, strict=False):
+        if strict:
+            emoji = self.readline()
+            emoji = [i.replace('[', '\[').replace(']', '\]') for i in emoji]
+            re_emoji = re.compile(r'%s' % '|'.join(emoji))
+        else:
+            re_emoji = re.compile(r'\[[\w\W\u4e00-\u9fff]{1,6}\]')
         return re_emoji
 
 
@@ -95,21 +98,48 @@ class StopWordHandler(StrHandler):
         return re_stop_words
 
 
-stop_word_handler = StopWordHandler()
-emoji_handler = EmojiHandler()
-punctuation_handler = PunctuationHandler()
+class EmojiHandler(StrHandler):
+    def __init__(self):
+        super(EmojiHandler, self).__init__()
 
+    def init(self):
+        re_emoji = re.compile("["
+                           u"\U0001F600-\U0001F64F"  # emoticons
+                           u"\U0001F300-\U0001F5FF"  # symbols & pictographs
+                           u"\U0001F680-\U0001F6FF"  # transport & map symbols
+                           u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
+                           u"\U00002702-\U000027B0"
+                           u"\U000024C2-\U0001F251"
+                           "]+", flags=re.UNICODE)
+        return re_emoji
+
+
+class MentionHandler(StrHandler):
+    def __init__(self):
+        super(MentionHandler, self).__init__()
+
+    def init(self):
+        re_mention = re.compile(r'@[\w\W\u4e00-\u9fff]+\s')
+        return re_mention
+
+
+stop_word_handler = StopWordHandler()
+text_emoji_handler = TextEmojiHandler()
+punctuation_handler = PunctuationHandler()
+emoji_handler = EmojiHandler()
+mention_handler = MentionHandler()
 
 if __name__ == '__main__':
     print(emoji_handler.remove('记者都怒了[惊呆]'))
     print(punctuation_handler.remove('今天天气特别好！我们出去浪吧'))
     print(stop_word_handler.remove('具体说来，今天的事情'))
-    print(emoji_handler.check('[惊呆]'))
-    print(emoji_handler.check('[惊]'))
+    print(emoji_handler.remove("How is your 🙈 and 😌. Have a nice weekend 💕👭👙"))
+    print(mention_handler.remove('@小黑 你好么'))
+    print(text_emoji_handler.check('[惊呆]'))
+    print(text_emoji_handler.check('[惊]'))
     print(stop_word_handler.check('我们'))
     print(stop_word_handler.check('天气'))
     print(punctuation_handler.check('\n'))
     print(punctuation_handler.check('a'))
-
 
 

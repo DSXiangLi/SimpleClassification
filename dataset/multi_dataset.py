@@ -3,6 +3,7 @@
     Dataset for multiple source input
 """
 import tensorflow.compat.v1 as tf
+from dataset.text_dataset import SeqDataset
 
 
 class MultiDataset(object):
@@ -109,6 +110,25 @@ class MultiDataset(object):
             'task2idx': self.task2idx,
         })
         return train_params
+
+
+class Mtl2SeqDataset(SeqDataset):
+    """
+    2Multitask dataset
+    """
+    def __init__(self, data_dir, batch_size, max_seq_len, tokenizer, enable_cache, clear_cache):
+        self.max_seq_len = max_seq_len
+        self.tokenizer = tokenizer
+        super(SeqDataset, self).__init__(data_dir, batch_size, enable_cache, clear_cache)
+
+    def build_proto(self):
+        super().build_proto()
+        self.shapes['label'] = [None] # change single to multiple label
+
+    def build_single_feature(self, data):
+        feature = super().build_single_feature(data)
+        feature['label'] = [data['label'], data['label2']]
+        return feature
 
 if __name__ =='__main__':
     import os

@@ -97,6 +97,51 @@ def build_model_fn(encoder):
 
     return model_fn
 
+def build_mtl_model_fn(encoder):
+    def model_fn(features, labels, params, mode):
+        is_training = (mode == tf.estimator.ModeKeys.TRAIN)
+
+        if labels and not 'logit' in labels:
+            # Distill 模型需要保留完整labels
+            labels = labels['label']
+
+        predictions, labels = encoder(features, labels, params, is_training)
+        probs = [tf.nn.softmax(predictions[0], axis=-1),
+                tf.nn.softmax(predictions[1], axis=-1)]
+
+        # For prediction label is not used
+        if mode == tf.estimator.ModeKeys.PREDICT:
+            spec = tf.estimator.EstimatorSpec(mode,
+                                              predictions={'prob0': probs[0],
+                                                           'prob1': probs[1]})
+            return spec
+
+        # Custom Loss function
+        labels = [labels[:, 0], labels[:, 1]]
+        total_loss = encoder.compute_loss(predictions, labels)
+
+        # None for pretrain model, init_fn for word embedding
+        scaffold = encoder.init_fn()
+
+        if is_training:
+            train_op = encoder.optimize(total_loss)
+            spec = tf.estimator.EstimatorSpec(mode, loss=total_loss,
+                                              train_op=train_op,
+                                              scaffold=scaffold,
+                                              training_hooks=[get_log_hook(total_loss, params['log_steps'])])
+
+        else:
+            metric_ops = {}
+            for task_id, (task_name, idx2label) in enumerate(params['idx2label_dic'].items()):
+                task_ops = get_metric_ops(probs[task_id], labels[task_id], idx2label)
+                metric_ops.update(dict([('task{}'.format(task_id) + i, j) for i, j in task_ops.items()]))
+            compete = metric_ops['task0metrics/macro_f1'][0] + metric_ops['task1metrics/micro_f1'][0]
+            metric_ops['macro_micro'] = (compete, tf.identity(compete))
+            spec = tf.estimator.EstimatorSpec(mode=mode, loss=total_loss,
+                                              scaffold=scaffold,
+                                              eval_metric_ops=metric_ops)
+        return spec
+    return model_fn
 
 class Trainer(object):
     def __init__(self, model_fn, dataset_cls):
