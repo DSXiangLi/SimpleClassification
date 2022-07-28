@@ -67,3 +67,4 @@
 - [Bert不完全手册3. Bert训练策略优化！RoBERTa & SpanBERT](https://www.cnblogs.com/gogoSandy/p/16038057.html)
 - [Bert不完全手册4. 绕开BERT的MASK策略？XLNET & ELECTRA](https://www.cnblogs.com/gogoSandy/p/16065757.html)
 - [Bert不完全手册5. BERT推理提速？训练提速!内存压缩！Albert ](https://www.cnblogs.com/gogoSandy/p/16265469.html)
+- [Bert不完全手册6. Bert在中文领域的尝试 Bert-WWM & MacBert & ChineseBert](https://www.cnblogs.com/gogoSandy/p/16527207.html)
