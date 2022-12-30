@@ -67,7 +67,7 @@ def gce(q=0.7):
     @pre_loss
     def helper(probs, labels):
         # (1-f(x)^q)/q
-        loss = 1 - tf.pow(tf.reduce_sum(labels * probs, axis=-1), q) / q
+        loss = (1 - tf.pow(tf.reduce_sum(labels * probs, axis=-1), q)) / q
         return loss
 
     return helper
@@ -125,7 +125,7 @@ def peerce(alpha=0.5):
         rand_labels = tf.random.shuffle(labels)
         ce_true = ce()(probs, labels)
         ce_rand = ce()(probs, rand_labels)
-        loss = alpha * ce_true + (1 - alpha) * ce_rand
+        loss = ce_true - alpha * ce_rand
         return loss
 
     return helper
